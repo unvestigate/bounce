@@ -1693,7 +1693,7 @@ void qh_hull_validate_convexity(const qh_hull_t* hull)
 			} while (eother != edge->next);
 
 			edge = edge->next;
-		} while (edge != edge);
+		} while (edge != face->edge);
 	}
 }
 
