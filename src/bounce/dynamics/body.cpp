@@ -281,10 +281,10 @@ void b3Body::ResetMass()
 		// Shift inertia about the body origin into the body local center of mass.
 		m_I = m_I - m_mass * b3Steiner(localCenter);
 		
-		// Ensure the moments of inertia are positive.
-		//B3_ASSERT(m_I.x.x > scalar(0));
-		//B3_ASSERT(m_I.y.y > scalar(0));
-		//B3_ASSERT(m_I.z.z > scalar(0));
+		// The moments of inertia must be positive.
+		B3_ASSERT(m_I.x.x > scalar(0));
+		B3_ASSERT(m_I.y.y > scalar(0));
+		B3_ASSERT(m_I.z.z > scalar(0));
 
 		// Compute inverse inertia about the body local center of mass.
 		m_invI = b3Inverse(m_I);
