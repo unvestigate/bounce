@@ -20,16 +20,44 @@
 
 b3Camera::b3Camera()
 {
-	m_width = scalar(1024);
-	m_height = scalar(768);
-	m_z_near = scalar(1);
-	m_z_far = scalar(1000);
-	m_y_fov = scalar(0.25) * B3_PI;
+	m_width = scalar(1280);
+	m_height = scalar(720);
+	m_zNear = scalar(1);
+	m_zFar = scalar(1000);
+	m_yFov = scalar(0.25) * B3_PI;
 	m_r = scalar(1);
 	m_theta = scalar(0);
 	m_phi = scalar(0);
 	m_center.SetZero();
 }
+
+void b3Camera::SetWidth(scalar width) 
+{ 
+	B3_ASSERT(width > scalar(0));
+	m_width = width; 
+}
+
+void b3Camera::SetHeight(scalar height) 
+{ 
+	B3_ASSERT(height > scalar(0));
+	m_height = height;
+}
+
+void b3Camera::SetDistances(scalar zNear, scalar zFar)
+{
+	B3_ASSERT(zNear < zFar);
+	B3_ASSERT(zNear >= scalar(0));
+	B3_ASSERT(zFar > scalar(0));
+	m_zNear = zNear;
+	m_zFar = zFar;
+}
+
+void b3Camera::SetYFOV(scalar yFov) 
+{ 
+	B3_ASSERT(yFov > scalar(0));
+	B3_ASSERT(yFov < B3_PI);
+	m_yFov = yFov;
+};
 
 void b3Camera::SetPolarAngle(scalar angle)
 {
@@ -274,7 +302,7 @@ b3Mat33 b3Camera::BuildRotation() const
 	b3Vec3 x = BuildXAxis();
 	b3Vec3 y = BuildYAxis();
 	b3Vec3 z = BuildZAxis();
-
+	
 	return b3Mat33(x, y, z);
 }
 
@@ -286,18 +314,20 @@ b3Mat44 b3Camera::BuildViewMatrix() const
 	b3Mat33 R = b3Transpose(rotation);
 	b3Vec3 t = -(R * translation);
 
-	return b3Mat44(
-		b3Vec4(R.x.x, R.x.y, R.x.z, scalar(0)),
-		b3Vec4(R.y.x, R.y.y, R.y.z, scalar(0)),
-		b3Vec4(R.z.x, R.z.y, R.z.z, scalar(0)),
-		b3Vec4(t.x, t.y, t.z, scalar(1)));
+	b3Mat44 V;
+	V.x.Set(R.x.x, R.x.y, R.x.z, scalar(0));
+	V.y.Set(R.y.x, R.y.y, R.y.z, scalar(0));
+	V.z.Set(R.z.x, R.z.y, R.z.z, scalar(0));
+	V.w.Set(t.x, t.y, t.z, scalar(1));
+	return V;
 }
 
 b3Mat44 b3Camera::BuildProjectionMatrix() const
 {
 	scalar w = m_width, h = m_height;
-	scalar zn = m_z_near, zf = m_z_far;
-	scalar yfov = m_y_fov;
+	scalar zn = m_zNear, zf = m_zFar;
+	scalar yfov = m_yFov;
+
 	scalar ratio = w / h;
 
 	scalar t = tan(scalar(0.5) * yfov);
@@ -307,12 +337,12 @@ b3Mat44 b3Camera::BuildProjectionMatrix() const
 	scalar sz = (zn + zf) / (zn - zf);
 	scalar tz = (zf * zn) / (zn - zf);
 
-	b3Mat44 m;
-	m.x = b3Vec4(sx, scalar(0), scalar(0), scalar(0));
-	m.y = b3Vec4(scalar(0), sy, scalar(0), scalar(0));
-	m.z = b3Vec4(scalar(0), scalar(0), sz, scalar(-1));
-	m.w = b3Vec4(scalar(0), scalar(0), tz, scalar(0));
-	return m;
+	b3Mat44 P;
+	P.x.Set(sx, scalar(0), scalar(0), scalar(0));
+	P.y.Set(scalar(0), sy, scalar(0), scalar(0));
+	P.z.Set(scalar(0), scalar(0), sz, scalar(-1));
+	P.w.Set(scalar(0), scalar(0), tz, scalar(0));
+	return P;
 }
 
 b3Vec2 b3Camera::ConvertWorldToScreen(const b3Vec3& pw3) const
@@ -343,7 +373,7 @@ b3Vec3 b3Camera::ConvertScreenToWorld(const b3Vec2& ps) const
 {
 	scalar w = m_width, h = m_height;
 
-	scalar t = tan(scalar(0.5) * m_y_fov);
+	scalar t = tan(scalar(0.5) * m_yFov);
 	scalar ratio = w / h;
 
 	b3Vec3 vv;

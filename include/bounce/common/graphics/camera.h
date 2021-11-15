@@ -33,34 +33,31 @@ public:
 	b3Camera();
 	
 	// Set the camera width.
-	void SetWidth(scalar width) { m_width = width; }
+	void SetWidth(scalar width);
 	
 	// Get the camera width.
 	scalar GetWidth() const { return m_width; } 
 	
 	// Set the camera height.
-	void SetHeight(scalar height) { m_height = height; }
+	void SetHeight(scalar height);
 	
 	// Get the camera height.
 	scalar GetHeight() const { return m_height; }
 	
-	// Set the near plane distance.
-	void SetZNear(scalar z_near) { m_z_near = z_near; }
+	// Set the near and far plane distances.
+	void SetDistances(scalar zNear, scalar zFar);
 	
 	// Get the near plane distance.
-	scalar GetZNear() const { return m_z_near; }
-	
-	// Set the far plane distance.
-	void SetZFar(scalar z_far) { m_z_far = z_far; }
-	
+	scalar GetZNear() const { return m_zNear; }
+
 	// Get the far plane distance.
-	scalar GetZFar() const { return m_z_far; }
+	scalar GetZFar() const { return m_zFar; }
 	
-	// Set the full field of view angle.
-	void SetYFOV(scalar y_fov) { m_y_fov = y_fov; };
+	// Set the full field of view angle in the range [0, pi].
+	void SetYFOV(scalar yFov);
 	
 	// Get the full field of view angle.
-	scalar GetYFOV() const { return m_y_fov; }
+	scalar GetYFOV() const { return m_yFov; }
 	
 	// Set the always-positive radius coordinate. 
 	void SetRadius(scalar radius);
@@ -139,9 +136,8 @@ public:
 private:
 	// Projection parameters
 	scalar m_width, m_height;
-	scalar m_z_near;
-	scalar m_z_far;
-	scalar m_y_fov;
+	scalar m_zNear, m_zFar;
+	scalar m_yFov;
 	
 	// Radius
 	scalar m_r;
