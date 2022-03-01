@@ -70,6 +70,7 @@
 #include "tests/tumbler.h"
 #include "tests/multiple_pendulum.h"
 #include "tests/conveyor_belt.h"
+#include "tests/shift_center.h"
 #include "tests/rope_test.h"
 
 TestSettings* g_testSettings = nullptr;
@@ -148,6 +149,7 @@ ViewModel::ViewModel(Model* model, GLFWwindow* window)
 	m_settings.RegisterTest("Initial Overlap", &InitialOverlap::Create );
 	m_settings.RegisterTest("Multiple Pendulum", &MultiplePendulum::Create );
 	m_settings.RegisterTest("Conveyor Belt", &ConveyorBelt::Create );
+	m_settings.RegisterTest("Shift Center", &ShiftCenter::Create);
 	m_settings.RegisterTest("Rope", &Rope::Create);
 
 	g_settings = &m_settings;

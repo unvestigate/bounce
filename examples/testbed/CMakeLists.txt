@@ -74,6 +74,7 @@ set(TESTBED_SOURCE_FILES
 	tests/varying_restitution.h
 	tests/weld_test.h
 	tests/wheel_test.h
+        tests/shift_center.h
 )
 
 add_executable(testbed ${TESTBED_SOURCE_FILES})
