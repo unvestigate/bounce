@@ -26,6 +26,35 @@ class b3Draw;
 
 #define B3_NULL_NODE_D B3_MAX_U32
 
+// A node in a dynamic tree.
+struct b3DynamicNode
+{
+	// Is this node a leaf?
+	bool IsLeaf() const
+	{
+		//A node is a leaf if child 2 == B3_NULL_NODE_D or height == 0.
+		return child1 == B3_NULL_NODE_D;
+	}
+
+	// The fattened node AABB.
+	b3AABB aabb;
+
+	// The associated user data.
+	void* userData;
+
+	union
+	{
+		u32 parent;
+		u32 next;
+	};
+
+	u32 child1;
+	u32 child2;
+
+	// Leaf if 0, free node if -1
+	i32 height;
+};
+
 // AABB tree for dynamic AABBs.
 class b3DynamicTree
 {
@@ -71,35 +100,6 @@ public:
 	// Draw this tree.
 	void Draw(b3Draw* draw) const;
 private:
-	struct b3Node
-	{
-		// Is this node a leaf?
-		bool IsLeaf() const
-		{
-			//A node is a leaf if child 2 == B3_NULL_NODE_D or height == 0.
-			return child1 == B3_NULL_NODE_D;
-		}
-
-		// The fattened node AABB.
-		b3AABB aabb;
-
-		// The associated user data.
-		void* userData;
-
-		union
-		{
-			u32 parent;
-			u32 next;
-		};
-
-		u32 child1;
-		u32 child2;
-
-		// Flag
-		// leaf if 0, free node if -1
-		i32 height;
-	};
-
 	// Insert a node into the tree.
 	void InsertLeaf(u32 node);
 
@@ -129,7 +129,7 @@ private:
 	u32 m_root;
 
 	// The nodes of this tree stored in an array.
-	b3Node* m_nodes;
+	b3DynamicNode* m_nodes;
 	u32 m_nodeCount;
 	u32 m_nodeCapacity;
 	u32 m_freeList;
@@ -170,7 +170,7 @@ inline void b3DynamicTree::QueryAABB(T* callback, const b3AABB& aabb) const
 			continue;
 		}
 
-		const b3Node* node = m_nodes + nodeIndex;
+		const b3DynamicNode* node = m_nodes + nodeIndex;
 
 		if (b3TestOverlap(node->aabb, aabb) == true)
 		{
@@ -228,7 +228,7 @@ inline void b3DynamicTree::RayCast(T* callback, const b3RayCastInput& input) con
 			continue;
 		}
 
-		const b3Node* node = m_nodes + nodeIndex;
+		const b3DynamicNode* node = m_nodes + nodeIndex;
 
 		if (b3TestOverlap(segmentAABB, node->aabb) == false)
 		{

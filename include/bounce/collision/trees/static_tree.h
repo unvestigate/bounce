@@ -27,6 +27,25 @@
 
 class b3Draw;
 
+// A node in a static tree.
+struct b3StaticNode
+{
+	// Is this node a leaf?
+	bool IsLeaf() const
+	{
+		return child1 == B3_NULL_NODE_S;
+	}
+
+	b3AABB aabb;
+	u32 child1;
+	
+	union
+	{
+		u32 child2;
+		u32 index;
+	};
+};
+
 // AABB tree for static AABBs.
 class b3StaticTree 
 {
@@ -61,33 +80,15 @@ public:
 	// Get the size in bytes of this tree.
 	u32 GetSize() const;
 private :
-	// A node in a static tree.
-	struct b3Node
-	{
-		b3AABB aabb;
-		u32 child1;
-		union
-		{
-			u32 child2;
-			u32 index;
-		};
-
-		// Is this node a leaf?
-		bool IsLeaf() const
-		{
-			return child1 == B3_NULL_NODE_S;
-		}
-	};
-
 	// Build this tree recursively.
-	void BuildRecursively(const b3AABB* set, b3Node* node, u32* indices, u32 count, u32 minObjectsPerLeaf, u32 nodeCapacity, u32& leafCount, u32& internalCount);
+	void BuildRecursively(const b3AABB* set, b3StaticNode* node, u32* indices, u32 count, u32 minObjectsPerLeaf, u32 nodeCapacity, u32& leafCount, u32& internalCount);
 	
 	// The root of this tree.
 	u32 m_root;
 
 	// The nodes of this tree stored in an array.
 	u32 m_nodeCount;
-	b3Node* m_nodes;
+	b3StaticNode* m_nodes;
 };
 
 inline const b3AABB& b3StaticTree::GetAABB(u32 proxyId) const
@@ -125,7 +126,7 @@ inline void b3StaticTree::QueryAABB(T* callback, const b3AABB& aabb) const
 
 		stack.Pop();
 
-		const b3Node* node = m_nodes + nodeIndex;
+		const b3StaticNode* node = m_nodes + nodeIndex;
 
 		if (b3TestOverlap(node->aabb, aabb) == true) 
 		{
@@ -188,7 +189,7 @@ inline void b3StaticTree::RayCast(T* callback, const b3RayCastInput& input) cons
 			continue;
 		}
 
-		const b3Node* node = m_nodes + nodeIndex;
+		const b3StaticNode* node = m_nodes + nodeIndex;
 
 		if (b3TestOverlap(segmentAABB, node->aabb) == false)
 		{
@@ -295,7 +296,7 @@ inline u32 b3StaticTree::GetSize() const
 {
 	u32 size = 0;
 	size += sizeof(b3StaticTree);
-	size += m_nodeCount * sizeof(b3Node);
+	size += m_nodeCount * sizeof(b3StaticNode);
 	return size;
 }
 

@@ -69,7 +69,7 @@ class b3World
 {
 public:
 	// Bit flags to tell the world what needs to be draw.
-	enum DrawFlags
+	enum 
 	{
 		e_shapesFlag = 0x0001,
 		e_centerOfMassesFlag = 0x0002,

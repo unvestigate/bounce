@@ -26,8 +26,8 @@ b3DynamicTree::b3DynamicTree()
 
 	// Preallocate 32 nodes.
 	m_nodeCapacity = 32;
-	m_nodes = (b3Node*)b3Alloc(m_nodeCapacity * sizeof(b3Node));
-	memset(m_nodes, 0, m_nodeCapacity * sizeof(b3Node));
+	m_nodes = (b3DynamicNode*)b3Alloc(m_nodeCapacity * sizeof(b3DynamicNode));
+	memset(m_nodes, 0, m_nodeCapacity * sizeof(b3DynamicNode));
 	m_nodeCount = 0;
 
 	// Link the allocated nodes and make the first node 
@@ -52,9 +52,9 @@ u32 b3DynamicTree::AllocateNode()
 		// Duplicate capacity.
 		m_nodeCapacity *= 2;
 
-		b3Node* oldNodes = m_nodes;
-		m_nodes = (b3Node*)b3Alloc(m_nodeCapacity * sizeof(b3Node));;
-		memcpy(m_nodes, oldNodes, m_nodeCount * sizeof(b3Node));
+		b3DynamicNode* oldNodes = m_nodes;
+		m_nodes = (b3DynamicNode*)b3Alloc(m_nodeCapacity * sizeof(b3DynamicNode));;
+		memcpy(m_nodes, oldNodes, m_nodeCount * sizeof(b3DynamicNode));
 		b3Free(oldNodes);
 
 		// Link the (allocated) nodes starting from the new 
@@ -396,7 +396,7 @@ u32 b3DynamicTree::Balance(u32 iA)
 {
 	B3_ASSERT(iA != B3_NULL_NODE_D);
 
-	b3Node* A = m_nodes + iA;
+	b3DynamicNode* A = m_nodes + iA;
 	if (A->IsLeaf() || A->height < 2)
 	{
 		return iA;
@@ -407,18 +407,18 @@ u32 b3DynamicTree::Balance(u32 iA)
 	B3_ASSERT(0 <= iB && iB < m_nodeCapacity);
 	B3_ASSERT(0 <= iC && iC < m_nodeCapacity);
 
-	b3Node* B = m_nodes + iB;
-	b3Node* C = m_nodes + iC;
+	b3DynamicNode* B = m_nodes + iB;
+	b3DynamicNode* C = m_nodes + iC;
 
-	i32 balance = i32(C->height) - i32(B->height);
+	i32 balance = C->height - B->height;
 
 	// Rotate C up
 	if (balance > 1)
 	{
 		u32 iF = C->child1;
 		u32 iG = C->child2;
-		b3Node* F = m_nodes + iF;
-		b3Node* G = m_nodes + iG;
+		b3DynamicNode* F = m_nodes + iF;
+		b3DynamicNode* G = m_nodes + iG;
 		B3_ASSERT(0 <= iF && iF < m_nodeCapacity);
 		B3_ASSERT(0 <= iG && iG < m_nodeCapacity);
 
@@ -477,8 +477,8 @@ u32 b3DynamicTree::Balance(u32 iA)
 	{
 		u32 iD = B->child1;
 		u32 iE = B->child2;
-		b3Node* D = m_nodes + iD;
-		b3Node* E = m_nodes + iE;
+		b3DynamicNode* D = m_nodes + iD;
+		b3DynamicNode* E = m_nodes + iE;
 		B3_ASSERT(0 <= iD && iD < m_nodeCapacity);
 		B3_ASSERT(0 <= iE && iE < m_nodeCapacity);
 
@@ -547,7 +547,7 @@ void b3DynamicTree::Validate(u32 nodeID) const
 		B3_ASSERT(m_nodes[nodeID].parent == B3_NULL_NODE_D);
 	}
 
-	const b3Node* node = m_nodes + nodeID;
+	const b3DynamicNode* node = m_nodes + nodeID;
 
 	u32 child1 = node->child1;
 	u32 child2 = node->child2;
@@ -595,7 +595,7 @@ void b3DynamicTree::Draw(b3Draw* draw) const
 			continue;
 		}
 
-		const b3Node* node = m_nodes + nodeIndex;
+		const b3DynamicNode* node = m_nodes + nodeIndex;
 		if (node->IsLeaf())
 		{
 			draw->DrawAABB(node->aabb, b3Color_pink);

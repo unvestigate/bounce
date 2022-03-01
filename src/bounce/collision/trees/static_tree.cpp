@@ -91,7 +91,7 @@ static u32 b3Partition(const b3AABB& setAABB, const b3AABB* set, u32* ids, u32 c
 	return middle;
 }
 
-void b3StaticTree::BuildRecursively(const b3AABB* set, b3Node* node, u32* ids, u32 count, u32 minObjectsPerLeaf, u32 nodeCapacity, u32& leafCount, u32& internalCount)
+void b3StaticTree::BuildRecursively(const b3AABB* set, b3StaticNode* node, u32* ids, u32 count, u32 minObjectsPerLeaf, u32 nodeCapacity, u32& leafCount, u32& internalCount)
 {
 	B3_ASSERT(count > 0);
 	
@@ -156,7 +156,7 @@ void b3StaticTree::Build(const b3AABB* set, u32 count)
 	u32 leafCount = 0;
 
 	m_root = 0;
-	m_nodes = (b3Node*)b3Alloc(nodeCapacity * sizeof(b3Node));
+	m_nodes = (b3StaticNode*)b3Alloc(nodeCapacity * sizeof(b3StaticNode));
 	m_nodeCount = 1;
 
 	BuildRecursively(set, m_nodes, ids, count, kMinObjectsPerLeaf, nodeCapacity, leafCount, internalCount);
@@ -184,7 +184,7 @@ void b3StaticTree::Draw(b3Draw* draw) const
 
 		stack.Pop();
 
-		const b3Node* node = m_nodes + nodeIndex;
+		const b3StaticNode* node = m_nodes + nodeIndex;
 		if (node->IsLeaf())
 		{
 			draw->DrawAABB(node->aabb, b3Color_pink);
