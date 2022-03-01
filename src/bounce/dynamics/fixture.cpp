@@ -20,6 +20,7 @@
 #include <bounce/dynamics/body.h>
 #include <bounce/dynamics/world.h>
 #include <bounce/dynamics/contacts/contact.h>
+#include <bounce/collision/broad_phase.h>
 #include <bounce/collision/shapes/sphere_shape.h>
 #include <bounce/collision/shapes/capsule_shape.h>
 #include <bounce/collision/shapes/triangle_shape.h>
@@ -80,6 +81,20 @@ void b3Fixture::DestroyContacts()
 		ce = ce->m_next;
 		world->m_contactManager.Destroy(tmp->contact);
 	}
+}
+
+void b3Fixture::Synchronize(b3BroadPhase* broadPhase, const b3Transform& transform1, const b3Transform& transform2)
+{
+	// Compute an AABB that covers the swept shape (may miss some rotation effect).
+	b3AABB aabb1, aabb2;
+	m_shape->ComputeAABB(&aabb1, transform1);
+	m_shape->ComputeAABB(&aabb2, transform2);
+
+	b3AABB aabb = b3Combine(aabb1, aabb2);
+
+	b3Vec3 displacement = aabb2.GetCenter() - aabb1.GetCenter();
+
+	broadPhase->MoveProxy(m_broadPhaseID, aabb, displacement);
 }
 
 const b3AABB& b3Fixture::GetAABB() const

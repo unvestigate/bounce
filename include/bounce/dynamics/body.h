@@ -523,38 +523,6 @@ inline const b3Transform& b3Body::GetTransform() const
 	return m_xf;
 }
 
-inline void b3Body::SetTransform(const b3Vec3& position, const b3Quat& orientation)
-{
-	m_xf.translation = position;
-	m_xf.rotation = orientation;
-
-	m_sweep.worldCenter = b3Mul(m_xf, m_sweep.localCenter);
-	m_sweep.orientation = orientation;
-
-	m_sweep.worldCenter0 = m_sweep.worldCenter;
-	m_sweep.orientation0 = m_sweep.orientation;
-
-	m_worldInvI = b3RotateToFrame(m_invI, orientation);
-
-	SynchronizeFixtures();
-}
-
-inline void b3Body::SetTransform(const b3Vec3& position, const b3Mat33& orientation)
-{
-	m_xf.translation = position;
-	m_xf.rotation = b3Mat33Quat(orientation);
-
-	m_sweep.worldCenter = b3Mul(m_xf, m_sweep.localCenter);
-	m_sweep.orientation = m_xf.rotation;
-
-	m_sweep.worldCenter0 = m_sweep.worldCenter;
-	m_sweep.orientation0 = m_sweep.orientation;
-
-	m_worldInvI = b3RotateToFrame(m_invI, m_xf.rotation);
-
-	SynchronizeFixtures();
-}
-
 inline b3Vec3 b3Body::GetPosition() const
 {
 	return m_xf.translation;
@@ -882,6 +850,12 @@ inline void b3Body::SetSleepingAllowed(bool flag)
 inline bool b3Body::IsSleepingAllowed() const
 {
 	return (m_flags & e_autoSleepFlag) == e_autoSleepFlag;
+}
+
+inline void b3Body::SynchronizeTransform()
+{
+	m_xf.rotation = m_sweep.orientation;
+	m_xf.translation = m_sweep.worldCenter - b3Mul(m_xf.rotation, m_sweep.localCenter);
 }
 
 #endif

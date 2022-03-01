@@ -128,11 +128,10 @@ void b3World::Step(scalar dt, u32 velocityIterations, u32 positionIterations)
 	b3_gjkIters = 0;
 	b3_gjkMaxIters = 0;
 
-	if (m_flags & e_fixtureAddedFlag)
+	if (m_flags & e_newContactsFlag)
 	{
-		// If new shapes were added new contacts might be created.
 		m_contactManager.FindNewContacts();
-		m_flags &= ~e_fixtureAddedFlag;
+		m_flags &= ~e_newContactsFlag;
 	}
 
 	// Update contacts. This is where some contacts might be destroyed.

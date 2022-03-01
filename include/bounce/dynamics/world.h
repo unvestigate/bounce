@@ -201,7 +201,7 @@ private:
 	// Flags
 	enum 
 	{
-		e_fixtureAddedFlag = 0x0001,
+		e_newContactsFlag = 0x0001,
 		e_clearForcesFlag = 0x0002,
 	};
 	

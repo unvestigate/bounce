@@ -117,7 +117,7 @@ b3Fixture* b3Body::CreateFixture(const b3FixtureDef& def)
 	fixture->m_broadPhaseID = m_world->m_contactManager.m_broadPhase.CreateProxy(aabb, fixture);
 
 	// Tell the world that a new shape was added so new contacts can be created.
-	m_world->m_flags |= b3World::e_fixtureAddedFlag;
+	m_world->m_flags |= b3World::e_newContactsFlag;
 
 	return fixture;
 }
@@ -183,31 +183,54 @@ void b3Body::DestroyFixtures()
 	}
 }
 
-void b3Body::SynchronizeTransform()
+void b3Body::SetTransform(const b3Vec3& position, const b3Quat& orientation)
 {
-	m_xf = m_sweep.GetTransform(scalar(1));
+	m_xf.translation = position;
+	m_xf.rotation = orientation;
+
+	m_sweep.worldCenter = b3Mul(m_xf, m_sweep.localCenter);
+	m_sweep.orientation = m_xf.rotation;
+
+	m_sweep.worldCenter0 = m_sweep.worldCenter;
+	m_sweep.orientation0 = m_sweep.orientation;
+
+	m_worldInvI = b3RotateToFrame(m_invI, m_xf.rotation);
+
+	b3BroadPhase* broadPhase = &m_world->m_contactManager.m_broadPhase;
+	for (b3Fixture* f = m_fixtureList.m_head; f; f = f->m_next)
+	{
+		f->Synchronize(broadPhase, m_xf, m_xf);
+	}
+
+	m_world->m_flags |= b3World::e_newContactsFlag;
+}
+
+void b3Body::SetTransform(const b3Vec3& position, const b3Mat33& orientation)
+{
+	SetTransform(position, b3Mat33Quat(orientation));
 }
 
 void b3Body::SynchronizeFixtures() 
 {
-	b3Transform xf1 = m_sweep.GetTransform(scalar(0));
-
-	b3Transform xf2 = m_xf;
-	
-	b3Vec3 displacement = xf2.translation - xf1.translation;
-
-	// Update all fixture AABBs.
 	b3BroadPhase* broadPhase = &m_world->m_contactManager.m_broadPhase;
-	for (b3Fixture* f = m_fixtureList.m_head; f; f = f->m_next)
+	
+	if (m_flags & e_awakeFlag)
 	{
-		// Compute an AABB that encloses the swept fixture AABB.
-		b3AABB aabb1, aabb2;
-		f->m_shape->ComputeAABB(&aabb1, xf1);
-		f->m_shape->ComputeAABB(&aabb2, xf2);
-		
-		b3AABB aabb = b3Combine(aabb1, aabb2);
+		b3Transform xf1;
+		xf1.rotation = m_sweep.orientation0;
+		xf1.translation = m_sweep.worldCenter0 - b3Mul(xf1.rotation, m_sweep.localCenter);
 
-		broadPhase->MoveProxy(f->m_broadPhaseID, aabb, displacement);
+		for (b3Fixture* f = m_fixtureList.m_head; f; f = f->m_next)
+		{
+			f->Synchronize(broadPhase, xf1, m_xf);
+		}
+	}
+	else
+	{
+		for (b3Fixture* f = m_fixtureList.m_head; f; f = f->m_next)
+		{
+			f->Synchronize(broadPhase, m_xf, m_xf);
+		}
 	}
 }
 

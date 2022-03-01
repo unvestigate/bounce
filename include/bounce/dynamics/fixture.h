@@ -29,6 +29,7 @@ struct b3ContactEdge;
 class b3Body;
 class b3Shape;
 class b3BlockAllocator;
+class b3BroadPhase;
 class b3Draw;
 
 // Fixture definition. This requires providing a shape pointer that will 
@@ -169,6 +170,9 @@ protected:
 	// Destroy the contacts associated with this fixture.
 	void DestroyContacts();
 	
+	// Synchronize proxy AABB.
+	void Synchronize(b3BroadPhase* broadPhase, const b3Transform& transform1, const b3Transform& transform2);
+
 	b3Shape* m_shape;
 
 	scalar m_density;
