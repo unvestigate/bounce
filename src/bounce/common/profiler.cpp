@@ -21,7 +21,7 @@
 
 b3ProfilerNode* b3ProfilerNode::FindChildNode(const char* name) 
 {
-	for (b3ProfilerNode* c = m_childHead; c != nullptr; c = c->m_childNext)
+	for (b3ProfilerNode* c = m_childList; c != nullptr; c = c->m_childNext)
 	{
 		if (c->m_name == name)
 		{
@@ -33,11 +33,12 @@ b3ProfilerNode* b3ProfilerNode::FindChildNode(const char* name)
 
 b3Profiler::b3Profiler() : 
 	m_nodePool(sizeof(b3ProfilerNode)),
-	m_statsPool(sizeof(b3ProfilerStats))
+	m_statsPool(sizeof(b3ProfilerStat))
 {
 	m_root = nullptr;
 	m_top = nullptr;
-	m_statsHead = nullptr;
+	m_statList = nullptr;
+	m_statCount = 0;
 }
 
 void b3Profiler::Clear()
@@ -83,10 +84,11 @@ void b3Profiler::OpenScope(const char* name)
 	newNode->m_elapsed = 0.0f;
 	newNode->m_callCount = 1;
 	newNode->m_recursionCount = 1;
-	newNode->m_stats = nullptr;
+	newNode->m_stat = nullptr;
 	newNode->m_parent = m_top;
-	newNode->m_childHead = nullptr;
+	newNode->m_childList = nullptr;
 	newNode->m_childNext = nullptr;
+	newNode->m_childCount = 0;
 
 	if (m_root == nullptr)
 	{
@@ -100,8 +102,9 @@ void b3Profiler::OpenScope(const char* name)
 	if (m_top)
 	{
 		// Top node gets a new kid
-		newNode->m_childNext = m_top->m_childHead;
-		m_top->m_childHead = newNode;
+		newNode->m_childNext = m_top->m_childList;
+		m_top->m_childList = newNode;
+		++m_top->m_childCount;
 	}
 
 	// New node becomes top node
@@ -126,38 +129,39 @@ void b3Profiler::CloseScope()
 
 	m_top->m_elapsed += elapsed;
 
-	b3ProfilerStats* topStats = FindStats(m_top->m_name);
-	if (topStats == nullptr)
+	b3ProfilerStat* topStat = FindStat(m_top->m_name);
+	if (topStat == nullptr)
 	{
 		// Create a new stats
-		topStats = (b3ProfilerStats*)m_statsPool.Allocate();
-		topStats->name = m_top->m_name;
-		topStats->minElapsed = elapsed;
-		topStats->maxElapsed = elapsed;
+		topStat = (b3ProfilerStat*)m_statsPool.Allocate();
+		topStat->m_name = m_top->m_name;
+		topStat->m_minElapsed = elapsed;
+		topStat->m_maxElapsed = elapsed;
 
 		// Push stat to profiler list of stats
-		topStats->next = m_statsHead;
-		m_statsHead = topStats;
+		topStat->m_next = m_statList;
+		m_statList = topStat;
+		++m_statCount;
 	}
 	else
 	{
 		// Update top stats
-		topStats->minElapsed = b3Min(topStats->minElapsed, elapsed);
-		topStats->maxElapsed = b3Max(topStats->maxElapsed, elapsed);
+		topStat->m_minElapsed = b3Min(topStat->m_minElapsed, elapsed);
+		topStat->m_maxElapsed = b3Max(topStat->m_maxElapsed, elapsed);
 	}
 
-	// Set top stats
-	m_top->m_stats = topStats;
+	// Set top stat
+	m_top->m_stat = topStat;
 	
 	// Top parent becomes top node
 	m_top = m_top->m_parent;
 }
 
-b3ProfilerStats* b3Profiler::FindStats(const char* name)
+b3ProfilerStat* b3Profiler::FindStat(const char* name)
 {
-	for (b3ProfilerStats* s = m_statsHead; s != nullptr; s = s->next)
+	for (b3ProfilerStat* s = m_statList; s != nullptr; s = s->m_next)
 	{
-		if (s->name == name)
+		if (s->m_name == name)
 		{
 			return s;
 		}
@@ -167,7 +171,7 @@ b3ProfilerStats* b3Profiler::FindStats(const char* name)
 
 void b3Profiler::DestroyNodeRecursively(b3ProfilerNode* node)
 {
-	b3ProfilerNode* c = node->m_childHead;
+	b3ProfilerNode* c = node->m_childList;
 	while (c)
 	{
 		b3ProfilerNode* boom = c;

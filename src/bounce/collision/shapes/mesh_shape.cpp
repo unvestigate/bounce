@@ -150,11 +150,10 @@ void b3MeshShape::GetChildTriangle(b3TriangleShape* triangleShape, u32 index) co
 {
 	B3_ASSERT(index < m_mesh->triangleCount);
 	b3MeshTriangle* triangle = m_mesh->triangles + index;
-	b3MeshTriangleWings* triangleWings = m_mesh->triangleWings + index;
-
-	u32 u1 = triangleWings->u1;
-	u32 u2 = triangleWings->u2;
-	u32 u3 = triangleWings->u3;
+	
+	u32 u1 = triangle->u1;
+	u32 u2 = triangle->u2;
+	u32 u3 = triangle->u3;
 
 	b3Vec3 v1 = b3Mul(m_scale, m_mesh->vertices[triangle->v1]);
 	b3Vec3 v2 = b3Mul(m_scale, m_mesh->vertices[triangle->v2]);

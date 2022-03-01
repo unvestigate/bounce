@@ -26,29 +26,24 @@
 // Mesh triangle.
 struct b3MeshTriangle
 {
+	// Write an indexed edge wing vertex to this triangle.
+	u32& GetWingVertex(u32 i) { return (&u1)[i]; }
+
+	// Read an indexed edge wing vertex from this triangle.
+	u32 GetWingVertex(u32 i) const { return (&u1)[i]; }
+
 	// Write an indexed vertex to this triangle.
 	u32& GetVertex(u32 i) { return (&v1)[i]; }
 
 	// Read an indexed vertex from this triangle.
 	u32 GetVertex(u32 i) const { return (&v1)[i]; }
 
-	// The triangle vertices in the mesh.
-	u32 v1, v2, v3;
-};
-
-// Mesh triangle adjacency.
-// This is used for smooth edge collision.
-struct b3MeshTriangleWings
-{
-	// Write an indexed edge wing vertex to this triangle.
-	u32& GetVertex(u32 i) { return (&u1)[i]; }
-
-	// Read an indexed edge wing vertex from this triangle.
-	u32 GetVertex(u32 i) const { return (&u1)[i]; }
-
 	// The wing vertex of each edge in this triangle.
 	// An edge is a boundary if its wing vertex is set to B3_NULL_VERTEX.
 	u32 u1, u2, u3;
+
+	// The triangle vertices in the mesh.
+	u32 v1, v2, v3;
 };
 
 struct b3Mesh 
@@ -57,12 +52,7 @@ struct b3Mesh
 	b3Vec3* vertices;
 	u32 triangleCount;
 	b3MeshTriangle* triangles;
-	b3MeshTriangleWings* triangleWings;
-
 	b3StaticTree tree;
-
-	b3Mesh();
-	~b3Mesh();
 
 	// Build the static AABB tree. 
 	void BuildTree();
@@ -73,7 +63,6 @@ struct b3Mesh
 
 	const b3Vec3& GetVertex(u32 index) const;
 	const b3MeshTriangle* GetTriangle(u32 index) const;
-	const b3MeshTriangleWings* GetTriangleWings(u32 index) const;
 	b3AABB GetTriangleAABB(u32 index) const;
 	
 	u32 GetSize() const;
@@ -94,11 +83,6 @@ inline const b3Vec3& b3Mesh::GetVertex(u32 index) const
 inline const b3MeshTriangle* b3Mesh::GetTriangle(u32 index) const
 {
 	return triangles + index;
-}
-
-inline const b3MeshTriangleWings* b3Mesh::GetTriangleWings(u32 index) const
-{
-	return triangleWings + index;
 }
 
 inline b3AABB b3Mesh::GetTriangleAABB(u32 index) const
@@ -122,7 +106,6 @@ inline u32 b3Mesh::GetSize() const
 	size += sizeof(b3Mesh);
 	size += sizeof(b3Vec3) * vertexCount;
 	size += sizeof(b3MeshTriangle) * triangleCount;
-	size += sizeof(b3MeshTriangleWings) * triangleCount;
 	size += tree.GetSize();
 	return size;
 }

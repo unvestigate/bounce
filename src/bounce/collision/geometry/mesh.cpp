@@ -18,16 +18,6 @@
 
 #include <bounce/collision/geometry/mesh.h>
 
-b3Mesh::b3Mesh()
-{
-	triangleWings = nullptr;
-}
-
-b3Mesh::~b3Mesh()
-{
-	b3Free(triangleWings);
-}
-
 void b3Mesh::BuildTree()
 {
 	b3AABB* aabbs = (b3AABB*)b3Alloc(triangleCount * sizeof(b3AABB));
@@ -43,25 +33,21 @@ void b3Mesh::BuildTree()
 
 void b3Mesh::BuildAdjacency()
 {
-	B3_ASSERT(triangleWings == nullptr);
-	triangleWings = (b3MeshTriangleWings*)b3Alloc(triangleCount * sizeof(b3MeshTriangleWings));
-	
 	// Assume the edges are open edges.
 	for (u32 i = 0; i < triangleCount; ++i)
 	{
-		b3MeshTriangleWings* ws = triangleWings + i;
+		b3MeshTriangle* t = triangles + i;
 		
-		ws->u1 = B3_NULL_VERTEX;
-		ws->u2 = B3_NULL_VERTEX;
-		ws->u3 = B3_NULL_VERTEX;
+		t->u1 = B3_NULL_VERTEX;
+		t->u2 = B3_NULL_VERTEX;
+		t->u3 = B3_NULL_VERTEX;
 	}
 
 	// Connect the edges.
 	for (u32 i = 0; i < triangleCount; ++i)
 	{
 		b3MeshTriangle* t1 = triangles + i;
-		b3MeshTriangleWings* t1ws = triangleWings + i;
-
+		
 		for (u32 j1 = 0; j1 < 3; ++j1)
 		{
 			u32 k1 = j1 + 1 < 3 ? j1 + 1 : 0;
@@ -69,7 +55,7 @@ void b3Mesh::BuildAdjacency()
 			u32 t1v1 = t1->GetVertex(j1);
 			u32 t1v2 = t1->GetVertex(k1);
 
-			u32& u1 = t1ws->GetVertex(j1);
+			u32& u1 = t1->GetWingVertex(j1);
 
 			if (u1 != B3_NULL_VERTEX)
 			{
@@ -80,8 +66,7 @@ void b3Mesh::BuildAdjacency()
 			for (u32 j = i + 1; j < triangleCount; ++j)
 			{
 				b3MeshTriangle* t2 = triangles + j;
-				b3MeshTriangleWings* t2ws = triangleWings + j;
-
+				
 				for (u32 j2 = 0; j2 < 3; ++j2)
 				{
 					u32 k2 = j2 + 1 < 3 ? j2 + 1 : 0;
@@ -89,7 +74,7 @@ void b3Mesh::BuildAdjacency()
 					u32 t2v1 = t2->GetVertex(j2);
 					u32 t2v2 = t2->GetVertex(k2);
 
-					u32& u2 = t2ws->GetVertex(j2);
+					u32& u2 = t2->GetWingVertex(j2);
 
 					if (t1v1 == t2v2 && t1v2 == t2v1)
 					{

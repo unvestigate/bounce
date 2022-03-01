@@ -22,13 +22,29 @@
 #include <bounce/common/memory/block_pool.h>
 #include <bounce/common/time.h>
 
-// Persistent statistics. 
-struct b3ProfilerStats
+// Persistent node statistics. 
+struct b3ProfilerStat
 {
-	const char* name;
-	double minElapsed;
-	double maxElapsed;
-	b3ProfilerStats* next;
+public:
+	// Get the unique name of the associated node.
+	const char* GetName() const { return m_name; }
+
+	// Get the minimum elapsed time of the associated node.
+	double GetMinElapsed() const { return m_minElapsed; }
+	
+	// Get the minimum elapsed time of the associated node.
+	double GetMaxElapsed() const { return m_maxElapsed; }
+
+	// Get the next statistic in the profiler.
+	const b3ProfilerStat* GetNext() const { return m_next; }
+	b3ProfilerStat* GetNext() { return m_next; }
+private:
+	friend class b3Profiler;
+
+	const char* m_name;
+	double m_minElapsed;
+	double m_maxElapsed;
+	b3ProfilerStat* m_next;
 };
 
 // A profiler node.
@@ -48,13 +64,16 @@ public:
 	const b3ProfilerNode* GetParent() const { return m_parent; }
 
 	// Get the list of child nodes in this node.
-	const b3ProfilerNode* GetChildList() const { return m_childHead; }
+	const b3ProfilerNode* GetChildList() const { return m_childList; }
+
+	// Get the number of child nodes.
+	u32 GetChildCount() const { return m_childCount; }
 
 	// Get the next child node in this node's list of child nodes.
 	const b3ProfilerNode* GetNextChild() const { return m_childNext; }
 
 	// Get the statistics for this node.
-	const b3ProfilerStats* GetStats() const { return m_stats; }
+	const b3ProfilerStat* GetStat() const { return m_stat; }
 private:
 	friend class b3Profiler;
 
@@ -67,9 +86,10 @@ private:
 	double m_t1;
 	double m_t2;
 	b3ProfilerNode* m_parent;
-	b3ProfilerNode* m_childHead;
+	b3ProfilerNode* m_childList;
+	u32 m_childCount;
 	b3ProfilerNode* m_childNext;
-	b3ProfilerStats* m_stats;
+	b3ProfilerStat* m_stat;
 };
 
 // Immediate mode hierarchical profiler. 
@@ -92,8 +112,14 @@ public:
 
 	// Return the root node.
 	const b3ProfilerNode* GetRoot() const { return m_root; };
+
+	// Get the statistic list.
+	const b3ProfilerStat* GetStatList() const { return m_statList; }
+	
+	// Get the number of statistics.
+	u32 GetStatCount() const { return m_statCount; }
 private:
-	b3ProfilerStats* FindStats(const char* name);
+	b3ProfilerStat* FindStat(const char* name);
 	void DestroyNodeRecursively(b3ProfilerNode* node);
 
 	b3Time m_time; 
@@ -101,7 +127,8 @@ private:
 	b3BlockPool m_statsPool;
 	b3ProfilerNode* m_root; 
 	b3ProfilerNode* m_top; 
-	b3ProfilerStats* m_statsHead; 
+	b3ProfilerStat* m_statList; 
+	u32 m_statCount;
 };
 
 // A profiler scope. 
