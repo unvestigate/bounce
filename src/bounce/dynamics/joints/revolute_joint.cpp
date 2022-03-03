@@ -285,11 +285,8 @@ void b3RevoluteJoint::InitializeConstraints(const b3SolverData* data)
 	// Limit constraint.
 	if (m_enableLimit)
 	{
-		// Joint rotation
-		b3Quat q = b3Conjugate(m_referenceRotation) * b3Conjugate(fA) * fB;
-		
 		// Joint angle
-		scalar angle = scalar(2) * atan2(q.v.z, q.s);
+		scalar angle = scalar(2) * atan2(dq.v.z, dq.s);
 
 		if (b3Abs(m_upperAngle - m_lowerAngle) < scalar(2) * B3_ANGULAR_SLOP)
 		{
