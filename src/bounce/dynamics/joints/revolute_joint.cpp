@@ -162,7 +162,7 @@ static B3_FORCE_INLINE b3Mat24 b3_P_hinge_mat()
 // 1x4 
 static B3_FORCE_INLINE b3Vec4 b3_P_hinge_limit_mat(const b3Quat& q)
 {
-	return b3Vec4(-q.v.z, 0.0f, 0.0f, q.s);
+	return b3Vec4(-q.v.z, 0, 0, q.s);
 }
 
 // 4x1 
