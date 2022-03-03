@@ -22,6 +22,7 @@ ${BOUNCE_INCLUDE_DIR}/bounce/common/math/vec4.h
 ${BOUNCE_INCLUDE_DIR}/bounce/common/math/mat22.h
 ${BOUNCE_INCLUDE_DIR}/bounce/common/math/mat33.h
 ${BOUNCE_INCLUDE_DIR}/bounce/common/math/mat44.h
+${BOUNCE_INCLUDE_DIR}/bounce/common/math/mat.h
 ${BOUNCE_INCLUDE_DIR}/bounce/common/math/quat.h
 ${BOUNCE_INCLUDE_DIR}/bounce/common/math/transform.h
 ${BOUNCE_INCLUDE_DIR}/bounce/common/math/sweep.h

@@ -34,9 +34,6 @@ struct b3ConeJointDef : public b3JointDef
 		referenceRotation.SetIdentity();
 		enableConeLimit = false;
 		coneAngle = scalar(0);
-		enableTwistLimit = false;
-		lowerAngle = scalar(0);
-		upperAngle = scalar(0);
 	}
 
 	// Initialize this definition from bodies, cone axis, anchor point, and full cone angle in radians.
@@ -62,23 +59,12 @@ struct b3ConeJointDef : public b3JointDef
 
 	// The full cone angle in radians.
 	scalar coneAngle;
-
-	// Enable the twist limit.
-	bool enableTwistLimit;
-
-	// The lower twist angle in radians 
-	scalar lowerAngle;
-
-	// The upper twist angle in radians 
-	scalar upperAngle;
 };
 
 // This joint constrains the bodies to share a common point (cone tip). 
 // It also constrains the relative rotation about an axis perpendicular 
 // to the cone axis.
 // You can limit the relative rotation with a cone angle limit. 
-// You can limit the relative rotation around the cone axis with a 
-// twist limit.
 // This joint was designed to create structures such as ragdolls.
 class b3ConeJoint : public b3Joint
 {
@@ -94,17 +80,6 @@ public:
 
 	// Get the cone angle in radians.
 	scalar GetConeAngle() const;
-
-	// Set the joint twist limit enabled.
-	void SetEnableTwistLimit(bool bit);
-
-	// Is the joint twist limit enabled?
-	bool IsTwistLimitEnabled() const;
-
-	// Set/get the twist angles in radians.
-	void SetTwistLimits(scalar lowerAngle, scalar upperAngle);
-	scalar GetTwistLowerAngle() const;
-	scalar GetTwistUpperAngle() const;
 
 	// Draw this joint.
 	void Draw(b3Draw* draw) const;
@@ -133,10 +108,6 @@ private:
 	scalar m_coneAngle;
 	bool m_enableConeLimit;
 
-	scalar m_lowerAngle;
-	scalar m_upperAngle;
-	bool m_enableTwistLimit;
-
 	// Solver temp
 	u32 m_indexA;
 	u32 m_indexB;
@@ -162,12 +133,6 @@ private:
 	scalar m_coneMass;
 	scalar m_coneImpulse;
 	b3LimitState m_coneState;
-
-	// Twist limit
-	b3Vec3 m_twistAxis;
-	scalar m_twistMass;
-	scalar m_twistImpulse;
-	b3LimitState m_twistState;
 };
 
 #endif

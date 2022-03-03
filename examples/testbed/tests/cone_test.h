@@ -61,10 +61,6 @@ public:
 			cd.Initialize(ref, head, axis, anchor, coneAngle);
 			cd.enableConeLimit = true;
 			
-			cd.enableTwistLimit = true;
-			cd.lowerAngle = 0.0f;
-			cd.upperAngle = B3_PI;
-
 			b3ConeJoint* cj = (b3ConeJoint*)m_world.CreateJoint(cd);
 		}
 		
