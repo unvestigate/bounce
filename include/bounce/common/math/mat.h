@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2016-2016 Irlan Robson http://www.irlan.net
+* Copyright (c) 2016-2019 Irlan Robson
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -19,9 +19,13 @@
 #ifndef B3_MAT_H
 #define B3_MAT_H
 
-#include <bounce/common/math/math.h>
 #include <bounce/common/math/mat22.h>
 #include <bounce/common/math/mat33.h>
+#include <bounce/common/math/mat44.h>
+
+// This header contain implementations for some small rectangular 
+// matrices. 
+// Some operations assume vectors are row or column vectors.
 
 struct b3Mat23
 {
@@ -109,29 +113,6 @@ struct b3Mat34
 	b3Vec3 x, y, z, w;
 };
 
-struct b3Vec4
-{
-	b3Vec4() { }
-
-	b3Vec4(scalar _x, scalar _y, scalar _z, scalar _w)
-	{
-		x = _x;
-		y = _y;
-		z = _z;
-		w = _w;
-	}
-
-	void SetZero()
-	{
-		x = 0.0f;
-		y = 0.0f;
-		z = 0.0f;
-		w = 0.0f;
-	}
-
-	scalar x, y, z, w;
-};
-
 struct b3Mat43
 {
 	b3Mat43() { }
@@ -153,63 +134,6 @@ struct b3Mat43
 	b3Vec4 x, y, z;
 };
 
-struct b3Mat44
-{
-	b3Mat44() { }
-
-	b3Mat44(const b3Vec4& _x, const b3Vec4& _y, const b3Vec4& _z, const b3Vec4& _w)
-	{
-		x = _x;
-		y = _y;
-		z = _z;
-		w = _w;
-	}
-
-	void SetZero()
-	{
-		x.SetZero();
-		y.SetZero();
-		z.SetZero();
-		w.SetZero();
-	}
-
-	b3Vec4 x, y, z, w;
-};
-
-inline b3Vec4 operator+(const b3Vec4& a, const b3Vec4& b)
-{
-	return b3Vec4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
-}
-
-inline b3Vec4 operator-(const b3Vec4& a, const b3Vec4& b)
-{
-	return b3Vec4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
-}
-
-// 1x1 * 1x4 = 1x1
-inline b3Vec4 operator*(scalar s, const b3Vec4& v)
-{
-	return b3Vec4(s * v.x, s * v.y, s * v.z, s * v.w);
-}
-
-// a * 4x4 = 4x4
-inline b3Mat44 operator*(scalar s, const b3Mat44& A)
-{
-	return b3Mat44(s * A.x, s * A.y, s * A.z, s * A.w);
-}
-
-// 4x4 * 4x1 = 4x1
-inline b3Vec4 operator*(const b3Mat44& A, const b3Vec4& v)
-{
-	return v.x * A.x + v.y * A.y + v.z * A.z + v.w * A.w;
-}
-
-// 4x4 * 4x4 = 4x4
-inline b3Mat44 operator*(const b3Mat44& A, const b3Mat44& B)
-{
-	return b3Mat44(A * B.x, A * B.y, A * B.z, A * B.w);
-}
-
 // a * 3x4 = 3x4
 inline b3Mat34 operator*(scalar s, const b3Mat34& A)
 {
@@ -228,28 +152,16 @@ inline b3Vec3 operator*(const b3Mat34& A, const b3Vec4& v)
 	return v.x * A.x + v.y * A.y + v.z * A.z + v.w * A.w;
 }
 
-// 1x4 * 4x1 = 1x1
-inline scalar operator*(const b3Vec4& A, const b3Vec4& B)
-{
-	return A.x * B.x + A.y * B.y + A.z * B.z + A.w * B.w;
-}
-
-// 3x1 * 1x1 = 3x1
-inline b3Vec3 operator*(const b3Vec3& v, scalar s)
-{
-	return s * v;
-}
-
-// 2x1 * 1x1 = 2x1
-inline b3Vec2 operator*(const b3Vec2& v, scalar s)
-{
-	return s * v;
-}
-
 // 1x3 * 3x1 = 1x1
 inline scalar operator*(const b3Vec3& A, const b3Vec3& B)
 {
 	return A.x * B.x + A.y * B.y + A.z * B.z;
+}
+
+// 1x4 * 4x1 = 1x1
+inline scalar operator*(const b3Vec4& A, const b3Vec4& B)
+{
+	return A.x * B.x + A.y * B.y + A.z * B.z + A.w * B.w;
 }
 
 // 1x3 * 3x3 = 1x3
@@ -276,13 +188,13 @@ inline b3Vec3 operator*(const b3Mat32& A, const b3Vec2& B)
 	return B.x * A.x + B.y * A.y;
 }
 
-// 2x3 * 2x1 = 2x1
+// 2x3 * 3x1 = 2x1
 inline b3Vec2 operator*(const b3Mat23& A, const b3Vec3& B)
 {
 	return B.x * A.x + B.y * A.y + B.z * A.z;
 }
 
-// 2x3 * 2x2 = 2x2
+// 2x3 * 3x2 = 2x2
 inline b3Mat22 operator*(const b3Mat23& A, const b3Mat32& B)
 {
 	return b3Mat22(A * B.x, A * B.y);
@@ -318,7 +230,7 @@ inline b3Mat23 operator*(const b3Mat24& A, const b3Mat43& B)
 	return b3Mat23(A * B.x, A * B.y, A * B.z);
 }
 
-// 2x4 * 2x4 = 2x4
+// 2x4 * 4x4 = 2x4
 inline b3Mat24 operator*(const b3Mat24& A, const b3Mat44& B)
 {
 	return b3Mat24(A * B.x, A * B.y, A * B.z, A * B.w);

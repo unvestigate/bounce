@@ -18,7 +18,86 @@
 
 #include <bounce/dynamics/joints/weld_joint.h>
 #include <bounce/dynamics/body.h>
+#include <bounce/common/math/mat.h>
 #include <bounce/common/draw.h>
+
+/*
+Game Physics Pearls, Quaternion Based Constraints - Claude Lacoursiere, page 195.
+ 
+P = [0 1 0 0]
+	[0 0 1 0]
+	[0 0 0 1]
+
+q = conj(q1) * q2
+
+C = P * q
+C' = P * q'
+
+q' =
+conj(q1)' * q2 + conj(q1) * q2' =
+conj(q2') * q2 + conj(q1) * q2'
+
+J1 = -0.5 * Q(conj(q1)) * P(q2)
+J2 =  0.5 * Q(conj(q1)) * P(q2)
+
+J1 = P * J1 * P^T
+J2 = P * J2 * P^T
+*/
+
+static B3_FORCE_INLINE b3Mat44 b3_iQ_mat(const b3Quat& q)
+{
+	scalar x = q.v.x, y = q.v.y, z = q.v.z, w = q.s;
+
+	b3Mat44 Q;
+	Q.x = b3Vec4(w, x, y, z);
+	Q.y = b3Vec4(-x, w, z, -y);
+	Q.z = b3Vec4(-y, -z, w, x);
+	Q.w = b3Vec4(-z, y, -x, w);
+
+	return Q;
+}
+
+static B3_FORCE_INLINE b3Mat44 b3_iP_mat(const b3Quat& q)
+{
+	scalar x = q.v.x, y = q.v.y, z = q.v.z, w = q.s;
+
+	b3Mat44 P;
+	P.x = b3Vec4(w, x, y, z);
+	P.y = b3Vec4(-x, w, -z, y);
+	P.z = b3Vec4(-y, z, w, -x);
+	P.w = b3Vec4(-z, -y, x, w);
+
+	return P;
+}
+
+static B3_FORCE_INLINE b3Mat34 b3_P_mat()
+{
+	b3Mat34 P;
+	P.x = b3Vec3(0.0f, 0.0f, 0.0f);
+	P.y = b3Vec3(1.0f, 0.0f, 0.0f);
+	P.z = b3Vec3(0.0f, 1.0f, 0.0f);
+	P.w = b3Vec3(0.0f, 0.0f, 1.0f);
+	return P;
+}
+
+static B3_FORCE_INLINE b3Mat34 b3_P_lock_mat()
+{
+	b3Mat34 P;
+	P.x = b3Vec3(0.0f, 0.0f, 0.0f);
+	P.y = b3Vec3(1.0f, 0.0f, 0.0f);
+	P.z = b3Vec3(0.0f, 1.0f, 0.0f);
+	P.w = b3Vec3(0.0f, 0.0f, 1.0f);
+	return P;
+}
+
+static B3_FORCE_INLINE b3Vec4 b3_q_to_v(const b3Quat& q)
+{
+	return b3Vec4(q.s, q.v.x, q.v.y, q.v.z);
+}
+
+static const b3Mat34 b3Mat34_P = b3_P_mat();
+static const b3Mat43 b3Mat43_PT = b3Transpose(b3Mat34_P);
+static const b3Mat34 b3Mat34_P_lock = b3_P_lock_mat();
 
 void b3WeldJointDef::Initialize(b3Body* bA, b3Body* bB, const b3Vec3& anchor)
 {
@@ -265,40 +344,32 @@ bool b3WeldJoint::SolvePositionConstraints(const b3SolverData* data)
 	scalar angularError = scalar(0);
 
 	if (m_frequencyHz == scalar(0))
-	{	
-		b3Quat q1 = b3Conjugate(qA) * qB;
-		b3Quat q2 = m_referenceRotation;
-
-		if (b3Dot(q1, q2) < scalar(0))
-		{
-			q1 = -q1;
-		}
-
-		// d * q1 = q2
-		// d = q2 * q1^-1
-		b3Quat d = q2 * b3Conjugate(q1);
+	{
+		b3Quat dq = b3Conjugate(m_referenceRotation) * b3Conjugate(qA) * qB;
 		
-		// Exact local errors
-		b3Vec3 v;
-		v.x = scalar(2) * atan2(d.v.x, d.s);
-		v.y = scalar(2) * atan2(d.v.y, d.s);
-		v.z = scalar(2) * atan2(d.v.z, d.s);
-
-		angularError += b3Length(v);
-
-		// Convert the local angular error to world's frame
-		// Negate the local error.
-		b3Vec3 C = b3Mul(qA, -v);
-
-		b3Mat33 mass = iA + iB;
+		b3Vec4 dv = b3_q_to_v(dq);
 		
+		b3Vec3 C = b3Mat34_P * dv;
+
+		angularError += b3Length(C);
+
+		b3Mat33 J1 = -scalar(0.5) * b3Mat34_P_lock * b3_iQ_mat(b3Conjugate(qA)) * b3_iP_mat(qB) * b3Mat43_PT;
+		b3Mat33 J2 = scalar(0.5) * b3Mat34_P_lock * b3_iQ_mat(b3Conjugate(qA)) * b3_iP_mat(qB) * b3Mat43_PT;
+
+		b3Mat33 J1T = b3Transpose(J1);
+		b3Mat33 J2T = b3Transpose(J2);
+
+		b3Mat33 mass = J1 * iA * J1T + J2 * iB * J2T;
 		b3Vec3 impulse = mass.Solve(-C);
 
-		qA -= b3Derivative(qA, iA * impulse);
+		b3Vec3 P1 = J1T * impulse;
+		b3Vec3 P2 = J2T * impulse;
+
+		qA += b3Derivative(qA, iA * P1);
 		qA.Normalize();
 		iA = b3RotateToFrame(m_localInvIA, qA);
 
-		qB += b3Derivative(qB, iB * impulse);
+		qB += b3Derivative(qB, iB * P2);
 		qB.Normalize();
 		iB = b3RotateToFrame(m_localInvIB, qB);
 	}
