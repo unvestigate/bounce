@@ -20,6 +20,7 @@
 #define B3_REVOLUTE_JOINT_H
 
 #include <bounce/dynamics/joints/joint.h>
+#include <bounce/common/math/mat.h>
 
 // Revolute (also known as hinge) joint definition.
 struct b3RevoluteJointDef : public b3JointDef 
@@ -176,9 +177,10 @@ private:
 	b3Mat33 m_localInvIB;
 
 	// Motor
+	// The transpose motor Jacobian equals the Jacobian
+	b3Vec3 m_motorJ1, m_motorJ2;
 	scalar m_motorMass;
 	scalar m_motorImpulse;
-	b3Vec3 m_motorAxis;
 
 	// Angle limit
 	// This reuses the motor Jacobian and mass
@@ -192,7 +194,8 @@ private:
 	b3Vec3 m_linearImpulse;
 
 	// Angular
-	b3Vec3 m_a1, m_a2;
+	b3Mat23 m_angularJ1, m_angularJ2;
+	b3Mat32 m_angularJ1T, m_angularJ2T;
 	b3Mat22 m_angularMass;
 	b3Vec2 m_angularImpulse;
 };

@@ -73,20 +73,20 @@ static B3_FORCE_INLINE b3Mat44 b3_iP_mat(const b3Quat& q)
 static B3_FORCE_INLINE b3Mat34 b3_P_mat()
 {
 	b3Mat34 P;
-	P.x = b3Vec3(0.0f, 0.0f, 0.0f);
-	P.y = b3Vec3(1.0f, 0.0f, 0.0f);
-	P.z = b3Vec3(0.0f, 1.0f, 0.0f);
-	P.w = b3Vec3(0.0f, 0.0f, 1.0f);
+	P.x = b3Vec3(0, 0, 0);
+	P.y = b3Vec3(1, 0, 0);
+	P.z = b3Vec3(0, 1, 0);
+	P.w = b3Vec3(0, 0, 1);
 	return P;
 }
 
 static B3_FORCE_INLINE b3Mat34 b3_P_lock_mat()
 {
 	b3Mat34 P;
-	P.x = b3Vec3(0.0f, 0.0f, 0.0f);
-	P.y = b3Vec3(1.0f, 0.0f, 0.0f);
-	P.z = b3Vec3(0.0f, 1.0f, 0.0f);
-	P.w = b3Vec3(0.0f, 0.0f, 1.0f);
+	P.x = b3Vec3(0, 0, 0);
+	P.y = b3Vec3(1, 0, 0);
+	P.z = b3Vec3(0, 1, 0);
+	P.w = b3Vec3(0, 0, 1);
 	return P;
 }
 
