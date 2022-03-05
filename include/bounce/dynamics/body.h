@@ -376,6 +376,7 @@ private:
 	friend class b3PrismaticJoint;
 	friend class b3WheelJoint;
 
+	friend class b3Fixture;
 	friend class b3List<b3Body>;
 
 	// Flags
@@ -420,7 +421,7 @@ private:
 	b3List<b3Fixture> m_fixtureList;
 	
 	// Joint edges for this body joint graph.
-	b3List<b3JointEdge> m_jointEdges;
+	b3List<b3JointEdge> m_jointList;
 
 	// User associated data (usually an entity).
 	void* m_userData;
@@ -510,12 +511,12 @@ inline b3List<b3Fixture>& b3Body::GetFixtureList()
 
 inline const b3List<b3JointEdge>& b3Body::GetJointList() const
 {
-	return m_jointEdges;
+	return m_jointList;
 }
 
 inline b3List<b3JointEdge>& b3Body::GetJointList()
 {
-	return m_jointEdges;
+	return m_jointList;
 }
 
 inline const b3Transform& b3Body::GetTransform() const

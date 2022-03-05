@@ -69,9 +69,6 @@ b3WheelJoint::b3WheelJoint(const b3WheelJointDef* def)
 
 void b3WheelJoint::InitializeConstraints(const b3SolverData* data)
 {
-	b3Body* m_bodyA = GetBodyA();
-	b3Body* m_bodyB = GetBodyB();
-
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;
 	m_mA = m_bodyA->m_invMass;

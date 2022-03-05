@@ -22,7 +22,7 @@
 
 b3DynamicTree::b3DynamicTree()
 {
-	m_root = B3_NULL_NODE_D;
+	m_root = B3_NULL_DYNAMIC_NODE;
 
 	// Preallocate 32 nodes.
 	m_nodeCapacity = 32;
@@ -45,7 +45,7 @@ u32 b3DynamicTree::AllocateNode()
 {
 	B3_ASSERT(m_nodeCapacity > 0);
 
-	if (m_freeList == B3_NULL_NODE_D)
+	if (m_freeList == B3_NULL_DYNAMIC_NODE)
 	{
 		B3_ASSERT(m_nodeCount == m_nodeCapacity);
 
@@ -67,9 +67,9 @@ u32 b3DynamicTree::AllocateNode()
 
 	m_freeList = m_nodes[node].next;
 
-	m_nodes[node].parent = B3_NULL_NODE_D;
-	m_nodes[node].child1 = B3_NULL_NODE_D;
-	m_nodes[node].child2 = B3_NULL_NODE_D;
+	m_nodes[node].parent = B3_NULL_DYNAMIC_NODE;
+	m_nodes[node].child1 = B3_NULL_DYNAMIC_NODE;
+	m_nodes[node].child2 = B3_NULL_DYNAMIC_NODE;
 	m_nodes[node].height = 0;
 	m_nodes[node].userData = nullptr;
 
@@ -80,7 +80,7 @@ u32 b3DynamicTree::AllocateNode()
 
 void b3DynamicTree::FreeNode(u32 node)
 {
-	B3_ASSERT(node != B3_NULL_NODE_D && node < m_nodeCapacity);
+	B3_ASSERT(node != B3_NULL_DYNAMIC_NODE && node < m_nodeCapacity);
 	m_nodes[node].next = m_freeList;
 	m_nodes[node].height = -1;
 	m_freeList = node;
@@ -98,7 +98,7 @@ void b3DynamicTree::AddToFreeList(u32 node)
 		m_nodes[i].height = -1;
 	}
 
-	m_nodes[m_nodeCapacity - 1].next = B3_NULL_NODE_D;
+	m_nodes[m_nodeCapacity - 1].next = B3_NULL_DYNAMIC_NODE;
 	m_nodes[m_nodeCapacity - 1].height = -1;
 
 	// Make the node available for the next allocation.
@@ -175,7 +175,7 @@ bool b3DynamicTree::MoveProxy(u32 proxyId, const b3AABB& aabb, const b3Vec3& dis
 		fatAABB.upperBound.z += d.z;
 	}
 
-	const b3AABB& treeAABB = GetAABB(proxyId);
+	const b3AABB& treeAABB = GetFatAABB(proxyId);
 	if (treeAABB.Contains(aabb))
 	{
 		// The tree AABB still contains the object, but it might be too large.
@@ -271,12 +271,12 @@ u32 b3DynamicTree::PickBest(const b3AABB& leafAABB) const
 
 void b3DynamicTree::InsertLeaf(u32 leaf)
 {
-	if (m_root == B3_NULL_NODE_D)
+	if (m_root == B3_NULL_DYNAMIC_NODE)
 	{
 		// If this tree root node is empty then just set the leaf
 		// node to it.
 		m_root = leaf;
-		m_nodes[m_root].parent = B3_NULL_NODE_D;
+		m_nodes[m_root].parent = B3_NULL_DYNAMIC_NODE;
 		return;
 	}
 
@@ -299,7 +299,7 @@ void b3DynamicTree::InsertLeaf(u32 leaf)
 	m_nodes[newParent].aabb = b3Combine(leafAabb, m_nodes[sibling].aabb);
 	m_nodes[newParent].height = m_nodes[sibling].height + 1;
 
-	if (oldParent != B3_NULL_NODE_D)
+	if (oldParent != B3_NULL_DYNAMIC_NODE)
 	{
 		// The sibling was not the root.
 		// Find which child node of the old parent is the sibling
@@ -328,7 +328,7 @@ void b3DynamicTree::RemoveLeaf(u32 leaf)
 {
 	if (leaf == m_root)
 	{
-		m_root = B3_NULL_NODE_D;
+		m_root = B3_NULL_DYNAMIC_NODE;
 		return;
 	}
 
@@ -344,7 +344,7 @@ void b3DynamicTree::RemoveLeaf(u32 leaf)
 		sibling = m_nodes[parent].child1;
 	}
 
-	if (grandParent != B3_NULL_NODE_D)
+	if (grandParent != B3_NULL_DYNAMIC_NODE)
 	{
 		if (m_nodes[grandParent].child1 == parent)
 		{
@@ -365,7 +365,7 @@ void b3DynamicTree::RemoveLeaf(u32 leaf)
 	else
 	{
 		m_root = sibling;
-		m_nodes[sibling].parent = B3_NULL_NODE_D;
+		m_nodes[sibling].parent = B3_NULL_DYNAMIC_NODE;
 		// Remove parent node.
 		FreeNode(parent);
 	}
@@ -373,15 +373,15 @@ void b3DynamicTree::RemoveLeaf(u32 leaf)
 
 void b3DynamicTree::Refit(u32 node)
 {
-	while (node != B3_NULL_NODE_D)
+	while (node != B3_NULL_DYNAMIC_NODE)
 	{
 		node = Balance(node);
 
 		u32 child1 = m_nodes[node].child1;
 		u32 child2 = m_nodes[node].child2;
 
-		B3_ASSERT(child1 != B3_NULL_NODE_D);
-		B3_ASSERT(child2 != B3_NULL_NODE_D);
+		B3_ASSERT(child1 != B3_NULL_DYNAMIC_NODE);
+		B3_ASSERT(child2 != B3_NULL_DYNAMIC_NODE);
 
 		m_nodes[node].height = 1 + b3Max(m_nodes[child1].height, m_nodes[child2].height);
 		m_nodes[node].aabb = b3Combine(m_nodes[child1].aabb, m_nodes[child2].aabb);
@@ -394,7 +394,7 @@ void b3DynamicTree::Refit(u32 node)
 // Returns the new root index.
 u32 b3DynamicTree::Balance(u32 iA)
 {
-	B3_ASSERT(iA != B3_NULL_NODE_D);
+	B3_ASSERT(iA != B3_NULL_DYNAMIC_NODE);
 
 	b3DynamicNode* A = m_nodes + iA;
 	if (A->IsLeaf() || A->height < 2)
@@ -428,7 +428,7 @@ u32 b3DynamicTree::Balance(u32 iA)
 		A->parent = iC;
 
 		// A's old parent should point to C
-		if (C->parent != B3_NULL_NODE_D)
+		if (C->parent != B3_NULL_DYNAMIC_NODE)
 		{
 			if (m_nodes[C->parent].child1 == iA)
 			{
@@ -488,7 +488,7 @@ u32 b3DynamicTree::Balance(u32 iA)
 		A->parent = iB;
 
 		// A's old parent should point to B
-		if (B->parent != B3_NULL_NODE_D)
+		if (B->parent != B3_NULL_DYNAMIC_NODE)
 		{
 			if (m_nodes[B->parent].child1 == iA)
 			{
@@ -536,7 +536,7 @@ u32 b3DynamicTree::Balance(u32 iA)
 }
 void b3DynamicTree::Validate(u32 nodeID) const
 {
-	if (nodeID == B3_NULL_NODE_D)
+	if (nodeID == B3_NULL_DYNAMIC_NODE)
 	{
 		return;
 	}
@@ -544,7 +544,7 @@ void b3DynamicTree::Validate(u32 nodeID) const
 	// The root node has no parent.
 	if (nodeID == m_root)
 	{
-		B3_ASSERT(m_nodes[nodeID].parent == B3_NULL_NODE_D);
+		B3_ASSERT(m_nodes[nodeID].parent == B3_NULL_DYNAMIC_NODE);
 	}
 
 	const b3DynamicNode* node = m_nodes + nodeID;
@@ -555,8 +555,8 @@ void b3DynamicTree::Validate(u32 nodeID) const
 	if (node->IsLeaf())
 	{
 		// Leaf nodes has no children and its height is zero.
-		B3_ASSERT(child1 == B3_NULL_NODE_D);
-		B3_ASSERT(child2 == B3_NULL_NODE_D);
+		B3_ASSERT(child1 == B3_NULL_DYNAMIC_NODE);
+		B3_ASSERT(child2 == B3_NULL_DYNAMIC_NODE);
 		B3_ASSERT(node->height == 0);
 	}
 	else
@@ -590,7 +590,7 @@ void b3DynamicTree::Draw(b3Draw* draw) const
 		u32 nodeIndex = stack.Top();
 		stack.Pop();
 
-		if (nodeIndex == B3_NULL_NODE_D)
+		if (nodeIndex == B3_NULL_DYNAMIC_NODE)
 		{
 			continue;
 		}
@@ -598,11 +598,11 @@ void b3DynamicTree::Draw(b3Draw* draw) const
 		const b3DynamicNode* node = m_nodes + nodeIndex;
 		if (node->IsLeaf())
 		{
-			draw->DrawAABB(node->aabb, b3Color_pink);
+			draw->DrawAABB(node->aabb, b3Color_red);
 		}
 		else
 		{
-			draw->DrawAABB(node->aabb, b3Color_red);
+			draw->DrawAABB(node->aabb, b3Color_green);
 
 			stack.Push(node->child1);
 			stack.Push(node->child2);

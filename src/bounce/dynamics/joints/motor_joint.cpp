@@ -47,11 +47,6 @@ b3MotorJoint::b3MotorJoint(const b3MotorJointDef* def)
 
 void b3MotorJoint::InitializeConstraints(const b3SolverData* data)
 {
-	scalar inv_h = data->invdt;
-
-	b3Body* m_bodyA = GetBodyA();
-	b3Body* m_bodyB = GetBodyB();
-
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;
 	m_mA = m_bodyA->m_invMass;
@@ -66,6 +61,8 @@ void b3MotorJoint::InitializeConstraints(const b3SolverData* data)
 	
 	b3Vec3 xB = data->positions[m_indexB].x;
 	b3Quat qB = data->positions[m_indexB].q;
+
+	scalar inv_h = data->invdt;
 
 	{
 		// Compute effective mass for the block solver

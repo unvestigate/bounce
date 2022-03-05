@@ -45,11 +45,11 @@ void b3ContactManager::AddPair(void* dataA, void* dataB)
 
 	// Check if there is a contact between the two fixtures.
 	// Search the list A or B. The shorter if possible.
-	for (b3ContactEdge* ce = fixtureB->m_contactEdges.m_head; ce; ce = ce->m_next)
+	for (b3ContactEdge* ce = fixtureB->m_contactList.m_head; ce; ce = ce->m_next)
 	{
-		if (ce->other == fixtureA)
+		if (ce->m_other == fixtureA)
 		{
-			b3Contact* c = ce->contact;
+			b3Contact* c = ce->m_contact;
 
 			b3Fixture* fA = c->GetFixtureA();
 			b3Fixture* fB = c->GetFixtureB();
@@ -99,21 +99,20 @@ void b3ContactManager::AddPair(void* dataA, void* dataB)
 	bodyB = fixtureB->GetBody();
 
 	c->m_flags = 0;
-	b3OverlappingPair* pair = &c->m_pair;
-
+	
 	// Initialize edge A
-	pair->edgeA.contact = c;
-	pair->edgeA.other = fixtureB;
+	c->m_edgeA.m_contact = c;
+	c->m_edgeA.m_other = fixtureB;
 
 	// Add edge A to fixture A's contact list.
-	fixtureA->m_contactEdges.PushFront(&pair->edgeA);
+	fixtureA->m_contactList.PushFront(&c->m_edgeA);
 
 	// Initialize edge B
-	pair->edgeB.contact = c;
-	pair->edgeB.other = fixtureA;
+	c->m_edgeB.m_contact = c;
+	c->m_edgeB.m_other = fixtureA;
 
 	// Add edge B to fixture B's contact list.
-	fixtureB->m_contactEdges.PushFront(&pair->edgeB);
+	fixtureB->m_contactList.PushFront(&c->m_edgeB);
 
 	// Awake the bodies if both are not sensors.
 	if (!fixtureA->IsSensor() && !fixtureB->IsSensor())
@@ -156,13 +155,11 @@ void b3ContactManager::UpdateContacts()
 	b3Contact* c = m_contactList.m_head;
 	while (c)
 	{
-		b3OverlappingPair* pair = &c->m_pair;
-
-		b3Fixture* fixtureA = pair->fixtureA;
+		b3Fixture* fixtureA = c->m_fixtureA;
 		u32 proxyA = fixtureA->m_broadPhaseID;
 		b3Body* bodyA = fixtureA->m_body;
 
-		b3Fixture* fixtureB = pair->fixtureB;
+		b3Fixture* fixtureB = c->m_fixtureB;
 		u32 proxyB = fixtureB->m_broadPhaseID;
 		b3Body* bodyB = fixtureB->m_body;
 
@@ -230,13 +227,11 @@ void b3ContactManager::Destroy(b3Contact* c)
 		}
 	}
 
-	b3OverlappingPair* pair = &c->m_pair;
-
 	b3Fixture* fixtureA = c->GetFixtureA();
 	b3Fixture* fixtureB = c->GetFixtureB();
 
-	fixtureA->m_contactEdges.Remove(&pair->edgeA);
-	fixtureB->m_contactEdges.Remove(&pair->edgeB);
+	fixtureA->m_contactList.Remove(&c->m_edgeA);
+	fixtureB->m_contactList.Remove(&c->m_edgeB);
 
 	// Remove the contact from the world contact list.
 	m_contactList.Remove(c);

@@ -132,7 +132,7 @@ public:
 	void SetUserData(void* data);
 
 	// Get broadphase AABB.
-	const b3AABB& GetAABB() const;
+	const b3AABB& GetFatAABB() const;
 
 	// Get the list of contacts that contains this body.
 	const b3List<b3ContactEdge>& GetContactList() const;
@@ -186,7 +186,7 @@ protected:
 	void* m_userData;
 
 	// Contact edges for this fixture contact graph.
-	b3List<b3ContactEdge> m_contactEdges;
+	b3List<b3ContactEdge> m_contactList;
 	
 	// The parent body of this fixture.
 	b3Body* m_body;
@@ -268,12 +268,12 @@ inline b3Body* b3Fixture::GetBody()
 
 inline const b3List<b3ContactEdge>& b3Fixture::GetContactList() const
 {
-	return m_contactEdges;
+	return m_contactList;
 }
 
 inline b3List<b3ContactEdge>& b3Fixture::GetContactList()
 {
-	return m_contactEdges;
+	return m_contactList;
 }
 
 inline const b3Fixture* b3Fixture::GetNext() const

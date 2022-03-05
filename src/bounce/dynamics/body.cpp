@@ -132,12 +132,12 @@ void b3Body::DestroyContacts()
 
 void b3Body::DestroyJoints() 
 {
-	b3JointEdge* je = m_jointEdges.m_head;
+	b3JointEdge* je = m_jointList.m_head;
 	while (je)
 	{
 		b3JointEdge* tmp = je;
 		je = je->m_next;
-		m_world->m_jointManager.Destroy(tmp->joint);
+		m_world->m_jointManager.Destroy(tmp->m_joint);
 	}
 }
 
@@ -244,10 +244,10 @@ bool b3Body::ShouldCollide(const b3Body* other) const
 
 	// Check if there are joints that connects this body with the other body 
 	// and if the joint was configured to let not their collision occur.
-	for (b3JointEdge* je = m_jointEdges.m_head; je; je = je->m_next)
+	for (b3JointEdge* je = m_jointList.m_head; je; je = je->m_next)
 	{
-		b3Joint* j = je->joint;
-		if (je->other == other)
+		b3Joint* j = je->m_joint;
+		if (je->m_other == other)
 		{
 			if (j->m_collideLinked == false)
 			{

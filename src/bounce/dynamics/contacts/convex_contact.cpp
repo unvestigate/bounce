@@ -48,8 +48,8 @@ bool b3ConvexContact::TestOverlap()
 
 void b3ConvexContact::Collide() 
 {
-	b3Transform xfA = GetFixtureA()->GetBody()->GetTransform();
-	b3Transform xfB = GetFixtureB()->GetBody()->GetTransform();
+	b3Transform xfA = m_fixtureA->GetBody()->GetTransform();
+	b3Transform xfB = m_fixtureB->GetBody()->GetTransform();
 
 	B3_ASSERT(m_manifoldCount == 0);
 	Evaluate(m_manifold, xfA, xfB);

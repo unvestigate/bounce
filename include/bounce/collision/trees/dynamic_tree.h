@@ -22,18 +22,18 @@
 #include <bounce/common/template/stack.h>
 #include <bounce/collision/geometry/aabb.h>
 
+#define B3_NULL_DYNAMIC_NODE B3_MAX_U32
+
 class b3Draw;
 
-#define B3_NULL_NODE_D B3_MAX_U32
-
-// A node in a dynamic tree.
+// A node in a dynamic tree. The client does not interact with this directly.
 struct b3DynamicNode
 {
 	// Is this node a leaf?
 	bool IsLeaf() const
 	{
-		//A node is a leaf if child 2 == B3_NULL_NODE_D or height == 0.
-		return child1 == B3_NULL_NODE_D;
+		//A node is a leaf if child 2 == B3_NULL_DYNAMIC_NODE or height == 0.
+		return child1 == B3_NULL_DYNAMIC_NODE;
 	}
 
 	// The fattened node AABB.
@@ -55,7 +55,15 @@ struct b3DynamicNode
 	i32 height;
 };
 
-// AABB tree for dynamic AABBs.
+// A dynamic AABB tree , inspired by Erin Catto's b3DynamicTree.
+// A dynamic tree stores data in a binary tree to accelerate
+// queries such as volume queries and ray casts. Leafs are proxies
+// with an AABB. In the tree we expand the proxy AABB by B3_AABB_ETENSION
+// so that the proxy AABB is larger than the client object. 
+// This allows the client object to move by small amounts without triggering 
+// a tree update.
+// 
+// Nodes are pooled and relocatable, so we use node indices rather than pointers.
 class b3DynamicTree
 {
 public:
@@ -73,8 +81,8 @@ public:
 	// Return true if the proxy has moved.
 	bool MoveProxy(u32 proxyId, const b3AABB& aabb, const b3Vec3& displacement);
 
-	// Get the (fat) AABB of a given proxy.
-	const b3AABB& GetAABB(u32 proxyId) const;
+	// Get the fat AABB of a given proxy.
+	const b3AABB& GetFatAABB(u32 proxyId) const;
 
 	// Get the data associated with a given proxy.
 	void* GetUserData(u32 proxyId) const;
@@ -93,9 +101,6 @@ public:
 	// If the fraction == 0 then the query is cancelled immediately.
 	template<class T>
 	void RayCast(T* callback, const b3RayCastInput& input) const;
-
-	// Validate a given node of this tree.
-	void Validate(u32 node) const;
 
 	// Draw this tree.
 	void Draw(b3Draw* draw) const;
@@ -125,6 +130,9 @@ private:
 	// Balance the tree.
 	u32 Balance(u32 index);
 
+	// Validate a given node of this tree.
+	void Validate(u32 node) const;
+
 	// The root of this tree.
 	u32 m_root;
 
@@ -135,22 +143,22 @@ private:
 	u32 m_freeList;
 };
 
-inline const b3AABB& b3DynamicTree::GetAABB(u32 proxyId) const
+inline const b3AABB& b3DynamicTree::GetFatAABB(u32 proxyId) const
 {
-	B3_ASSERT(proxyId != B3_NULL_NODE_D && proxyId < m_nodeCapacity);
+	B3_ASSERT(proxyId != B3_NULL_DYNAMIC_NODE && proxyId < m_nodeCapacity);
 	return m_nodes[proxyId].aabb;
 }
 
 inline void* b3DynamicTree::GetUserData(u32 proxyId) const
 {
-	B3_ASSERT(proxyId != B3_NULL_NODE_D && proxyId < m_nodeCapacity);
+	B3_ASSERT(proxyId != B3_NULL_DYNAMIC_NODE && proxyId < m_nodeCapacity);
 	return m_nodes[proxyId].userData;
 }
 
 inline bool b3DynamicTree::TestOverlap(u32 proxy1, u32 proxy2) const
 {
-	B3_ASSERT(proxy1 != B3_NULL_NODE_D && proxy1 < m_nodeCapacity);
-	B3_ASSERT(proxy2 != B3_NULL_NODE_D && proxy2 < m_nodeCapacity);
+	B3_ASSERT(proxy1 != B3_NULL_DYNAMIC_NODE && proxy1 < m_nodeCapacity);
+	B3_ASSERT(proxy2 != B3_NULL_DYNAMIC_NODE && proxy2 < m_nodeCapacity);
 	return b3TestOverlap(m_nodes[proxy1].aabb, m_nodes[proxy2].aabb);
 }
 
@@ -165,7 +173,7 @@ inline void b3DynamicTree::QueryAABB(T* callback, const b3AABB& aabb) const
 		u32 nodeIndex = stack.Top();
 		stack.Pop();
 
-		if (nodeIndex == B3_NULL_NODE_D)
+		if (nodeIndex == B3_NULL_DYNAMIC_NODE)
 		{
 			continue;
 		}
@@ -223,7 +231,7 @@ inline void b3DynamicTree::RayCast(T* callback, const b3RayCastInput& input) con
 
 		stack.Pop();
 
-		if (nodeIndex == B3_NULL_NODE_D)
+		if (nodeIndex == B3_NULL_DYNAMIC_NODE)
 		{
 			continue;
 		}

@@ -23,25 +23,63 @@
 
 /*
 Game Physics Pearls, Quaternion Based Constraints - Claude Lacoursiere, page 195.
- 
+
+Algebra:
+
+Q(p) * P(q) = P(q) * Q(p)
+q' = 0.5 * w * q
+
 P = [0 1 0 0]
 	[0 0 1 0]
 	[0 0 0 1]
 
+Lock projection matrix:
+
+P_lock = [0 1 0 0]
+		 [0 0 1 0]
+		 [0 0 0 1]
+
+Constraint:
+
 q = conj(q1) * q2
 
-C = P * q
-C' = P * q'
+C = P_lock * q
+
+Chain rule:
 
 q' =
 conj(q1)' * q2 + conj(q1) * q2' =
-conj(q2') * q2 + conj(q1) * q2'
+conj(q1') * q2 + conj(q1) * q2'
 
-J1 = -0.5 * Q(conj(q1)) * P(q2)
-J2 =  0.5 * Q(conj(q1)) * P(q2)
+1st term:
 
-J1 = P * J1 * P^T
-J2 = P * J2 * P^T
+conj(q1') * q2 =
+0.5 * conj(w1 * q1) * w2 =
+0.5 * conj(q1) * conj(w1) * q2 =
+0.5 * conj(q1) * -w1 * q2 =
+-0.5 * conj(q1) * w1 * q2 =
+-0.5 * Q(conj(q1)) * P(q2) * Q(w1)
+
+G1 = -0.5 * Q(conj(q1)) * P(q2)
+
+2nd term:
+
+conj(q1) * q2' =
+0.5 * conj(q1) * w2 * q2 =
+0.5 * Q(conj(q1)) * Q(w2) * Q(q2) =
+0.5 * Q(conj(q1)) * P(q2) * Q(w2)
+
+G2 = 0.5 * Q(conj(q1)) * P(q2)
+
+C' = P_lock * q' =
+P_lock * (G1 * P^T * w1 + G2 * P^T * w2) =
+P_lock * G1 * P^T * w1 + P_lock * G2 * P^T * w2
+
+Jacobians:
+
+J1 = P_lock * G1 * P^T
+J2 = P_lock * G2 * P^T
+
 */
 
 static B3_FORCE_INLINE b3Mat44 b3_iQ_mat(const b3Quat& q)
@@ -53,7 +91,6 @@ static B3_FORCE_INLINE b3Mat44 b3_iQ_mat(const b3Quat& q)
 	Q.y = b3Vec4(-x, w, z, -y);
 	Q.z = b3Vec4(-y, -z, w, x);
 	Q.w = b3Vec4(-z, y, -x, w);
-
 	return Q;
 }
 
@@ -66,7 +103,6 @@ static B3_FORCE_INLINE b3Mat44 b3_iP_mat(const b3Quat& q)
 	P.y = b3Vec4(-x, w, -z, y);
 	P.z = b3Vec4(-y, z, w, -x);
 	P.w = b3Vec4(-z, -y, x, w);
-
 	return P;
 }
 
@@ -165,9 +201,6 @@ static B3_FORCE_INLINE void b3ComputeSoftConstraintCoefficients(scalar& gamma, s
 
 void b3WeldJoint::InitializeConstraints(const b3SolverData* data)
 {
-	b3Body* m_bodyA = GetBodyA();
-	b3Body* m_bodyB = GetBodyB();
-
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;
 	m_mA = m_bodyA->m_invMass;
@@ -353,13 +386,17 @@ bool b3WeldJoint::SolvePositionConstraints(const b3SolverData* data)
 
 		angularError += b3Length(C);
 
-		b3Mat33 J1 = -scalar(0.5) * b3Mat34_P_lock * b3_iQ_mat(b3Conjugate(qA)) * b3_iP_mat(qB) * b3Mat43_PT;
-		b3Mat33 J2 = scalar(0.5) * b3Mat34_P_lock * b3_iQ_mat(b3Conjugate(qA)) * b3_iP_mat(qB) * b3Mat43_PT;
+		b3Mat44 G1 = -scalar(0.5) * b3_iQ_mat(b3Conjugate(qA)) * b3_iP_mat(qB);
+		b3Mat44 G2 = scalar(0.5) * b3_iQ_mat(b3Conjugate(qA)) * b3_iP_mat(qB);
+
+		b3Mat33 J1 = b3Mat34_P_lock * G1 * b3Mat43_PT;
+		b3Mat33 J2 = b3Mat34_P_lock * G2 * b3Mat43_PT;
 
 		b3Mat33 J1T = b3Transpose(J1);
 		b3Mat33 J2T = b3Transpose(J2);
 
 		b3Mat33 mass = J1 * iA * J1T + J2 * iB * J2T;
+		
 		b3Vec3 impulse = mass.Solve(-C);
 
 		b3Vec3 P1 = J1T * impulse;

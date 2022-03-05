@@ -38,9 +38,6 @@ b3SphereJoint::b3SphereJoint(const b3SphereJointDef* def)
 
 void b3SphereJoint::InitializeConstraints(const b3SolverData* data)
 {
-	b3Body* m_bodyA = GetBodyA();
-	b3Body* m_bodyB = GetBodyB();
-
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;
 	m_mA = m_bodyA->m_invMass;

@@ -44,9 +44,6 @@ b3FrictionJoint::b3FrictionJoint(const b3FrictionJointDef* def)
 
 void b3FrictionJoint::InitializeConstraints(const b3SolverData* data)
 {
-	b3Body* m_bodyA = GetBodyA();
-	b3Body* m_bodyB = GetBodyB();
-
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;
 	m_mA = m_bodyA->m_invMass;

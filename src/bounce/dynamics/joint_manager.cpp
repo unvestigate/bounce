@@ -36,29 +36,29 @@ b3Joint* b3JointManager::Create(const b3JointDef* def)
 		return nullptr;
 	}
 
-	// Allocate the new joint.
+	// Create the new joint.
 	b3Joint* j = b3Joint::Create(def, m_allocator);
+	
 	j->m_flags = 0;
 	j->m_collideLinked = def->collideLinked;
 	j->m_userData = def->userData;
 
 	// Add the joint to body A's joint edge list
-	j->m_pair.bodyA = bodyA;
-	j->m_pair.edgeA.other = bodyB;
-	j->m_pair.edgeA.joint = j;
-	bodyA->m_jointEdges.PushFront(&j->m_pair.edgeA);
+	j->m_bodyA = bodyA;
+	j->m_edgeA.m_other = bodyB;
+	j->m_edgeA.m_joint = j;
+	bodyA->m_jointList.PushFront(&j->m_edgeA);
 
 	// Add the joint to body B's joint edge list
-	j->m_pair.bodyB = bodyB;
-	j->m_pair.edgeB.other = bodyA;
-	j->m_pair.edgeB.joint = j;
-	bodyB->m_jointEdges.PushFront(&j->m_pair.edgeB);
+	j->m_bodyB = bodyB;
+	j->m_edgeB.m_other = bodyA;
+	j->m_edgeB.m_joint = j;
+	bodyB->m_jointList.PushFront(&j->m_edgeB);
 
 	// Add the joint to the world joint list
 	m_jointList.PushFront(j);
 
 	// Creating a joint doesn't awake the bodies.
-
 	return j;
 }
 
@@ -68,10 +68,10 @@ void b3JointManager::Destroy(b3Joint* j)
 	b3Body* bodyB = j->GetBodyB();
 
 	// Remove the joint from body A's joint list.
-	bodyA->m_jointEdges.Remove(&j->m_pair.edgeA);
+	bodyA->m_jointList.Remove(&j->m_edgeA);
 
 	// Remove the joint from body B's joint list.
-	bodyB->m_jointEdges.Remove(&j->m_pair.edgeB);
+	bodyB->m_jointList.Remove(&j->m_edgeB);
 
 	// Remove the joint from the world joint list.
 	m_jointList.Remove(j);

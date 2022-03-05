@@ -75,9 +75,6 @@ b3ConeJoint::b3ConeJoint(const b3ConeJointDef* def)
 
 void b3ConeJoint::InitializeConstraints(const b3SolverData* data)
 {
-	b3Body* m_bodyA = GetBodyA();
-	b3Body* m_bodyB = GetBodyB();
-
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;
 

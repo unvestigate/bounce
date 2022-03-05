@@ -58,7 +58,7 @@ conj(q1') * q2 =
 -0.5 * conj(q1) * w1 * q2 =
 -0.5 * Q(conj(q1)) * P(q2) * Q(w1)
 
-J1 = -0.5 * Q(conj(qA)) * P(qB)
+G1 = -0.5 * Q(conj(q1)) * P(q2)
 
 2nd term:
 
@@ -67,16 +67,16 @@ conj(q1) * q2' =
 0.5 * Q(conj(q1)) * Q(w2) * Q(q2) =
 0.5 * Q(conj(q1)) * P(q2) * Q(w2)
 
-J2 = 0.5 * Q(conj(q1)) * P(q2)
+G2 = 0.5 * Q(conj(q1)) * P(q2)
 
 C' = P_hin * q' =
-P_hin * (J1 * P^T * w1 + J2 * P^T * w2) =
-P_hin * J1 * P^T * w1 + P_hin * J2 * P^T * w2
+P_hin * (G1 * P^T * w1 + G2 * P^T * w2) =
+P_hin * G1 * P^T * w1 + P_hin * G2 * P^T * w2
 
-New Jacobians:
+Jacobians:
 
-J1 = P_hin * J1 * P^T
-J2 = P_hin * J2 * P^T
+J1 = P_hin * G1 * P^T
+J2 = P_hin * G2 * P^T
 
 Limit constraint:
 
@@ -122,7 +122,6 @@ static B3_FORCE_INLINE b3Mat44 b3_iQ_mat(const b3Quat& q)
 	Q.y = b3Vec4(-x, w, z, -y);
 	Q.z = b3Vec4(-y, -z, w, x);
 	Q.w = b3Vec4(-z, y, -x, w);
-	
 	return Q;
 }
 
@@ -135,7 +134,6 @@ static B3_FORCE_INLINE b3Mat44 b3_iP_mat(const b3Quat& q)
 	P.y = b3Vec4(-x, w, -z, y);
 	P.z = b3Vec4(-y, z, w, -x);
 	P.w = b3Vec4(-z, -y, x, w);
-	
 	return P;
 }
 
@@ -231,9 +229,6 @@ b3RevoluteJoint::b3RevoluteJoint(const b3RevoluteJointDef* def)
 
 void b3RevoluteJoint::InitializeConstraints(const b3SolverData* data)
 {
-	b3Body* m_bodyA = GetBodyA();
-	b3Body* m_bodyB = GetBodyB();
-
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;
 	m_mA = m_bodyA->m_invMass;
@@ -260,13 +255,33 @@ void b3RevoluteJoint::InitializeConstraints(const b3SolverData* data)
 	// Joint rotation
 	b3Quat dq = b3Conjugate(m_referenceRotation) * b3Conjugate(fA) * fB;
 
+	// Angular Jacobians
+	b3Mat44 G1 = -scalar(0.5) * b3_iQ_mat(b3Conjugate(fA)) * b3_iP_mat(fB);
+	b3Mat44 G2 = scalar(0.5) * b3_iQ_mat(b3Conjugate(fA)) * b3_iP_mat(fB);
+
+	// Angular constraints.
+	{
+		b3Mat23 J1 = b3Mat24_P_hinge * G1 * b3Mat43_PT;
+		b3Mat23 J2 = b3Mat24_P_hinge * G2 * b3Mat43_PT;
+
+		b3Mat32 J1T = b3Transpose(J1);
+		b3Mat32 J2T = b3Transpose(J2);
+
+		m_angularJ1 = J1;
+		m_angularJ2 = J2;
+
+		m_angularJ1T = J1T;
+		m_angularJ2T = J2T;
+
+		b3Mat22 K = J1 * iA * J1T + J2 * iB * J2T;
+
+		m_angularMass = b3Inverse(K);
+	}
+
 	// Motor constraint.
 	if (m_enableMotor || m_enableLimit)
 	{
 		b3Vec4 P_hinge_limit = b3_P_hinge_limit_mat(dq);
-
-		b3Mat44 G1 = -scalar(0.5) * b3_iQ_mat(b3Conjugate(fA)) * b3_iP_mat(fB);
-		b3Mat44 G2 = scalar(0.5) * b3_iQ_mat(b3Conjugate(fA)) * b3_iP_mat(fB);
 
 		b3Vec3 J1 = P_hinge_limit * G1 * b3Mat43_PT;
 		b3Vec3 J2 = P_hinge_limit * G2 * b3Mat43_PT;
@@ -335,28 +350,6 @@ void b3RevoluteJoint::InitializeConstraints(const b3SolverData* data)
 		b3Mat33 M = b3Mat33Diagonal(mA + mB);
 
 		m_linearMass = M + RA * iA * RAT + RB * iB * RBT;
-	}
-
-	// Angular constraints.
-	{
-		b3Mat44 G1 = -scalar(0.5) * b3_iQ_mat(b3Conjugate(fA)) * b3_iP_mat(fB);
-		b3Mat44 G2 = scalar(0.5) * b3_iQ_mat(b3Conjugate(fA)) * b3_iP_mat(fB);
-		
-		b3Mat23 J1 = b3Mat24_P_hinge * G1 * b3Mat43_PT;
-		b3Mat23 J2 = b3Mat24_P_hinge * G2 * b3Mat43_PT;
-
-		b3Mat32 J1T = b3Transpose(J1);
-		b3Mat32 J2T = b3Transpose(J2);
-
-		m_angularJ1 = J1;
-		m_angularJ2 = J2;
-		
-		m_angularJ1T = J1T;
-		m_angularJ2T = J2T;
-
-		b3Mat22 K = J1 * iA * J1T + J2 * iB * J2T;
-		
-		m_angularMass = b3Inverse(K);
 	}
 }
 

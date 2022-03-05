@@ -23,7 +23,7 @@
 #include <bounce/collision/geometry/aabb.h>
 #include <bounce/collision/collision.h>
 
-#define B3_NULL_NODE_S B3_MAX_U32
+#define B3_NULL_STATIC_NODE B3_MAX_U32
 
 class b3Draw;
 
@@ -33,7 +33,7 @@ struct b3StaticNode
 	// Is this node a leaf?
 	bool IsLeaf() const
 	{
-		return child1 == B3_NULL_NODE_S;
+		return child1 == B3_NULL_STATIC_NODE;
 	}
 
 	b3AABB aabb;
@@ -74,14 +74,14 @@ public:
 	template<class T>
 	void RayCast(T* callback, const b3RayCastInput& input) const;
 
-	// Draw this tree.
-	void Draw(b3Draw* draw) const;
-
 	// Get the size in bytes of this tree.
 	u32 GetSize() const;
+
+	// Draw this tree.
+	void Draw(b3Draw* draw) const;
 private :
 	// Build this tree recursively.
-	void BuildRecursively(const b3AABB* set, b3StaticNode* node, u32* indices, u32 count, u32 minObjectsPerLeaf, u32 nodeCapacity, u32& leafCount, u32& internalCount);
+	void BuildRecursively(b3StaticNode* node, u32* indices, u32 count, const b3AABB* aabbs, u32 nodeCapacity, u32& leafCount, u32& internalCount);
 	
 	// The root of this tree.
 	u32 m_root;
@@ -119,7 +119,7 @@ inline void b3StaticTree::QueryAABB(T* callback, const b3AABB& aabb) const
 	{
 		u32 nodeIndex = stack.Top();
 
-		if (nodeIndex == B3_NULL_NODE_S)
+		if (nodeIndex == B3_NULL_STATIC_NODE)
 		{
 			continue;
 		}
@@ -184,7 +184,7 @@ inline void b3StaticTree::RayCast(T* callback, const b3RayCastInput& input) cons
 
 		stack.Pop();
 
-		if (nodeIndex == B3_NULL_NODE_S)
+		if (nodeIndex == B3_NULL_STATIC_NODE)
 		{
 			continue;
 		}

@@ -74,12 +74,12 @@ void b3Fixture::SetSensor(bool flag)
 void b3Fixture::DestroyContacts()
 {
 	b3World* world = m_body->GetWorld();
-	b3ContactEdge* ce = m_contactEdges.m_head;
+	b3ContactEdge* ce = m_contactList.m_head;
 	while (ce)
 	{
 		b3ContactEdge* tmp = ce;
 		ce = ce->m_next;
-		world->m_contactManager.Destroy(tmp->contact);
+		world->m_contactManager.Destroy(tmp->m_contact);
 	}
 }
 
@@ -97,9 +97,9 @@ void b3Fixture::Synchronize(b3BroadPhase* broadPhase, const b3Transform& transfo
 	broadPhase->MoveProxy(m_broadPhaseID, aabb, displacement);
 }
 
-const b3AABB& b3Fixture::GetAABB() const
+const b3AABB& b3Fixture::GetFatAABB() const
 {
-	return m_body->GetWorld()->m_contactManager.m_broadPhase.GetAABB(m_broadPhaseID);
+	return m_body->m_world->m_contactManager.m_broadPhase.GetFatAABB(m_broadPhaseID);
 }
 
 void b3Fixture::Dump(u32 bodyIndex) const

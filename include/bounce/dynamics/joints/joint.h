@@ -68,9 +68,8 @@ struct b3JointDef
 // A joint edge to a joint graph, where a body is a vertex and a joint an edge.
 struct b3JointEdge
 {
-	b3Body* other;
-	b3Joint* joint;
-	// Links to the joint edge list.
+	b3Body* m_other;
+	b3Joint* m_joint;
 	b3JointEdge* m_prev;
 	b3JointEdge* m_next;
 };
@@ -78,13 +77,6 @@ struct b3JointEdge
 // This is stored in a joint. It stores two bodies that are linked by the joint.
 struct b3LinkedPair
 {
-	// To the body A joint edge list
-	b3Body* bodyA;
-	b3JointEdge edgeA;
-
-	// To the body B joint edge list
-	b3Body* bodyB;
-	b3JointEdge edgeB;
 };
 
 // Base joint class. For simplicity, a joint is unique per body pair. 
@@ -158,8 +150,16 @@ protected:
 	
 	b3JointType m_type;
 	u32 m_flags;
-	b3LinkedPair m_pair;	
-	
+
+	b3Body* m_bodyA;
+	b3Body* m_bodyB;
+
+	// To the body A joint edge list.
+	b3JointEdge m_edgeA;
+
+	// To the body B joint edge list.
+	b3JointEdge m_edgeB;
+
 	void* m_userData;
 	bool m_collideLinked;
 
@@ -175,22 +175,22 @@ inline b3JointType b3Joint::GetType() const
 
 inline const b3Body* b3Joint::GetBodyA() const
 {
-	return m_pair.bodyA;
+	return m_bodyA;
 }
 
 inline b3Body* b3Joint::GetBodyA()
 {
-	return m_pair.bodyA;
+	return m_bodyA;
 }
 
 inline const b3Body* b3Joint::GetBodyB() const
 {
-	return m_pair.bodyB;
+	return m_bodyB;
 }
 
 inline b3Body* b3Joint::GetBodyB() 
 {
-	return m_pair.bodyB;
+	return m_bodyB;
 }
 
 inline void* b3Joint::GetUserData() 

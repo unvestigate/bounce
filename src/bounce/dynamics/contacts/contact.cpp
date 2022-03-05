@@ -109,8 +109,8 @@ void b3Contact::Destroy(b3Contact* contact, b3BlockAllocator* allocator)
 {
 	B3_ASSERT(s_initialized == true);
 
-	b3Fixture* fixtureA = contact->m_pair.fixtureA;
-	b3Fixture* fixtureB = contact->m_pair.fixtureB;
+	b3Fixture* fixtureA = contact->m_fixtureA;
+	b3Fixture* fixtureB = contact->m_fixtureB;
 
 	for (u32 i = 0; i < contact->m_manifoldCount; ++i)
 	{
@@ -139,8 +139,8 @@ void b3Contact::Destroy(b3Contact* contact, b3BlockAllocator* allocator)
 
 b3Contact::b3Contact(b3Fixture* fixtureA, b3Fixture* fixtureB)
 {
-	m_pair.fixtureA = fixtureA;
-	m_pair.fixtureB = fixtureB;
+	m_fixtureA = fixtureA;
+	m_fixtureB = fixtureB;
 }
 
 void b3Contact::GetWorldManifold(b3WorldManifold* out, u32 index) const
@@ -271,10 +271,10 @@ void b3Contact::Update(b3ContactListener* listener)
 
 bool b3Contact::IsSensorContact() const
 {
-	return m_pair.fixtureA->IsSensor() || m_pair.fixtureB->IsSensor();
+	return m_fixtureA->IsSensor() || m_fixtureB->IsSensor();
 }
 
 bool b3Contact::HasDynamicBody() const
 {
-	return m_pair.fixtureA->m_body->m_type == e_dynamicBody || m_pair.fixtureB->m_body->m_type == e_dynamicBody;
+	return m_fixtureA->m_body->m_type == e_dynamicBody || m_fixtureB->m_body->m_type == e_dynamicBody;
 }

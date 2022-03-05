@@ -223,9 +223,9 @@ void b3World::Solve(scalar dt, u32 velocityIterations, u32 positionIterations)
 			// Search all contacts connected to this body.
 			for (b3Fixture* f = b->m_fixtureList.m_head; f; f = f->m_next)
 			{
-				for (b3ContactEdge* ce = f->m_contactEdges.m_head; ce; ce = ce->m_next)
+				for (b3ContactEdge* ce = f->m_contactList.m_head; ce; ce = ce->m_next)
 				{
-					b3Contact* contact = ce->contact;
+					b3Contact* contact = ce->m_contact;
 
 					// The contact must not be on an island.
 					if (contact->m_flags & b3Contact::e_islandFlag)
@@ -266,7 +266,7 @@ void b3World::Solve(scalar dt, u32 velocityIterations, u32 positionIterations)
 					island.Add(contact);
 					contact->m_flags |= b3Contact::e_islandFlag;
 
-					b3Body* other = ce->other->GetBody();
+					b3Body* other = ce->m_other->GetBody();
 
 					// Skip adjacent vertex if it was visited.
 					if (other->m_flags & b3Body::e_islandFlag)
@@ -282,9 +282,9 @@ void b3World::Solve(scalar dt, u32 velocityIterations, u32 positionIterations)
 			}
 
 			// Search all joints connected to this body.
-			for (b3JointEdge* je = b->m_jointEdges.m_head; je; je = je->m_next)
+			for (b3JointEdge* je = b->m_jointList.m_head; je; je = je->m_next)
 			{
-				b3Joint* joint = je->joint;
+				b3Joint* joint = je->m_joint;
 
 				// The joint must not be on an island.
 				if (joint->m_flags & b3Joint::e_islandFlag)
@@ -296,7 +296,7 @@ void b3World::Solve(scalar dt, u32 velocityIterations, u32 positionIterations)
 				island.Add(joint);
 				joint->m_flags |= b3Joint::e_islandFlag;
 
-				b3Body* other = je->other;
+				b3Body* other = je->m_other;
 
 				// The other body must not be on an island.
 				if (other->m_flags & b3Body::e_islandFlag)
@@ -883,7 +883,7 @@ void b3World::Draw() const
 		{
 			for (b3Fixture* f = b->m_fixtureList.m_head; f; f = f->m_next)
 			{
-				const b3AABB& aabb = m_contactManager.m_broadPhase.GetAABB(f->m_broadPhaseID);
+				const b3AABB& aabb = m_contactManager.m_broadPhase.GetFatAABB(f->m_broadPhaseID);
 				m_debugDraw->DrawAABB(aabb, b3Color_pink);
 			}
 		}

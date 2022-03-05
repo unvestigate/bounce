@@ -51,8 +51,6 @@ static B3_FORCE_INLINE void b3ComputeSoftConstraintCoefficients(scalar& gamma, s
 
 void b3MouseJoint::InitializeConstraints(const b3SolverData* data) 
 {
-	b3Body* m_bodyB = GetBodyB();
-
 	m_indexB = m_bodyB->m_islandID;
 	m_mB = m_bodyB->m_invMass;
 	m_iB = data->invInertias[m_indexB];

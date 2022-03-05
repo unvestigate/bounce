@@ -72,14 +72,12 @@ b3MeshContact::~b3MeshContact()
 
 void b3MeshContact::SynchronizeFixture()
 {
-	b3Fixture* fixtureA = GetFixtureA();
-	b3Shape* shapeA = fixtureA->GetShape();
-	b3Body* bodyA = fixtureA->GetBody();
+	b3Shape* shapeA = m_fixtureA->GetShape();
+	b3Body* bodyA = m_fixtureA->GetBody();
 	b3Transform xfA = bodyA->GetTransform();
 
-	b3Fixture* fixtureB = GetFixtureB();
-	b3Shape* shapeB = fixtureB->GetShape();
-	b3Body* bodyB = fixtureB->GetBody();
+	b3Shape* shapeB = m_fixtureB->GetShape();
+	b3Body* bodyB = m_fixtureB->GetBody();
 	b3Transform xfB = bodyB->GetTransform();
 
 	b3Sweep* sweepB = &bodyB->m_sweep;
@@ -243,14 +241,12 @@ bool b3MeshContact::TestOverlap()
 
 void b3MeshContact::Collide()
 {
-	b3Fixture* fixtureA = GetFixtureA();
-	b3Shape* shapeA = fixtureA->GetShape();
-	b3Body* bodyA = fixtureA->GetBody();
+	b3Shape* shapeA = m_fixtureA->GetShape();
+	b3Body* bodyA = m_fixtureA->GetBody();
 	b3Transform xfA = bodyA->GetTransform();
 
-	b3Fixture* fixtureB = GetFixtureB();
-	b3Shape* shapeB = fixtureB->GetShape();
-	b3Body* bodyB = fixtureB->GetBody();
+	b3Shape* shapeB = m_fixtureB->GetShape();
+	b3Body* bodyB = m_fixtureB->GetBody();
 	b3Transform xfB = bodyB->GetTransform();
 
 	b3StackAllocator* allocator = &bodyA->m_world->m_stackAllocator;

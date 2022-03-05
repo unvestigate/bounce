@@ -21,29 +21,6 @@
 #include <bounce/common/math/mat.h>
 #include <bounce/common/draw.h>
 
-/*
-Game Physics Pearls, Quaternion Based Constraints - Claude Lacoursiere, page 195.
-
-P = [0 1 0 0]
-	[0 0 1 0]
-	[0 0 0 1]
-
-q = conj(q1) * q2
-
-C = P * q
-C' = P * q'
-
-q' =
-conj(q1)' * q2 + conj(q1) * q2' =
-conj(q2') * q2 + conj(q1) * q2'
-
-J1 = -0.5 * Q(conj(q1)) * P(q2)
-J2 =  0.5 * Q(conj(q1)) * P(q2)
-
-J1 = P * J1 * P^T
-J2 = P * J2 * P^T
-*/
-
 static B3_FORCE_INLINE b3Mat44 b3_iQ_mat(const b3Quat& q)
 {
 	scalar x = q.v.x, y = q.v.y, z = q.v.z, w = q.s;
@@ -52,8 +29,7 @@ static B3_FORCE_INLINE b3Mat44 b3_iQ_mat(const b3Quat& q)
 	Q.x = b3Vec4(w, x, y, z);
 	Q.y = b3Vec4(-x, w, z, -y);
 	Q.z = b3Vec4(-y, -z, w, x);
-	Q.w = b3Vec4(-z, y, -x, w);
-	
+	Q.w = b3Vec4(-z, y, -x, w);	
 	return Q;
 }
 
@@ -66,7 +42,6 @@ static B3_FORCE_INLINE b3Mat44 b3_iP_mat(const b3Quat& q)
 	P.y = b3Vec4(-x, w, -z, y);
 	P.z = b3Vec4(-y, z, w, -x);
 	P.w = b3Vec4(-z, -y, x, w);
-	
 	return P;
 }
 
@@ -140,9 +115,6 @@ b3PrismaticJoint::b3PrismaticJoint(const b3PrismaticJointDef* def)
 
 void b3PrismaticJoint::InitializeConstraints(const b3SolverData* data)
 {
-	b3Body* m_bodyA = GetBodyA();
-	b3Body* m_bodyB = GetBodyB();
-
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;
 	m_mA = m_bodyA->m_invMass;
@@ -451,8 +423,11 @@ bool b3PrismaticJoint::SolvePositionConstraints(const b3SolverData* data)
 
 		angularError += b3Length(C);
 
-		b3Mat33 J1 = -scalar(0.5) * b3Mat34_P_lock * b3_iQ_mat(b3Conjugate(qA)) * b3_iP_mat(qB) * b3Mat43_PT;
-		b3Mat33 J2 = scalar(0.5) * b3Mat34_P_lock * b3_iQ_mat(b3Conjugate(qA)) * b3_iP_mat(qB) * b3Mat43_PT;
+		b3Mat44 G1 = -scalar(0.5) * b3_iQ_mat(b3Conjugate(qA)) * b3_iP_mat(qB);
+		b3Mat44 G2 = scalar(0.5) * b3_iQ_mat(b3Conjugate(qA)) * b3_iP_mat(qB);
+
+		b3Mat33 J1 = b3Mat34_P_lock * G1 * b3Mat43_PT;
+		b3Mat33 J2 = b3Mat34_P_lock * G2 * b3Mat43_PT;
 
 		b3Mat33 J1T = b3Transpose(J1);
 		b3Mat33 J2T = b3Transpose(J2);

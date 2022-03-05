@@ -39,9 +39,8 @@ struct b3ConvexCache;
 // an edge.
 struct b3ContactEdge
 {
-	b3Fixture* other;
-	b3Contact* contact;
-	// Links to the contact edge list.
+	b3Fixture* m_other;
+	b3Contact* m_contact;
 	b3ContactEdge* m_prev;
 	b3ContactEdge* m_next;
 };
@@ -50,12 +49,6 @@ struct b3ContactEdge
 // It holds two shapes that are overlapping.
 struct b3OverlappingPair
 {
-	// To the fixture A edge list.
-	b3Fixture* fixtureA;
-	b3ContactEdge edgeA;
-	// To the fixture B edge list.
-	b3Fixture* fixtureB;
-	b3ContactEdge edgeB;
 };
 
 typedef b3Contact* b3ContactCreateFcn(b3Fixture* shapeA, b3Fixture* shapeB, b3BlockAllocator* allocator);
@@ -154,8 +147,16 @@ protected:
 	virtual void FindPairs() { }
 
 	u32 m_flags;
-	b3OverlappingPair m_pair;
+	
+	b3Fixture* m_fixtureA;
+	b3Fixture* m_fixtureB;
 
+	// To the fixture A edge list.
+	b3ContactEdge m_edgeA;
+	
+	// To the fixture B edge list.
+	b3ContactEdge m_edgeB;
+	
 	// Contact manifolds.
 	u32 m_manifoldCapacity;
 	b3Manifold* m_manifolds;
@@ -168,22 +169,22 @@ protected:
 
 inline b3Fixture* b3Contact::GetFixtureA() 
 {
-	return m_pair.fixtureA;
+	return m_fixtureA;
 }
 
 inline const b3Fixture* b3Contact::GetFixtureA() const 
 {
-	return m_pair.fixtureA;
+	return m_fixtureA;
 }
 
 inline b3Fixture* b3Contact::GetFixtureB()
 {
-	return m_pair.fixtureB;
+	return m_fixtureB;
 }
 
 inline const b3Fixture* b3Contact::GetFixtureB() const
 {
-	return m_pair.fixtureB;
+	return m_fixtureB;
 }
 
 inline u32 b3Contact::GetManifoldCapacity() const

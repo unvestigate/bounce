@@ -17,13 +17,12 @@
 */
 
 #include <bounce/collision/trees/static_tree.h>
-#include <bounce/common/template/stack.h>
 #include <bounce/common/draw.h>
 #include <algorithm>
 
 b3StaticTree::b3StaticTree()
 {
-	m_root = B3_NULL_NODE_S;
+	m_root = B3_NULL_STATIC_NODE;
 	m_nodes = nullptr;
 	m_nodeCount = 0;
 }
@@ -35,21 +34,19 @@ b3StaticTree::~b3StaticTree()
 
 struct b3SortPredicate
 {
-	b3SortPredicate() { }
-
 	bool operator()(u32 a, u32 b)
 	{
-		b3Vec3 ca = set[a].GetCenter();
-		b3Vec3 cb = set[b].GetCenter();
-
-		return ca[axis] < cb[axis];
+		b3Vec3 cA = aabbs[a].GetCenter();
+		b3Vec3 cB = aabbs[b].GetCenter();
+		
+		return cA[axis] < cB[axis];
 	}
 
-	const b3AABB* set;
 	u32 axis;
+	const b3AABB* aabbs;
 };
 
-static u32 b3Partition(const b3AABB& setAABB, const b3AABB* set, u32* ids, u32 count)
+static u32 b3Partition(const b3AABB& setAABB, u32* indices, u32 count, const b3AABB* aabbs)
 {
 	// Choose a partitioning axis.
 	u32 splitAxis = setAABB.GetLongestAxisIndex();
@@ -59,10 +56,10 @@ static u32 b3Partition(const b3AABB& setAABB, const b3AABB* set, u32* ids, u32 c
 
 	// Sort along the split axis.
 	b3SortPredicate predicate;
-	predicate.set = set;
+	predicate.aabbs = aabbs;
 	predicate.axis = splitAxis;
 
-	std::sort(ids, ids + count, predicate);
+	std::sort(indices, indices + count, predicate);
 
 	// Find the AABB that splits the set in two subsets.
 	u32 left = 0;
@@ -70,7 +67,7 @@ static u32 b3Partition(const b3AABB& setAABB, const b3AABB* set, u32* ids, u32 c
 	u32 middle = left;
 	while (middle < right)
 	{
-		b3Vec3 center = set[ids[middle]].GetCenter();
+		b3Vec3 center = aabbs[indices[middle]].GetCenter();
 		if (center[splitAxis] > splitPos)
 		{
 			// Found median.
@@ -91,31 +88,31 @@ static u32 b3Partition(const b3AABB& setAABB, const b3AABB* set, u32* ids, u32 c
 	return middle;
 }
 
-void b3StaticTree::BuildRecursively(const b3AABB* set, b3StaticNode* node, u32* ids, u32 count, u32 minObjectsPerLeaf, u32 nodeCapacity, u32& leafCount, u32& internalCount)
+void b3StaticTree::BuildRecursively(b3StaticNode* node, u32* indices, u32 count, const b3AABB* aabbs, u32 nodeCapacity, u32& leafCount, u32& internalCount)
 {
 	B3_ASSERT(count > 0);
 	
 	// Enclose set
-	b3AABB setAABB = set[ids[0]];
+	b3AABB setAABB = aabbs[indices[0]];
 	for (u32 i = 1; i < count; ++i)
 	{
-		setAABB = b3Combine(setAABB, set[ids[i]]);
+		setAABB = b3Combine(setAABB, aabbs[indices[i]]);
 	}
 
 	node->aabb = setAABB;
 
-	if (count <= minObjectsPerLeaf)
+	if (count <= 1)
 	{
 		++leafCount;
-		node->child1 = B3_NULL_NODE_S;
-		node->index = ids[0];
+		node->child1 = B3_NULL_STATIC_NODE;
+		node->index = indices[0];
 	}
 	else
 	{
 		++internalCount;
 
 		// Partition current set
-		u32 middle = b3Partition(setAABB, set, ids, count);
+		u32 middle = b3Partition(setAABB, indices, count, aabbs);
 
 		// Allocate left subtree
 		B3_ASSERT(m_nodeCount < nodeCapacity);
@@ -128,40 +125,37 @@ void b3StaticTree::BuildRecursively(const b3AABB* set, b3StaticNode* node, u32* 
 		++m_nodeCount;
 
 		// Build left and right subtrees
-		BuildRecursively(set, m_nodes + node->child1, ids, middle, minObjectsPerLeaf, nodeCapacity, leafCount, internalCount);
-		BuildRecursively(set, m_nodes + node->child2, ids + middle, count - middle, minObjectsPerLeaf, nodeCapacity, leafCount, internalCount);
+		BuildRecursively(m_nodes + node->child1, indices, middle, aabbs, nodeCapacity, leafCount, internalCount);
+		BuildRecursively(m_nodes + node->child2, indices + middle, count - middle, aabbs, nodeCapacity, leafCount, internalCount);
 	}
 }
 
-void b3StaticTree::Build(const b3AABB* set, u32 count)
+void b3StaticTree::Build(const b3AABB* aabbs, u32 count)
 {
 	B3_ASSERT(m_nodes == nullptr && m_nodeCount == 0);
 	B3_ASSERT(count > 0);
 
-	u32* ids = (u32*)b3Alloc(count * sizeof(u32));
-	for (u32 i = 0; i < count; ++i)
-	{
-		ids[i] = i;
-	}
-
 	// Leafs = n, Internals = n - 1, Total = 2n - 1, if we assume
 	// each leaf node contains exactly 1 object.
-	const u32 kMinObjectsPerLeaf = 1;
-
 	u32 internalCapacity = count - 1;
 	u32 leafCapacity = count;
 	u32 nodeCapacity = 2 * count - 1;
-
-	u32 internalCount = 0;
-	u32 leafCount = 0;
-
+	
 	m_root = 0;
 	m_nodes = (b3StaticNode*)b3Alloc(nodeCapacity * sizeof(b3StaticNode));
 	m_nodeCount = 1;
 
-	BuildRecursively(set, m_nodes, ids, count, kMinObjectsPerLeaf, nodeCapacity, leafCount, internalCount);
+	u32* indices = (u32*)b3Alloc(count * sizeof(u32));
+	for (u32 i = 0; i < count; ++i)
+	{
+		indices[i] = i;
+	}
 
-	b3Free(ids);
+	u32 leafCount = 0;
+	u32 internalCount = 0;
+	BuildRecursively(m_nodes, indices, count, aabbs, nodeCapacity, leafCount, internalCount);
+
+	b3Free(indices);
 
 	B3_ASSERT(leafCount == leafCapacity);
 	B3_ASSERT(internalCount == internalCapacity);
@@ -187,11 +181,11 @@ void b3StaticTree::Draw(b3Draw* draw) const
 		const b3StaticNode* node = m_nodes + nodeIndex;
 		if (node->IsLeaf())
 		{
-			draw->DrawAABB(node->aabb, b3Color_pink);
+			draw->DrawAABB(node->aabb, b3Color_red);
 		}
 		else
 		{
-			draw->DrawAABB(node->aabb, b3Color_red);
+			draw->DrawAABB(node->aabb, b3Color_green);
 			
 			stack.Push(node->child1);
 			stack.Push(node->child2);
