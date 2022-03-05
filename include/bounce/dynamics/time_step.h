@@ -77,44 +77,10 @@ inline b3Quat b3Derivative(const b3Quat& orientation, const b3Vec3& velocity)
 // represented by the orientation, and the time step dt.
 inline b3Quat b3Integrate(const b3Quat& orientation, const b3Vec3& omega, scalar dt)
 {
-	// "Practical Parameterization of Rotations Using the Exponential Map", Grassia
-	scalar h = dt;
-
-	scalar x = b3Length(omega);
-
-	const scalar kTol = scalar(10.0e-4);
-
-	b3Vec3 qv;
-	if (scalar(0.5) * h * x < kTol)
-	{
-		// Use first three terms of Taylor expansion of sin(h * x / 2)
-		
-		// f'(0) / 1! * x = h / 2 * x
-		// f''(0) / 2! * x^2 = 0 * 2 / x ^ 2 = 0
-		// f'''(0) / 3! * x^3 = -x^3 * h^3 / 48
-
-		// Sum up, divide by x, and simplify (expand)
-		// s = h / 2 - (h * h * h) * x * x / 48
-		const scalar kInv48 = scalar(1) / scalar(48);
-		
-		scalar s = scalar(0.5) * h - kInv48 * (h * h * h) * x * x;
-
-		qv = s * omega;
-	}
-	else
-	{
-		scalar s = sin(scalar(0.5) * h * x) / x;
-
-		qv = s * omega;
-	}
-
-	b3Quat q;
-	q.v = qv;
-	q.s = cos(scalar(0.5) * h * x);
-
-	b3Quat q1 = q * orientation;
-	q1.Normalize();
-	return q1;
+	b3Quat qdot = b3Derivative(orientation, omega);
+	b3Quat q = orientation + dt * qdot;
+	q.Normalize();
+	return q;
 }
 
 #endif
