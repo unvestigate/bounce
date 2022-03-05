@@ -131,11 +131,11 @@ void GLPointsRenderer::Vertex(float x, float y, float z, float r, float g, float
 	++m_vertex_count;
 }
 
-void GLPointsRenderer::SetMVP(float* mvp)
+void GLPointsRenderer::SetMVP(scalar* mvp)
 {
 	for (int i = 0; i < 16; ++i)
 	{
-		m_mvp[i] = mvp[i];
+		m_mvp[i] = (float)mvp[i];
 	}
 }
 

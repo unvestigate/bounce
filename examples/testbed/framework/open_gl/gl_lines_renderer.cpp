@@ -121,11 +121,11 @@ void GLLinesRenderer::Vertex(float x, float y, float z, float r, float g, float 
 	++m_vertex_count;
 }
 
-void GLLinesRenderer::SetMVP(float* mvp)
+void GLLinesRenderer::SetMVP(scalar* mvp)
 {
 	for (int i = 0; i < 16; ++i)
 	{
-		m_mvp[i] = mvp[i];
+		m_mvp[i] = (float)mvp[i];
 	}
 }
 

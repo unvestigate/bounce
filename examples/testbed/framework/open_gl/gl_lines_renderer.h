@@ -30,7 +30,7 @@ public:
 	
 	int GetVertexCapacity() { return m_vertex_capacity; }
 	int GetVertexCount() { return m_vertex_count; }
-	void SetMVP(float* mvp);
+	void SetMVP(scalar* mvp);
 
 	void AddLine(const b3Vec3& p1, const b3Vec3& p2, const b3Color& color) override;
 	void FlushLines(bool depthEnabled) override;

@@ -22,9 +22,9 @@
 #include <bounce/common/math/vec2.h>
 #include <bounce/collision/collide/clip.h>
 
-#define B3_NULL_TRIANGLE (0xFFFFFFFF)
+#define B3_NULL_TRIANGLE B3_MAX_U32
 
-// A contact manifold point.
+// A contact manifold point identifier.
 struct b3ManifoldPointKey
 {
 	bool operator==(const b3ManifoldPointKey& other) const

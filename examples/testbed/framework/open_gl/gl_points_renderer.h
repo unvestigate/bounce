@@ -30,7 +30,7 @@ public:
 	
 	int GetVertexCapacity() { return m_vertex_capacity; }
 	int GetVertexCount() { return m_vertex_count; }
-	void SetMVP(float* mvp);
+	void SetMVP(scalar* mvp);
 	
 	void AddPoint(const b3Vec3& position, const b3Color& color, scalar size) override;
 	void FlushPoints(bool depthEnabled) override;

@@ -140,11 +140,11 @@ void GLTrianglesRenderer::Vertex(float x, float y, float z, float r, float g, fl
 	++m_vertex_count;
 }
 
-void GLTrianglesRenderer::SetMVP(float* mvp)
+void GLTrianglesRenderer::SetMVP(scalar* mvp)
 {
 	for (int i = 0; i < 16; ++i)
 	{
-		m_mvp[i] = mvp[i];
+		m_mvp[i] = (float)mvp[i];
 	}
 }
 

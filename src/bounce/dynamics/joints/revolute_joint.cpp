@@ -297,6 +297,11 @@ void b3RevoluteJoint::InitializeConstraints(const b3SolverData* data)
 		m_motorMass = K > scalar(0) ? scalar(1) / K : scalar(0);
 	}
 
+	if (m_enableMotor == false)
+	{
+		m_motorImpulse = scalar(0);
+	}
+
 	// Limit constraint.
 	if (m_enableLimit)
 	{
@@ -336,6 +341,7 @@ void b3RevoluteJoint::InitializeConstraints(const b3SolverData* data)
 	else
 	{
 		m_limitState = e_inactiveLimit;
+		m_limitImpulse = scalar(0);
 	}
 
 	// Linear constraints.
@@ -562,37 +568,29 @@ bool b3RevoluteJoint::SolvePositionConstraints(const b3SolverData* data)
 		scalar K = J1 * iA * J1T + J2 * iB * J2T;
 		scalar limitMass = K > scalar(0) ? scalar(1) / K : scalar(0);
 
-		scalar limitImpulse = scalar(0);
-
 		scalar angle = scalar(2) * atan2(dq.v.z, dq.s);
+
+		scalar C = scalar(0);
 
 		if (b3Abs(m_upperAngle - m_lowerAngle) < scalar(2) * B3_ANGULAR_SLOP)
 		{
-			scalar C = angle - m_lowerAngle;
-			angularError += b3Abs(C);
-
 			// Prevent large corrections
-			C = b3Clamp(C, -B3_MAX_ANGULAR_CORRECTION, B3_MAX_ANGULAR_CORRECTION);
-			limitImpulse = -C * limitMass;
+			C = b3Clamp(angle - m_lowerAngle, -B3_MAX_ANGULAR_CORRECTION, B3_MAX_ANGULAR_CORRECTION);
 		}
 		else if (angle <= m_lowerAngle)
 		{
-			scalar C = angle - m_lowerAngle;
-			angularError += -C;
-
 			// Allow some slop and prevent large corrections
-			C = b3Clamp(C + B3_ANGULAR_SLOP, -B3_MAX_ANGULAR_CORRECTION, scalar(0));
-			limitImpulse = -C * limitMass;
+			C = b3Clamp(angle - m_lowerAngle + B3_ANGULAR_SLOP, -B3_MAX_ANGULAR_CORRECTION, scalar(0));
 		}
 		else if (angle >= m_upperAngle)
 		{
-			scalar C = angle - m_upperAngle;
-			angularError += C;
-
 			// Allow some slop and prevent large corrections
-			C = b3Clamp(C - B3_ANGULAR_SLOP, scalar(0), B3_MAX_ANGULAR_CORRECTION);
-			limitImpulse = -C * limitMass;
+			C = b3Clamp(angle - m_upperAngle - B3_ANGULAR_SLOP, scalar(0), B3_MAX_ANGULAR_CORRECTION);
 		}
+		
+		angularError += b3Abs(C);
+
+		scalar limitImpulse = -C * limitMass;
 
 		b3Vec3 P1 = J1T * limitImpulse;
 		b3Vec3 P2 = J2T * limitImpulse;

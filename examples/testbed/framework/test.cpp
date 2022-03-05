@@ -37,11 +37,21 @@ float RandomFloat(float a, float b)
 
 b3Hull* CreateHull(const b3Vec3* vertices, int vertexCount)
 {
-	qh_output_t* output = qh_create_simplified_hull(sizeof(b3Vec3), vertices, vertexCount, B3_LINEAR_SLOP, 0.25f * B3_PI);
+	qh_vec3_t* float_vertices = (qh_vec3_t*)malloc(vertexCount * sizeof(qh_vec3_t));
+	for (int i = 0; i < vertexCount; ++i)
+	{
+		float_vertices[i].x = (float)vertices[i].x;
+		float_vertices[i].y = (float)vertices[i].y;
+		float_vertices[i].z = (float)vertices[i].z;
+	}
+
+	qh_output_t* output = qh_create_simplified_hull(sizeof(qh_vec3_t), float_vertices, vertexCount, B3_LINEAR_SLOP, 0.25f * B3_PI);
 	if (output == NULL)
 	{
 		return NULL;
 	}
+
+	free(float_vertices);
 
 	b3Hull* hull = (b3Hull*)malloc(sizeof(b3Hull));
 	hull->vertexCount = output->vertex_count;
