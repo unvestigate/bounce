@@ -45,12 +45,6 @@ struct b3ContactEdge
 	b3ContactEdge* m_next;
 };
 
-// This goes inside a contact.
-// It holds two shapes that are overlapping.
-struct b3OverlappingPair
-{
-};
-
 typedef b3Contact* b3ContactCreateFcn(b3Fixture* shapeA, b3Fixture* shapeB, b3BlockAllocator* allocator);
 typedef void b3ContactDestroyFcn(b3Contact* contact, b3BlockAllocator* allocator);
 
