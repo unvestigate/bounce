@@ -74,11 +74,6 @@ struct b3JointEdge
 	b3JointEdge* m_next;
 };
 
-// This is stored in a joint. It stores two bodies that are linked by the joint.
-struct b3LinkedPair
-{
-};
-
 // Base joint class. For simplicity, a joint is unique per body pair. 
 // There are many joint types, some of them provide motors and limits.
 class b3Joint
