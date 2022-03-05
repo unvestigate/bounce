@@ -237,9 +237,10 @@ void b3WeldJoint::InitializeConstraints(const b3SolverData* data)
 		b3Quat q1 = b3Conjugate(qA) * qB;
 		b3Quat q2 = m_referenceRotation;
 		
-		scalar sign = b3Sign(b3Dot(q1, q2));
-
-		q1 = sign * q1;
+		if (b3Dot(q1, q2) < scalar(0))
+		{
+			q1 = -q1;
+		}
 
 		// Apply finite difference
 		b3Quat q = scalar(2) * (q2 - q1) * b3Conjugate(q1);
