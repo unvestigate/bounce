@@ -284,7 +284,9 @@ void b3RevoluteJoint::InitializeConstraints(const b3SolverData* data)
 		b3Vec4 P_hinge_limit = b3_P_hinge_limit_mat(dq);
 
 		b3Vec3 J1 = P_hinge_limit * G1 * b3Mat43_PT;
-		b3Vec3 J2 = P_hinge_limit * G2 * b3Mat43_PT;
+		J1.Normalize();
+
+		b3Vec3 J2 = -J1;
 
 		b3Vec3 J1T = J1;
 		b3Vec3 J2T = J2;
@@ -557,10 +559,11 @@ bool b3RevoluteJoint::SolvePositionConstraints(const b3SolverData* data)
 		b3Vec4 P_hinge_limit = b3_P_hinge_limit_mat(dq);
 
 		b3Mat44 G1 = -scalar(0.5) * b3_iQ_mat(b3Conjugate(fA)) * b3_iP_mat(fB);
-		b3Mat44 G2 = scalar(0.5) * b3_iQ_mat(b3Conjugate(fA)) * b3_iP_mat(fB);
-
+		
 		b3Vec3 J1 = P_hinge_limit * G1 * b3Mat43_PT;
-		b3Vec3 J2 = P_hinge_limit * G2 * b3Mat43_PT;
+		J1.Normalize();
+		
+		b3Vec3 J2 = -J1;
 
 		b3Vec3 J1T = J1;
 		b3Vec3 J2T = J2;
