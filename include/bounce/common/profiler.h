@@ -23,7 +23,7 @@
 #include <bounce/common/time.h>
 
 // Persistent node statistics. 
-struct b3ProfilerStat
+struct b3ProfilerStatistic
 {
 public:
 	// Get the unique name of the associated node.
@@ -36,15 +36,15 @@ public:
 	double GetMaxElapsed() const { return m_maxElapsed; }
 
 	// Get the next statistic in the profiler.
-	const b3ProfilerStat* GetNext() const { return m_next; }
-	b3ProfilerStat* GetNext() { return m_next; }
+	const b3ProfilerStatistic* GetNext() const { return m_next; }
+	b3ProfilerStatistic* GetNext() { return m_next; }
 private:
 	friend class b3Profiler;
 
 	const char* m_name;
 	double m_minElapsed;
 	double m_maxElapsed;
-	b3ProfilerStat* m_next;
+	b3ProfilerStatistic* m_next;
 };
 
 // A profiler node.
@@ -72,8 +72,8 @@ public:
 	// Get the next child node in this node's list of child nodes.
 	const b3ProfilerNode* GetNextChild() const { return m_childNext; }
 
-	// Get the statistics for this node.
-	const b3ProfilerStat* GetStat() const { return m_stat; }
+	// Get the statistic for this node.
+	const b3ProfilerStatistic* GetStatistic() const { return m_statistic; }
 private:
 	friend class b3Profiler;
 
@@ -89,7 +89,7 @@ private:
 	b3ProfilerNode* m_childList;
 	u32 m_childCount;
 	b3ProfilerNode* m_childNext;
-	b3ProfilerStat* m_stat;
+	b3ProfilerStatistic* m_statistic;
 };
 
 // Immediate mode hierarchical profiler. 
@@ -114,21 +114,21 @@ public:
 	const b3ProfilerNode* GetRoot() const { return m_root; };
 
 	// Get the statistic list.
-	const b3ProfilerStat* GetStatList() const { return m_statList; }
+	const b3ProfilerStatistic* GetStatisticList() const { return m_statisticList; }
 	
 	// Get the number of statistics.
-	u32 GetStatCount() const { return m_statCount; }
+	u32 GetStatisticCount() const { return m_statisticCount; }
 private:
-	b3ProfilerStat* FindStat(const char* name);
+	b3ProfilerStatistic* FindStatistic(const char* name);
 	void DestroyNodeRecursively(b3ProfilerNode* node);
 
 	b3Time m_time; 
 	b3BlockPool m_nodePool;
-	b3BlockPool m_statsPool;
+	b3BlockPool m_statisticPool;
 	b3ProfilerNode* m_root; 
 	b3ProfilerNode* m_top; 
-	b3ProfilerStat* m_statList; 
-	u32 m_statCount;
+	b3ProfilerStatistic* m_statisticList;
+	u32 m_statisticCount;
 };
 
 // A profiler scope. 
