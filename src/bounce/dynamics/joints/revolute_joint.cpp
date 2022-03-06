@@ -437,7 +437,7 @@ bool b3RevoluteJoint::SolvePositionConstraints(const b3SolverData* data)
 			C = b3Clamp(angle - m_upperAngle - B3_ANGULAR_SLOP, scalar(0), B3_MAX_ANGULAR_CORRECTION);
 		}
 		
-		limitError += b3Abs(C);
+		limitError = b3Abs(C);
 
 		scalar limitImpulse = -C * limitMass;
 
@@ -455,7 +455,7 @@ bool b3RevoluteJoint::SolvePositionConstraints(const b3SolverData* data)
 	// Solve angular constraint.
 	scalar angularError = scalar(0);
 	
-	// Slop in cosine units.
+	// Angular slop in cosine units.
 	scalar kCosSlop = scalar(0.01);
 
 	{
