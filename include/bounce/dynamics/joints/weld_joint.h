@@ -58,7 +58,7 @@ struct b3WeldJointDef : public b3JointDef
 	// Rotation only.
 	scalar dampingRatio;
 
-	// How much constraint error should be fixed each step 
+	// This controls how faster the constraint error should be resolved per step 
 	// if softness is disabled. 
 	// This is a value in the range [0, 1].
 	// Rotation only.

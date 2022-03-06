@@ -49,9 +49,9 @@ Bounce is a 3D physics engine for games.
 ### Documentation
 
 * Doxygen API documentation</li>
-* [Quickstart Guide](https://github.com/irlanrobson/bounce/blob/master/doc/quickstart_guide.md)
+* [Getting Started](https://github.com/irlanrobson/bounce/blob/master/doc/getting_started.md)
 
-**Note**: Use the quickstart guide and the Testbed for learning how to use Bounce. Testbed is a collection of visual tests and examples that can support the development of the library. As you would imagine, this application is not part of the library.
+**Note**: Use the Getting Started guide and the Testbed for learning how to use Bounce. Testbed is a collection of visual tests and examples that can support the development of the library. As you would imagine, this application is not part of the library.
 
 ## License
 

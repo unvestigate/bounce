@@ -79,8 +79,7 @@ struct b3PrismaticJointDef : public b3JointDef
 	// The desired motor speed in radians per second.
 	scalar motorSpeed;
 
-	// How much constraint error should be fixed each step 
-	// if softness is disabled. 
+	// This controls how faster the constraint error should be resolved per step.
 	// This is a value in the range [0, 1].
 	// Rotation only.
 	scalar biasFactor;

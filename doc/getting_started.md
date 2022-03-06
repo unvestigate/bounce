@@ -1,4 +1,4 @@
-# Bounce Quickstart Guide
+# Getting Started
 
 ## Introduction
 
@@ -325,5 +325,5 @@ delete world;
 
 ## End
 
-Congratulations! You’ve reached the end of Bounce Quickstart Guide. For further information about the project please visit https://github.com/irlanrobson/bounce. 
+Congratulations! You’ve reached the end of Bounce Getting Started guide. For further information about the project please visit https://github.com/irlanrobson/bounce. 
 
