@@ -199,12 +199,12 @@ bool b3MotorJoint::SolvePositionConstraints(const b3SolverData* data)
 
 b3Vec3 b3MotorJoint::GetAnchorA() const
 {
-	return GetBodyA()->GetPosition();
+	return m_bodyA->GetPosition();
 }
 
 b3Vec3 b3MotorJoint::GetAnchorB() const
 {
-	return GetBodyB()->GetPosition();
+	return m_bodyB->GetPosition();
 }
 
 void b3MotorJoint::SetLinearOffset(const b3Vec3& linearOffset)
@@ -213,8 +213,8 @@ void b3MotorJoint::SetLinearOffset(const b3Vec3& linearOffset)
 		linearOffset.y != m_linearOffset.y || 
 		linearOffset.z != m_linearOffset.z)
 	{
-		GetBodyA()->SetAwake(true);
-		GetBodyB()->SetAwake(true);
+		m_bodyA->SetAwake(true);
+		m_bodyB->SetAwake(true);
 		m_linearOffset = linearOffset;
 	}
 }
@@ -231,8 +231,8 @@ void b3MotorJoint::SetAngularOffset(const b3Quat& angularOffset)
 		angularOffset.v.z != m_angularOffset.v.z ||
 		angularOffset.s != m_angularOffset.s)
 	{
-		GetBodyA()->SetAwake(true);
-		GetBodyB()->SetAwake(true);
+		m_bodyA->SetAwake(true);
+		m_bodyB->SetAwake(true);
 		m_angularOffset = angularOffset;
 	}
 }

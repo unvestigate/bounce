@@ -324,8 +324,8 @@ void b3ConeJoint::SetEnableConeLimit(bool bit)
 {
 	if (bit != m_enableConeLimit)
 	{
-		GetBodyA()->SetAwake(true);
-		GetBodyB()->SetAwake(true);
+		m_bodyA->SetAwake(true);
+		m_bodyB->SetAwake(true);
 		m_coneImpulse = scalar(0);
 		m_coneState = e_inactiveLimit;
 		m_enableConeLimit = bit;
@@ -341,8 +341,8 @@ void b3ConeJoint::SetConeAngle(scalar angle)
 {
 	if (angle != m_coneAngle)
 	{
-		GetBodyA()->SetAwake(true);
-		GetBodyB()->SetAwake(true);
+		m_bodyA->SetAwake(true);
+		m_bodyB->SetAwake(true);
 		m_coneImpulse = scalar(0);
 		m_coneAngle = angle;
 	}
@@ -356,10 +356,10 @@ scalar b3ConeJoint::GetConeAngle() const
 void b3ConeJoint::Draw(b3Draw* draw) const
 {
 	b3Transform xfA(m_localAnchorA, m_localRotationA);
-	xfA = GetBodyA()->GetWorldFrame(xfA);
+	xfA = m_bodyA->GetWorldFrame(xfA);
 	draw->DrawTransform(xfA);
 
 	b3Transform xfB(m_localAnchorB, m_localRotationB);
-	xfB = GetBodyB()->GetWorldFrame(xfB);
+	xfB = m_bodyB->GetWorldFrame(xfB);
 	draw->DrawTransform(xfB);
 }

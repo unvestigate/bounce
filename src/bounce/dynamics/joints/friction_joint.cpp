@@ -159,12 +159,12 @@ bool b3FrictionJoint::SolvePositionConstraints(const b3SolverData* data)
 
 b3Vec3 b3FrictionJoint::GetAnchorA() const
 {
-	return GetBodyA()->GetWorldPoint(m_localAnchorA);
+	return m_bodyA->GetWorldPoint(m_localAnchorA);
 }
 
 b3Vec3 b3FrictionJoint::GetAnchorB() const
 {
-	return GetBodyB()->GetWorldPoint(m_localAnchorB);
+	return m_bodyB->GetWorldPoint(m_localAnchorB);
 }
 
 void b3FrictionJoint::SetMaxForce(scalar force)

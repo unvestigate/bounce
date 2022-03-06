@@ -429,20 +429,21 @@ bool b3WheelJoint::SolvePositionConstraints(const b3SolverData* data)
 
 b3Vec3 b3WheelJoint::GetAnchorA() const
 {
-	return GetBodyA()->GetWorldPoint(m_localAnchorA);
+	return m_bodyA->GetWorldPoint(m_localAnchorA);
 }
 
 b3Vec3 b3WheelJoint::GetAnchorB() const
 {
-	return GetBodyB()->GetWorldPoint(m_localAnchorB);
+	return m_bodyB->GetWorldPoint(m_localAnchorB);
 }
 
 scalar b3WheelJoint::GetJointTranslation() const
 {
-	b3Vec3 pA = GetBodyA()->GetWorldPoint(m_localAnchorA);
-	b3Vec3 pB = GetBodyB()->GetWorldPoint(m_localAnchorB);
+	b3Vec3 pA = m_bodyA->GetWorldPoint(m_localAnchorA);
+	b3Vec3 pB = m_bodyB->GetWorldPoint(m_localAnchorB);
+	
 	b3Vec3 d = pB - pA;
-	b3Vec3 axis = GetBodyA()->GetWorldVector(m_localXAxisA);
+	b3Vec3 axis = m_bodyA->GetWorldVector(m_localXAxisA);
 
 	scalar translation = b3Dot(d, axis);
 	return translation;
@@ -450,23 +451,20 @@ scalar b3WheelJoint::GetJointTranslation() const
 
 scalar b3WheelJoint::GetJointLinearSpeed() const
 {
-	const b3Body* bA = GetBodyA();
-	const b3Body* bB = GetBodyB();
+	b3Vec3 rA = b3Mul(m_bodyA->m_xf.rotation, m_localAnchorA - m_bodyA->m_sweep.localCenter);
+	b3Vec3 rB = b3Mul(m_bodyB->m_xf.rotation, m_localAnchorB - m_bodyB->m_sweep.localCenter);
 
-	b3Vec3 rA = b3Mul(bA->m_xf.rotation, m_localAnchorA - bA->m_sweep.localCenter);
-	b3Vec3 rB = b3Mul(bB->m_xf.rotation, m_localAnchorB - bB->m_sweep.localCenter);
-
-	b3Vec3 p1 = bA->m_sweep.worldCenter + rA;
-	b3Vec3 p2 = bB->m_sweep.worldCenter + rB;
+	b3Vec3 p1 = m_bodyA->m_sweep.worldCenter + rA;
+	b3Vec3 p2 = m_bodyB->m_sweep.worldCenter + rB;
 
 	b3Vec3 d = p2 - p1;
 
-	b3Vec3 axis = b3Mul(bA->m_xf.rotation, m_localXAxisA);
+	b3Vec3 axis = b3Mul(m_bodyA->m_xf.rotation, m_localXAxisA);
 
-	b3Vec3 vA = bA->m_linearVelocity;
-	b3Vec3 vB = bB->m_linearVelocity;
-	b3Vec3 wA = bA->m_angularVelocity;
-	b3Vec3 wB = bB->m_angularVelocity;
+	b3Vec3 vA = m_bodyA->m_linearVelocity;
+	b3Vec3 vB = m_bodyB->m_linearVelocity;
+	b3Vec3 wA = m_bodyA->m_angularVelocity;
+	b3Vec3 wB = m_bodyB->m_angularVelocity;
 
 	scalar speed = b3Dot(d, b3Cross(wA, axis)) + b3Dot(axis, vB + b3Cross(wB, rB) - vA - b3Cross(wA, rA));
 	return speed;
@@ -474,16 +472,12 @@ scalar b3WheelJoint::GetJointLinearSpeed() const
 
 b3Quat b3WheelJoint::GetJointRotation() const
 {
-	const b3Body* bA = GetBodyA();
-	const b3Body* bB = GetBodyB();
-	return b3Conjugate(bA->GetOrientation()) * bB->GetOrientation();
+	return b3Conjugate(m_bodyA->GetOrientation()) * m_bodyB->GetOrientation();
 }
 
 scalar b3WheelJoint::GetJointAngularSpeed() const
 {
-	const b3Body* bA = GetBodyA();
-	const b3Body* bB = GetBodyB();
-	return b3Dot(bB->GetAngularVelocity() - bA->GetAngularVelocity(), bB->GetWorldVector(m_localXAxisB));
+	return b3Dot(m_bodyB->GetAngularVelocity() - m_bodyA->GetAngularVelocity(), m_bodyB->GetWorldVector(m_localXAxisB));
 }
 
 bool b3WheelJoint::IsMotorEnabled() const
@@ -495,8 +489,8 @@ void b3WheelJoint::EnableMotor(bool flag)
 {
 	if (flag != m_enableMotor)
 	{
-		GetBodyA()->SetAwake(true);
-		GetBodyB()->SetAwake(true);
+		m_bodyA->SetAwake(true);
+		m_bodyB->SetAwake(true);
 		m_enableMotor = flag;
 	}
 }
@@ -505,8 +499,8 @@ void b3WheelJoint::SetMotorSpeed(scalar speed)
 {
 	if (speed != m_motorSpeed)
 	{
-		GetBodyA()->SetAwake(true);
-		GetBodyB()->SetAwake(true);
+		m_bodyA->SetAwake(true);
+		m_bodyB->SetAwake(true);
 		m_motorSpeed = speed;
 	}
 }
@@ -515,8 +509,8 @@ void b3WheelJoint::SetMaxMotorTorque(scalar torque)
 {
 	if (torque != m_maxMotorTorque)
 	{
-		GetBodyA()->SetAwake(true);
-		GetBodyB()->SetAwake(true);
+		m_bodyA->SetAwake(true);
+		m_bodyB->SetAwake(true);
 		m_maxMotorTorque = torque;
 	}
 }
@@ -529,19 +523,16 @@ void b3WheelJoint::Draw(b3Draw* draw) const
 	b3Vec3 pB = GetAnchorB();
 	draw->DrawPoint(pB, scalar(4), b3Color_green);
 
-	const b3Body* bA = GetBodyA();
-	const b3Body* bB = GetBodyB();
-
 	b3Mat33 localAxes(m_localXAxisA, m_localYAxisA, m_localZAxisA);
 	b3Quat localRotationA = b3Mat33Quat(localAxes);
 
 	b3Transform xfA;
 	xfA.translation = pA;
-	xfA.rotation = bA->GetWorldFrame(localRotationA);
+	xfA.rotation = m_bodyA->GetWorldFrame(localRotationA);
 
 	draw->DrawTransform(xfA);
 
-	b3Vec3 axisB = bB->GetWorldVector(m_localXAxisB);
+	b3Vec3 axisB = m_bodyB->GetWorldVector(m_localXAxisB);
 	
 	draw->DrawSegment(pB, pB + axisB, b3Color_white);
 }

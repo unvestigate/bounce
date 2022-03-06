@@ -33,9 +33,9 @@ inline bool b3IsNaN(scalar x)
 	return std::isnan(x);
 }
 
-inline bool b3IsValid(scalar fx)
+inline bool b3IsValid(scalar x)
 {
-	return std::isfinite(fx);
+	return std::isfinite(x);
 }
 
 inline scalar b3Sqrt(scalar x) 

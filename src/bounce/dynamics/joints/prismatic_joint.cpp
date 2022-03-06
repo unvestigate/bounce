@@ -454,23 +454,20 @@ scalar b3PrismaticJoint::GetJointTranslation() const
 
 scalar b3PrismaticJoint::GetJointSpeed() const
 {
-	const b3Body* bA = GetBodyA();
-	const b3Body* bB = GetBodyB();
+	b3Vec3 rA = b3Mul(m_bodyA->m_xf.rotation, m_localAnchorA - m_bodyA->m_sweep.localCenter);
+	b3Vec3 rB = b3Mul(m_bodyB->m_xf.rotation, m_localAnchorB - m_bodyB->m_sweep.localCenter);
 
-	b3Vec3 rA = b3Mul(bA->m_xf.rotation, m_localAnchorA - bA->m_sweep.localCenter);
-	b3Vec3 rB = b3Mul(bB->m_xf.rotation, m_localAnchorB - bB->m_sweep.localCenter);
-
-	b3Vec3 p1 = bA->m_sweep.worldCenter + rA;
-	b3Vec3 p2 = bB->m_sweep.worldCenter + rB;
+	b3Vec3 p1 = m_bodyA->m_sweep.worldCenter + rA;
+	b3Vec3 p2 = m_bodyB->m_sweep.worldCenter + rB;
 
 	b3Vec3 d = p2 - p1;
 
-	b3Vec3 axis = b3Mul(bA->m_xf.rotation, m_localXAxisA);
+	b3Vec3 axis = b3Mul(m_bodyA->m_xf.rotation, m_localXAxisA);
 
-	b3Vec3 vA = bA->m_linearVelocity;
-	b3Vec3 vB = bB->m_linearVelocity;
-	b3Vec3 wA = bA->m_angularVelocity;
-	b3Vec3 wB = bB->m_angularVelocity;
+	b3Vec3 vA = m_bodyA->m_linearVelocity;
+	b3Vec3 vB = m_bodyB->m_linearVelocity;
+	b3Vec3 wA = m_bodyA->m_angularVelocity;
+	b3Vec3 wB = m_bodyB->m_angularVelocity;
 
 	scalar speed = b3Dot(d, b3Cross(wA, axis)) + b3Dot(axis, vB + b3Cross(wB, rB) - vA - b3Cross(wA, rA));
 	return speed;
@@ -485,8 +482,8 @@ void b3PrismaticJoint::EnableLimit(bool flag)
 {
 	if (flag != m_enableLimit)
 	{
-		GetBodyA()->SetAwake(true);
-		GetBodyB()->SetAwake(true);
+		m_bodyA->SetAwake(true);
+		m_bodyB->SetAwake(true);
 		m_enableLimit = flag;
 		m_limitImpulse = scalar(0);
 	}
@@ -507,8 +504,8 @@ void b3PrismaticJoint::SetLimits(scalar lower, scalar upper)
 	B3_ASSERT(lower <= upper);
 	if (lower != m_lowerTranslation || upper != m_upperTranslation)
 	{
-		GetBodyA()->SetAwake(true);
-		GetBodyB()->SetAwake(true);
+		m_bodyA->SetAwake(true);
+		m_bodyB->SetAwake(true);
 		m_lowerTranslation = lower;
 		m_upperTranslation = upper;
 		m_limitImpulse = scalar(0);
@@ -524,8 +521,8 @@ void b3PrismaticJoint::EnableMotor(bool flag)
 {
 	if (flag != m_enableMotor)
 	{
-		GetBodyA()->SetAwake(true);
-		GetBodyB()->SetAwake(true);
+		m_bodyA->SetAwake(true);
+		m_bodyB->SetAwake(true);
 		m_enableMotor = flag;
 	}
 }
@@ -534,8 +531,8 @@ void b3PrismaticJoint::SetMotorSpeed(scalar speed)
 {
 	if (speed != m_motorSpeed)
 	{
-		GetBodyA()->SetAwake(true);
-		GetBodyB()->SetAwake(true);
+		m_bodyA->SetAwake(true);
+		m_bodyB->SetAwake(true);
 		m_motorSpeed = speed;
 	}
 }
@@ -544,8 +541,8 @@ void b3PrismaticJoint::SetMaxMotorForce(scalar force)
 {
 	if (force != m_maxMotorForce)
 	{
-		GetBodyA()->SetAwake(true);
-		GetBodyB()->SetAwake(true);
+		m_bodyA->SetAwake(true);
+		m_bodyB->SetAwake(true);
 		m_maxMotorForce = force;
 	}
 }
@@ -563,7 +560,7 @@ void b3PrismaticJoint::Draw(b3Draw* draw) const
 
 	b3Transform xfA;
 	xfA.translation = pA;
-	xfA.rotation = GetBodyA()->GetWorldFrame(localRotationA);
+	xfA.rotation = m_bodyA->GetWorldFrame(localRotationA);
 
 	draw->DrawTransform(xfA);
 }

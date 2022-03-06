@@ -50,14 +50,11 @@ b3WeldJoint::b3WeldJoint(const b3WeldJointDef* def)
 
 void b3WeldJoint::SetAnchor(const b3Vec3& anchor)
 {
-	const b3Body* bodyA = GetBodyA();
-	const b3Body* bodyB = GetBodyB();
+	m_localAnchorA = m_bodyA->GetLocalPoint(anchor);
+	m_localAnchorB = m_bodyB->GetLocalPoint(anchor);
 
-	m_localAnchorA = bodyA->GetLocalPoint(anchor);
-	m_localAnchorB = bodyB->GetLocalPoint(anchor);
-
-	b3Quat qA = bodyA->GetOrientation();
-	b3Quat qB = bodyB->GetOrientation();
+	b3Quat qA = m_bodyA->GetOrientation();
+	b3Quat qB = m_bodyB->GetOrientation();
 
 	m_referenceRotation = b3Conjugate(qA) * qB;
 }

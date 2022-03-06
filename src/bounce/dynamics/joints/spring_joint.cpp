@@ -46,12 +46,12 @@ b3SpringJoint::b3SpringJoint(const b3SpringJointDef* def)
 
 b3Vec3 b3SpringJoint::GetAnchorA() const
 {
-	return GetBodyA()->GetWorldPoint(m_localAnchorA);
+	return m_bodyA->GetWorldPoint(m_localAnchorA);
 }
 
 b3Vec3 b3SpringJoint::GetAnchorB() const
 {
-	return GetBodyB()->GetWorldPoint(m_localAnchorB);
+	return m_bodyB->GetWorldPoint(m_localAnchorB);
 }
 
 const b3Vec3& b3SpringJoint::GetLocalAnchorA() const
@@ -272,10 +272,10 @@ bool b3SpringJoint::SolvePositionConstraints(const b3SolverData* data)
 
 void b3SpringJoint::Draw(b3Draw* draw) const
 {
-	b3Vec3 a = GetBodyA()->GetWorldPoint(m_localAnchorA);
+	b3Vec3 a = m_bodyA->GetWorldPoint(m_localAnchorA);
 	draw->DrawPoint(a, scalar(4), b3Color_red);
 	
-	b3Vec3 b = GetBodyB()->GetWorldPoint(m_localAnchorB);
+	b3Vec3 b = m_bodyB->GetWorldPoint(m_localAnchorB);
 	draw->DrawPoint(b, scalar(4), b3Color_green);
 
 	draw->DrawSegment(a, b, b3Color_yellow);

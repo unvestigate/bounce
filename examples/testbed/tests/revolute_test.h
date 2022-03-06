@@ -92,10 +92,6 @@ public:
 
 			m_rj = (b3RevoluteJoint*)m_world.CreateJoint(jd);
 		}
-
-		// Invalidate the orientation
-		b3Quat q = b3QuatRotationX(B3_PI);
-		door->SetTransform(door->GetPosition(), q);		
 	}
 
 	void Step()

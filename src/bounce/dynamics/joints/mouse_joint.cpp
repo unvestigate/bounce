@@ -128,7 +128,7 @@ b3Vec3 b3MouseJoint::GetAnchorA() const
 
 b3Vec3 b3MouseJoint::GetAnchorB() const
 {
-	return GetBodyB()->GetWorldPoint(m_localAnchorB);
+	return m_bodyB->GetWorldPoint(m_localAnchorB);
 }
 
 const b3Vec3& b3MouseJoint::GetTarget() const
@@ -139,7 +139,7 @@ const b3Vec3& b3MouseJoint::GetTarget() const
 void b3MouseJoint::SetTarget(const b3Vec3& target)
 {
 	m_worldTargetA = target;
-	GetBodyB()->SetAwake(true);
+	m_bodyB->SetAwake(true);
 }
 
 void b3MouseJoint::Draw(b3Draw* draw) const
