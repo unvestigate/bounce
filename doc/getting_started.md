@@ -8,7 +8,7 @@ First of all, for using Bounce, you’ll need to be experienced with C++ program
 
 ## Help
 
-By definition, the present Quickstart Guide (QSG) is not a complete user manual. Therefore, if you want to report bugs, need to ask questions, or want collaborate with the project you can open an issue in the GitHub issue tracker at https://github.com/irlanrobson/bounce. Installation instructions are available in this repository as well. 
+By definition, the present Getting Started guide is not a complete user manual. Therefore, if you want to report bugs, need to ask questions, or want collaborate with the project you can open an issue in the GitHub issue tracker at https://github.com/irlanrobson/bounce. Installation instructions are available in this repository as well. 
 
 **Note**: Bounce is open source, but is not open contribution.
 
