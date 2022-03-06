@@ -54,7 +54,7 @@ b3PrismaticJoint::b3PrismaticJoint(const b3PrismaticJointDef* def)
 	m_upperTranslation = def->upperTranslation;
 	m_maxMotorForce = def->maxMotorForce;
 	m_motorSpeed = def->motorSpeed;
-	m_biasFactor = def->biasFactor;
+	m_correctionFactor = def->correctionFactor;
 	m_enableLimit = def->enableLimit;
 	m_enableMotor = def->enableMotor;
 	m_limitState = e_inactiveLimit;
@@ -144,7 +144,7 @@ void b3PrismaticJoint::InitializeConstraints(const b3SolverData* data)
 		b3Vec3 C = b3Mul(qA, -q.v);
 
 		// Compute bias term
-		m_bias = m_biasFactor * data->inv_dt * C;
+		m_bias = m_correctionFactor * data->inv_dt * C;
 	}
 
 	// Compute motor and limit terms.
@@ -545,6 +545,17 @@ void b3PrismaticJoint::SetMaxMotorForce(scalar force)
 		m_bodyB->SetAwake(true);
 		m_maxMotorForce = force;
 	}
+}
+
+void b3PrismaticJoint::SetCorrectionFactor(scalar factor)
+{
+	B3_ASSERT(b3IsValid(factor) && factor >= scalar(0) && factor <= scalar(1));
+	m_correctionFactor = factor;
+}
+
+scalar b3PrismaticJoint::GetCorrectionFactor() const
+{
+	return m_correctionFactor;
 }
 
 void b3PrismaticJoint::Draw(b3Draw* draw) const

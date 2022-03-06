@@ -42,7 +42,7 @@ b3WeldJoint::b3WeldJoint(const b3WeldJointDef* def)
 	m_referenceRotation = def->referenceRotation;
 	m_frequencyHz = def->frequencyHz;
 	m_dampingRatio = def->dampingRatio;
-	m_biasFactor = def->biasFactor;
+	m_correctionFactor = def->correctionFactor;
 
 	m_linearImpulse.SetZero();
 	m_angularImpulse.SetZero();
@@ -167,7 +167,7 @@ void b3WeldJoint::InitializeConstraints(const b3SolverData* data)
 		b3Vec3 C = b3Mul(qA, -q.v);
 
 		// Compute bias term
-		m_bias = m_biasFactor * data->inv_dt * C;
+		m_bias = m_correctionFactor * data->inv_dt * C;
 	}
 }
 
@@ -293,6 +293,17 @@ b3Vec3 b3WeldJoint::GetAnchorA() const
 b3Vec3 b3WeldJoint::GetAnchorB() const
 {
 	return m_bodyB->GetWorldPoint(m_localAnchorB);
+}
+
+void b3WeldJoint::SetCorrectionFactor(scalar factor)
+{
+	B3_ASSERT(b3IsValid(factor) && factor >= scalar(0) && factor <= scalar(1));
+	m_correctionFactor = factor;
+}
+
+scalar b3WeldJoint::GetCorrectionFactor() const
+{
+	return m_correctionFactor;
 }
 
 void b3WeldJoint::Draw(b3Draw* draw) const

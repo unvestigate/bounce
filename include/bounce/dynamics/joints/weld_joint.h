@@ -32,7 +32,7 @@ struct b3WeldJointDef : public b3JointDef
 		referenceRotation.SetIdentity();
 		frequencyHz = scalar(0);
 		dampingRatio = scalar(0);
-		biasFactor = scalar(0.2);
+		correctionFactor = scalar(0.2);
 	}
 
 	// Initialize this definition from bodies and world anchor point.
@@ -62,7 +62,7 @@ struct b3WeldJointDef : public b3JointDef
 	// if softness is disabled. 
 	// This is a value in the range [0, 1].
 	// Rotation only.
-	scalar biasFactor;
+	scalar correctionFactor;
 };
 
 // A weld joint removes the relative movement between two bodies. 
@@ -126,17 +126,11 @@ public:
 		return m_dampingRatio;
 	}
 
-	// Set the bias factor.
-	void SetBiasFactor(scalar biasFactor)
-	{
-		m_biasFactor = biasFactor;
-	}
+	// Set the correction factor in the range [0, 1].
+	void SetCorrectionFactor(scalar factor);
 
-	// Get the bias factor.
-	scalar GetBiasFactor() const
-	{
-		return m_biasFactor;
-	}
+	// Get the correction factor in the range [0, 1].
+	scalar GetCorrectionFactor() const;
 
 	// Draw this joint.
 	void Draw(b3Draw* draw) const;
@@ -158,7 +152,7 @@ private:
 	b3Quat m_referenceRotation;
 	scalar m_frequencyHz;
 	scalar m_dampingRatio;
-	scalar m_biasFactor;
+	scalar m_correctionFactor;
 
 	// Solver temp
 	u32 m_indexA;
