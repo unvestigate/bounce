@@ -62,7 +62,7 @@ void b3MotorJoint::InitializeConstraints(const b3SolverData* data)
 	b3Vec3 xB = data->positions[m_indexB].x;
 	b3Quat qB = data->positions[m_indexB].q;
 
-	scalar inv_h = data->invdt;
+	scalar inv_h = data->inv_dt;
 
 	{
 		// Compute effective mass for the block solver
@@ -131,7 +131,7 @@ void b3MotorJoint::WarmStart(const b3SolverData* data)
 void b3MotorJoint::SolveVelocityConstraints(const b3SolverData* data)
 {
 	scalar h = data->dt;
-	scalar inv_h = data->invdt;
+	scalar inv_h = data->inv_dt;
 
 	b3Vec3 vA = data->velocities[m_indexA].v;
 	b3Vec3 wA = data->velocities[m_indexA].w;

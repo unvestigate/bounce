@@ -93,6 +93,10 @@ public:
 
 			m_joint = (b3PrismaticJoint*)m_world.CreateJoint(jd);
 		}
+
+		// Invalidate the body B's orientation
+		b3Quat q = b3QuatRotationX(B3_PI);
+		bB->SetTransform(bB->GetPosition(), q);
 	}
 
 	void Step()

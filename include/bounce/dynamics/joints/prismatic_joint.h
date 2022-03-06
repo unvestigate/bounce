@@ -42,6 +42,7 @@ struct b3PrismaticJointDef : public b3JointDef
 		enableMotor = false;
 		maxMotorForce = scalar(0);
 		motorSpeed = scalar(0);
+		biasFactor = scalar(0.2);
 	}
 
 	// Initialize the bodies, anchors, axis, and reference angle using the world
@@ -77,6 +78,12 @@ struct b3PrismaticJointDef : public b3JointDef
 
 	// The desired motor speed in radians per second.
 	scalar motorSpeed;
+
+	// How much constraint error should be fixed each step 
+	// if softness is disabled. 
+	// This is a value in the range [0, 1].
+	// Rotation only.
+	scalar biasFactor;
 };
 
 // A prismatic joint. 
@@ -142,6 +149,18 @@ public:
 	// Get the maximum motor  force, usually in N.
 	scalar GetMaxMotorForce() const { return m_maxMotorForce; }
 
+	// Set the bias factor.
+	void SetBiasFactor(scalar biasFactor)
+	{
+		m_biasFactor = biasFactor;
+	}
+
+	// Get the bias factor.
+	scalar GetBiasFactor() const
+	{
+		return m_biasFactor;
+	}
+
 	// Draw this joint
 	void Draw(b3Draw* draw) const;
 protected:
@@ -169,6 +188,7 @@ protected:
 	scalar m_upperTranslation;
 	scalar m_maxMotorForce;
 	scalar m_motorSpeed;
+	scalar m_biasFactor;
 	bool m_enableLimit;
 	bool m_enableMotor;
 	b3LimitState m_limitState;
@@ -198,6 +218,7 @@ protected:
 	b3Mat22 m_linearMass;
 
 	b3Mat33 m_angularMass;
+	b3Vec3 m_bias;
 };
 
 inline scalar b3PrismaticJoint::GetMotorSpeed() const

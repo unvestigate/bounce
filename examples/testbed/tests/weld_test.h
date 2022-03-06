@@ -64,17 +64,17 @@ public:
 
 			bB = m_world.CreateBody(bd);
 
-			static b3BoxHull doorHull(2.0f, 4.0f, 0.5f);
+			m_doorHull.SetExtents(2.0f, 4.0f, 0.5f);
 
 			b3HullShape hull;
-			hull.m_hull = &doorHull;
+			hull.m_hull = &m_doorHull;
 
 			b3FixtureDef fd;
 			fd.shape = &hull;
 			fd.density = 1.0f;
 
 			bB->CreateFixture(fd);
-			
+
 			{
 				b3Vec3 anchor(-2.0f, 5.0f, 0.0f);
 
@@ -96,6 +96,8 @@ public:
 	{
 		return new WeldTest();
 	}
+
+	b3BoxHull m_doorHull;
 };
 
 #endif

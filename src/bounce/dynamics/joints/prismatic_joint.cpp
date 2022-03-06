@@ -18,61 +18,7 @@
 
 #include <bounce/dynamics/joints/prismatic_joint.h>
 #include <bounce/dynamics/body.h>
-#include <bounce/common/math/mat.h>
 #include <bounce/common/draw.h>
-
-static B3_FORCE_INLINE b3Mat44 b3_iQ_mat(const b3Quat& q)
-{
-	scalar x = q.v.x, y = q.v.y, z = q.v.z, w = q.s;
-
-	b3Mat44 Q;
-	Q.x = b3Vec4(w, x, y, z);
-	Q.y = b3Vec4(-x, w, z, -y);
-	Q.z = b3Vec4(-y, -z, w, x);
-	Q.w = b3Vec4(-z, y, -x, w);	
-	return Q;
-}
-
-static B3_FORCE_INLINE b3Mat44 b3_iP_mat(const b3Quat& q)
-{
-	scalar x = q.v.x, y = q.v.y, z = q.v.z, w = q.s;
-	
-	b3Mat44 P;
-	P.x = b3Vec4(w, x, y, z);
-	P.y = b3Vec4(-x, w, -z, y);
-	P.z = b3Vec4(-y, z, w, -x);
-	P.w = b3Vec4(-z, -y, x, w);
-	return P;
-}
-
-static B3_FORCE_INLINE b3Mat34 b3_P_mat()
-{
-	b3Mat34 P;
-	P.x = b3Vec3(0, 0, 0);
-	P.y = b3Vec3(1, 0, 0);
-	P.z = b3Vec3(0, 1, 0);
-	P.w = b3Vec3(0, 0, 1);
-	return P;
-}
-
-static B3_FORCE_INLINE b3Mat34 b3_P_lock_mat()
-{
-	b3Mat34 P;
-	P.x = b3Vec3(0, 0, 0);
-	P.y = b3Vec3(1, 0, 0);
-	P.z = b3Vec3(0, 1, 0);
-	P.w = b3Vec3(0, 0, 1);
-	return P;
-}
-
-static B3_FORCE_INLINE b3Vec4 b3_q_to_v(const b3Quat& q)
-{
-	return b3Vec4(q.s, q.v.x, q.v.y, q.v.z);
-}
-
-static const b3Mat34 b3Mat34_P = b3_P_mat();
-static const b3Mat43 b3Mat43_PT = b3Transpose(b3Mat34_P);
-static const b3Mat34 b3Mat34_P_lock = b3_P_lock_mat();
 
 void b3PrismaticJointDef::Initialize(b3Body* bA, b3Body* bB, const b3Vec3& anchor, const b3Vec3& axis)
 {
@@ -108,6 +54,7 @@ b3PrismaticJoint::b3PrismaticJoint(const b3PrismaticJointDef* def)
 	m_upperTranslation = def->upperTranslation;
 	m_maxMotorForce = def->maxMotorForce;
 	m_motorSpeed = def->motorSpeed;
+	m_biasFactor = def->biasFactor;
 	m_enableLimit = def->enableLimit;
 	m_enableMotor = def->enableMotor;
 	m_limitState = e_inactiveLimit;
@@ -180,6 +127,24 @@ void b3PrismaticJoint::InitializeConstraints(const b3SolverData* data)
 	// Angular constraint.
 	{
 		m_angularMass = b3Inverse(iA + iB);
+
+		b3Quat q1 = b3Conjugate(qA) * qB;
+		b3Quat q2 = m_referenceRotation;
+
+		if (b3Dot(q1, q2) < scalar(0))
+		{
+			q1 = -q1;
+		}
+
+		// Apply finite difference
+		b3Quat q = scalar(2) * (q2 - q1) * b3Conjugate(q1);
+
+		// Convert the relative angular error to world's frame
+		// Negate so we solve impulse = -m^1 * (Cdot - bias)
+		b3Vec3 C = b3Mul(qA, -q.v);
+
+		// Compute bias term
+		m_bias = m_biasFactor * data->inv_dt * C;
 	}
 
 	// Compute motor and limit terms.
@@ -302,7 +267,7 @@ void b3PrismaticJoint::SolveVelocityConstraints(const b3SolverData* data)
 	// Solve angular constraint in block form
 	{
 		b3Vec3 Cdot = wB - wA;
-		b3Vec3 impulse = m_angularMass * (-Cdot);
+		b3Vec3 impulse = -m_angularMass * (Cdot + m_bias);
 		m_angularImpulse += impulse;
 
 		wA -= iA * impulse;
@@ -411,42 +376,6 @@ bool b3PrismaticJoint::SolvePositionConstraints(const b3SolverData* data)
 		iB = b3RotateToFrame(m_localInvIB, qB);
 	}
 
-	scalar angularError = scalar(0);
-
-	// Solve angular
-	{
-		b3Quat dq = b3Conjugate(m_referenceRotation) * b3Conjugate(qA) * qB;
-		
-		b3Vec4 dv = b3_q_to_v(dq);
-
-		b3Vec3 C = b3Mat34_P * dv;
-
-		angularError += b3Length(C);
-
-		b3Mat44 G1 = -scalar(0.5) * b3_iQ_mat(b3Conjugate(qA)) * b3_iP_mat(qB);
-		b3Mat44 G2 = scalar(0.5) * b3_iQ_mat(b3Conjugate(qA)) * b3_iP_mat(qB);
-
-		b3Mat33 J1 = b3Mat34_P_lock * G1 * b3Mat43_PT;
-		b3Mat33 J2 = b3Mat34_P_lock * G2 * b3Mat43_PT;
-
-		b3Mat33 J1T = b3Transpose(J1);
-		b3Mat33 J2T = b3Transpose(J2);
-
-		b3Mat33 mass = J1 * iA * J1T + J2 * iB * J2T;
-		b3Vec3 impulse = mass.Solve(-C);
-
-		b3Vec3 P1 = J1T * impulse;
-		b3Vec3 P2 = J2T * impulse;
-
-		qA += b3Derivative(qA, iA * P1);
-		qA.Normalize();
-		iA = b3RotateToFrame(m_localInvIA, qA);
-
-		qB += b3Derivative(qB, iB * P2);
-		qB.Normalize();
-		iB = b3RotateToFrame(m_localInvIB, qB);
-	}
-
 	if (m_enableLimit)
 	{
 		scalar C = scalar(0);
@@ -499,7 +428,7 @@ bool b3PrismaticJoint::SolvePositionConstraints(const b3SolverData* data)
 	data->positions[m_indexB].q = qB;
 	data->invInertias[m_indexB] = iB;
 
-	return linearError <= B3_LINEAR_SLOP && angularError <= B3_LINEAR_SLOP;
+	return linearError <= B3_LINEAR_SLOP;
 }
 
 b3Vec3 b3PrismaticJoint::GetAnchorA() const

@@ -41,8 +41,8 @@ struct b3SolverData
 	b3Velocity* velocities;
 	b3Mat33* invInertias;
 	scalar dt;
-	scalar invdt;
-};
+	scalar inv_dt;
+};	
 
 enum b3LimitState
 {
