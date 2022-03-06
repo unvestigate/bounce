@@ -54,7 +54,7 @@ conj(q1') * q2 + conj(q1) * q2'
 1st term:
 
 conj(q1') * q2 =
-0.5 * conj(w1 * q1) * w2 =
+0.5 * conj(w1 * q1) * q2 =
 0.5 * conj(q1) * conj(w1) * q2 =
 0.5 * conj(q1) * -w1 * q2 =
 -0.5 * conj(q1) * w1 * q2 =
