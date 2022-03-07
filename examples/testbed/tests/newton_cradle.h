@@ -104,7 +104,7 @@ public:
 
 			b3SphereJointDef jd1;
 			jd1.bodyA = frame1;
-			jd1.collideLinked = true;
+			jd1.collideConnected = true;
 			jd1.bodyB = ball;
 			jd1.localAnchorA = b3MulT(frame1->GetTransform(), c1);
 			jd1.localAnchorB = b3MulT(ball->GetTransform(), c1);

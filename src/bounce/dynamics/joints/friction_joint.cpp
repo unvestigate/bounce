@@ -28,7 +28,7 @@ void b3FrictionJointDef::Initialize(b3Body* bA, b3Body* bB, const b3Vec3& anchor
 	localAnchorB = bodyB->GetLocalPoint(anchor);
 }
 
-b3FrictionJoint::b3FrictionJoint(const b3FrictionJointDef* def)
+b3FrictionJoint::b3FrictionJoint(const b3FrictionJointDef* def) : b3Joint(def)
 {
 	m_type = b3JointType::e_frictionJoint;
 	
@@ -42,7 +42,7 @@ b3FrictionJoint::b3FrictionJoint(const b3FrictionJointDef* def)
 	m_maxTorque = def->maxTorque;
 }
 
-void b3FrictionJoint::InitializeConstraints(const b3SolverData* data)
+void b3FrictionJoint::InitializeVelocityConstraints(const b3SolverData* data)
 {
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;

@@ -117,9 +117,6 @@ public:
 
 	// Debug draw this shape in solid mode.
 	void DrawSolid(b3Draw* draw, const b3Transform& xf, const b3Color& color) const;
-	
-	// Factory destroy.
-	static void Destroy(b3Shape* shape, b3BlockAllocator* allocator);
 
 	// The shape types. 
 	// Types currently supported are spheres, capsules, 

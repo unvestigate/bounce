@@ -86,7 +86,7 @@ void b3ContactManager::AddPair(void* dataA, void* dataB)
 	}
 
 	// Create contact.
-	b3Contact* c = Create(fixtureA, fixtureB);
+	b3Contact* c = b3Contact::Create(fixtureA, fixtureB, m_allocator);
 	if (c == nullptr)
 	{
 		return;
@@ -101,18 +101,18 @@ void b3ContactManager::AddPair(void* dataA, void* dataB)
 	c->m_flags = 0;
 	
 	// Initialize edge A
-	c->m_edgeA.m_contact = c;
-	c->m_edgeA.m_other = fixtureB;
+	c->m_nodeA.m_contact = c;
+	c->m_nodeA.m_other = fixtureB;
 
 	// Add edge A to fixture A's contact list.
-	fixtureA->m_contactList.PushFront(&c->m_edgeA);
+	fixtureA->m_contactList.PushFront(&c->m_nodeA);
 
 	// Initialize edge B
-	c->m_edgeB.m_contact = c;
-	c->m_edgeB.m_other = fixtureA;
+	c->m_nodeB.m_contact = c;
+	c->m_nodeB.m_other = fixtureA;
 
 	// Add edge B to fixture B's contact list.
-	fixtureB->m_contactList.PushFront(&c->m_edgeB);
+	fixtureB->m_contactList.PushFront(&c->m_nodeB);
 
 	// Awake the bodies if both are not sensors.
 	if (!fixtureA->IsSensor() && !fixtureB->IsSensor())
@@ -211,17 +211,12 @@ void b3ContactManager::UpdateContacts()
 	}
 }
 
-b3Contact* b3ContactManager::Create(b3Fixture* fixtureA, b3Fixture* fixtureB)
-{
-	return b3Contact::Create(fixtureA, fixtureB, m_allocator);
-}
-
 void b3ContactManager::Destroy(b3Contact* c)
 {
 	// Report to the contact listener the contact will be destroyed.
 	if (m_contactListener)
 	{
-		if (c->IsOverlapping())
+		if (c->IsTouching())
 		{
 			m_contactListener->EndContact(c);
 		}
@@ -230,8 +225,8 @@ void b3ContactManager::Destroy(b3Contact* c)
 	b3Fixture* fixtureA = c->GetFixtureA();
 	b3Fixture* fixtureB = c->GetFixtureB();
 
-	fixtureA->m_contactList.Remove(&c->m_edgeA);
-	fixtureB->m_contactList.Remove(&c->m_edgeB);
+	fixtureA->m_contactList.Remove(&c->m_nodeA);
+	fixtureB->m_contactList.Remove(&c->m_nodeB);
 
 	// Remove the contact from the world contact list.
 	m_contactList.Remove(c);

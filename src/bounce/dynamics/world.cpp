@@ -40,10 +40,12 @@ extern bool b3_convexCache;
 
 b3World::b3World()
 {
-	m_flags = e_clearForcesFlag;
 	m_sleeping = false;
 	m_warmStarting = true;
-	
+
+	m_newContacts = false;
+	m_clearForces = true;
+
 	m_gravity.Set(scalar(0), scalar(-9.8), scalar(0));
 	
 	m_contactManager.m_allocator = &m_blockAllocator;
@@ -128,10 +130,10 @@ void b3World::Step(scalar dt, u32 velocityIterations, u32 positionIterations)
 	b3_gjkIters = 0;
 	b3_gjkMaxIters = 0;
 
-	if (m_flags & e_newContactsFlag)
+	if (m_newContacts)
 	{
 		m_contactManager.FindNewContacts();
-		m_flags &= ~e_newContactsFlag;
+		m_newContacts = false;
 	}
 
 	// Update contacts. This is where some contacts might be destroyed.
@@ -141,6 +143,20 @@ void b3World::Step(scalar dt, u32 velocityIterations, u32 positionIterations)
 	if (dt > scalar(0))
 	{
 		Solve(dt, velocityIterations, positionIterations);
+
+		if (m_clearForces)
+		{
+			ClearForces();
+		}
+	}
+}
+
+void b3World::ClearForces()
+{
+	for (b3Body* body = m_bodyList.m_head; body; body = body->GetNext())
+	{
+		body->m_force.SetZero();
+		body->m_torque.SetZero();
 	}
 }
 
@@ -154,14 +170,14 @@ void b3World::Solve(scalar dt, u32 velocityIterations, u32 positionIterations)
 		b->m_flags &= ~b3Body::e_islandFlag;
 	}
 
-	for (b3Joint* j = m_jointManager.m_jointList.m_head; j; j = j->m_next)
-	{
-		j->m_flags &= ~b3Joint::e_islandFlag;
-	}
-
 	for (b3Contact* c = m_contactManager.m_contactList.m_head; c; c = c->m_next)
 	{
 		c->m_flags &= ~b3Contact::e_islandFlag;
+	}
+
+	for (b3Joint* j = m_jointManager.m_jointList.m_head; j; j = j->m_next)
+	{
+		j->m_islandFlag = false;
 	}
 
 	u32 islandFlags = 0;
@@ -233,21 +249,15 @@ void b3World::Solve(scalar dt, u32 velocityIterations, u32 positionIterations)
 						continue;
 					}
 
-					// The contact must be overlapping.
-					if (!(contact->m_flags & b3Contact::e_overlapFlag))
+					// The contact must be touching.
+					if (contact->IsTouching() == false)
 					{
 						continue;
 					}
 
-					// The contact must have at least one dynamic body.
-					if (contact->HasDynamicBody() == false)
-					{
-						continue;
-					}
-
-					// A sensor can't respond to contacts. 
-					bool sensorA = contact->GetFixtureA()->m_isSensor;
-					bool sensorB = contact->GetFixtureB()->m_isSensor;
+					// Skip sensors. 
+					bool sensorA = contact->m_fixtureA->m_isSensor;
+					bool sensorB = contact->m_fixtureB->m_isSensor;
 					if (sensorA || sensorB)
 					{
 						continue;
@@ -256,7 +266,7 @@ void b3World::Solve(scalar dt, u32 velocityIterations, u32 positionIterations)
 					// Does a contact filter prevent the contact response?
 					if (m_contactManager.m_contactFilter)
 					{
-						if (m_contactManager.m_contactFilter->ShouldRespond(contact->GetFixtureA(), contact->GetFixtureB()) == false)
+						if (m_contactManager.m_contactFilter->ShouldRespond(contact->m_fixtureA, contact->m_fixtureB) == false)
 						{
 							continue;
 						}
@@ -287,16 +297,16 @@ void b3World::Solve(scalar dt, u32 velocityIterations, u32 positionIterations)
 				b3Joint* joint = je->m_joint;
 
 				// The joint must not be on an island.
-				if (joint->m_flags & b3Joint::e_islandFlag)
+				if (joint->m_islandFlag)
 				{
 					continue;
 				}
 
+				b3Body* other = je->m_other;
+
 				// Add joint to the island and mark it.
 				island.Add(joint);
-				joint->m_flags |= b3Joint::e_islandFlag;
-
-				b3Body* other = je->m_other;
+				joint->m_islandFlag = true;
 
 				// The other body must not be on an island.
 				if (other->m_flags & b3Body::e_islandFlag)

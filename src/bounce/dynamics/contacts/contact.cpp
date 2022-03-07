@@ -141,6 +141,22 @@ b3Contact::b3Contact(b3Fixture* fixtureA, b3Fixture* fixtureB)
 {
 	m_fixtureA = fixtureA;
 	m_fixtureB = fixtureB;
+	
+	m_prev = nullptr;
+	m_next = nullptr;
+
+	m_nodeA.m_contact = nullptr;
+	m_nodeA.m_prev = nullptr;
+	m_nodeA.m_next = nullptr;
+	m_nodeA.m_other = nullptr;
+
+	m_nodeB.m_contact = nullptr;
+	m_nodeB.m_prev = nullptr;
+	m_nodeB.m_next = nullptr;
+	m_nodeB.m_other = nullptr;
+
+	m_manifoldCapacity = 0;
+	m_manifoldCount = 0;
 }
 
 void b3Contact::GetWorldManifold(b3WorldManifold* out, u32 index) const
@@ -148,43 +164,39 @@ void b3Contact::GetWorldManifold(b3WorldManifold* out, u32 index) const
 	B3_ASSERT(index < m_manifoldCount);
 	b3Manifold* m = m_manifolds + index;
 
-	const b3Fixture* fixtureA = GetFixtureA();
-	const b3Shape* shapeA = fixtureA->GetShape();
-	const b3Body* bodyA = fixtureA->GetBody();
+	const b3Shape* shapeA = m_fixtureA->GetShape();
+	const b3Body* bodyA = m_fixtureA->GetBody();
 	b3Transform xfA = bodyA->GetTransform();
 
-	const b3Fixture* fixtureB = GetFixtureB();
-	const b3Shape* shapeB = fixtureB->GetShape();
-	const b3Body* bodyB = fixtureB->GetBody();
+	const b3Shape* shapeB = m_fixtureB->GetShape();
+	const b3Body* bodyB = m_fixtureB->GetBody();
 	b3Transform xfB = bodyB->GetTransform();
 
 	out->Initialize(m, shapeA->m_radius, xfA, shapeB->m_radius, xfB);
 }
 
+// Update the contact manifolds and touching status.
+// Note: do not assume the fixture AABBs are overlapping or are valid.
 void b3Contact::Update(b3ContactListener* listener)
 {
-	b3Fixture* fixtureA = GetFixtureA();
-	b3Shape* shapeA = fixtureA->GetShape();
-	b3Body* bodyA = fixtureA->GetBody();
-	b3Transform xfA = bodyA->GetTransform();
+	bool touching = false;
+	bool wasTouching = (m_flags & e_touchingFlag) == e_touchingFlag;
 
-	b3Fixture* fixtureB = GetFixtureB();
-	b3Shape* shapeB = fixtureB->GetShape();
-	b3Body* bodyB = fixtureB->GetBody();
-	b3Transform xfB = bodyB->GetTransform();
+	bool sensorA = m_fixtureA->IsSensor();
+	bool sensorB = m_fixtureB->IsSensor();
+	bool sensor = sensorA || sensorB;
 
-	b3World* world = bodyA->GetWorld();
+	b3Body* bodyA = m_fixtureA->GetBody();
+	b3Body* bodyB = m_fixtureB->GetBody();
 
+	b3World* world = bodyA->m_world;
 	b3StackAllocator* stack = &world->m_stackAllocator;
 
-	bool wasOverlapping = IsOverlapping();
-	bool isOverlapping = false;
-	bool isSensorContact = IsSensorContact();
-	bool isDynamicContact = HasDynamicBody();
-
-	if (isSensorContact == true)
+	if (sensor == true)
 	{
-		isOverlapping = TestOverlap();
+		touching = TestOverlap();
+		
+		// Sensors don't generate manifolds.
 		m_manifoldCount = 0;
 	}
 	else
@@ -226,55 +238,45 @@ void b3Contact::Update(b3ContactListener* listener)
 		{
 			if (m_manifolds[i].pointCount > 0)
 			{
-				isOverlapping = true;
+				touching = true;
 				break;
 			}
 		}
-	}
 
-	// Wake the bodies associated with the shapes if the contact has began.
-	if (isOverlapping != wasOverlapping)
-	{
-		bodyA->SetAwake(true);
-		bodyB->SetAwake(true);
+		// Wake the bodies associated with the shapes if the contact has began.
+		if (touching != wasTouching)
+		{
+			bodyA->SetAwake(true);
+			bodyB->SetAwake(true);
+		}
 	}
 
 	// Update the contact state.
-	if (isOverlapping == true)
+	if (touching == true)
 	{
-		m_flags |= e_overlapFlag;
+		m_flags |= e_touchingFlag;
 	}
 	else
 	{
-		m_flags &= ~e_overlapFlag;
+		m_flags &= ~e_touchingFlag;
 	}
 
 	// Notify the contact listener the new contact state.
 	if (listener != nullptr)
 	{
-		if (wasOverlapping == false && isOverlapping == true)
+		if (wasTouching == false && touching == true)
 		{
 			listener->BeginContact(this);
 		}
 
-		if (wasOverlapping == true && isOverlapping == false)
+		if (wasTouching == true && touching == false)
 		{
 			listener->EndContact(this);
 		}
 
-		if (isOverlapping == true && isDynamicContact == true && isSensorContact == false)
+		if (sensor == false && touching == true)
 		{
 			listener->PreSolve(this);
 		}
 	}
-}
-
-bool b3Contact::IsSensorContact() const
-{
-	return m_fixtureA->IsSensor() || m_fixtureB->IsSensor();
-}
-
-bool b3Contact::HasDynamicBody() const
-{
-	return m_fixtureA->m_body->m_type == e_dynamicBody || m_fixtureB->m_body->m_type == e_dynamicBody;
 }

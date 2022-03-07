@@ -41,5 +41,5 @@ b3HullAndCapsuleContact::b3HullAndCapsuleContact(b3Fixture* fixtureA, b3Fixture*
 
 void b3HullAndCapsuleContact::Evaluate(b3Manifold& manifold, const b3Transform& xfA, const b3Transform& xfB) 
 {
-	b3CollideHullAndCapsule(manifold, xfA, (b3HullShape*)GetFixtureA()->GetShape(), xfB, (b3CapsuleShape*)GetFixtureB()->GetShape());
+	b3CollideHullAndCapsule(manifold, xfA, (b3HullShape*)m_fixtureA->GetShape(), xfB, (b3CapsuleShape*)m_fixtureB->GetShape());
 }

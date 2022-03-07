@@ -34,7 +34,7 @@ void b3PrismaticJointDef::Initialize(b3Body* bA, b3Body* bB, const b3Vec3& ancho
 	referenceRotation = b3Conjugate(qA) * qB;
 }
 
-b3PrismaticJoint::b3PrismaticJoint(const b3PrismaticJointDef* def)
+b3PrismaticJoint::b3PrismaticJoint(const b3PrismaticJointDef* def) : b3Joint(def)
 {
 	m_type = e_prismaticJoint;
 	m_localAnchorA = def->localAnchorA;
@@ -60,7 +60,7 @@ b3PrismaticJoint::b3PrismaticJoint(const b3PrismaticJointDef* def)
 	m_limitState = e_inactiveLimit;
 }
 
-void b3PrismaticJoint::InitializeConstraints(const b3SolverData* data)
+void b3PrismaticJoint::InitializeVelocityConstraints(const b3SolverData* data)
 {
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;
@@ -433,20 +433,20 @@ bool b3PrismaticJoint::SolvePositionConstraints(const b3SolverData* data)
 
 b3Vec3 b3PrismaticJoint::GetAnchorA() const
 {
-	return GetBodyA()->GetWorldPoint(m_localAnchorA);
+	return m_bodyA->GetWorldPoint(m_localAnchorA);
 }
 
 b3Vec3 b3PrismaticJoint::GetAnchorB() const
 {
-	return GetBodyB()->GetWorldPoint(m_localAnchorB);
+	return m_bodyB->GetWorldPoint(m_localAnchorB);
 }
 
 scalar b3PrismaticJoint::GetJointTranslation() const
 {
-	b3Vec3 pA = GetBodyA()->GetWorldPoint(m_localAnchorA);
-	b3Vec3 pB = GetBodyB()->GetWorldPoint(m_localAnchorB);
+	b3Vec3 pA = m_bodyA->GetWorldPoint(m_localAnchorA);
+	b3Vec3 pB = m_bodyB->GetWorldPoint(m_localAnchorB);
 	b3Vec3 d = pB - pA;
-	b3Vec3 axis = GetBodyA()->GetWorldVector(m_localXAxisA);
+	b3Vec3 axis = m_bodyA->GetWorldVector(m_localXAxisA);
 
 	scalar translation = b3Dot(d, axis);
 	return translation;

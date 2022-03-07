@@ -34,15 +34,15 @@ class b3ContactListener;
 class b3BlockAllocator;
 struct b3ConvexCache;
 
-// A contact edge for the contact graph, 
-// where a fixture is a vertex and a contact 
-// an edge.
+// A contact edge to a contact graph, where a body is a vertex and a contact an edge.
+// A contact edge belongs to a doubly linked list maintained in each attached fixture.
+// Each joint has two contact nodes, one for each attached fixture.
 struct b3ContactEdge
 {
-	b3Fixture* m_other;
-	b3Contact* m_contact;
-	b3ContactEdge* m_prev;
-	b3ContactEdge* m_next;
+	b3Fixture* m_other; // the other fixture attached
+	b3Contact* m_contact; // the contact
+	b3ContactEdge* m_prev; // previous contact edge in the fixture contact list
+	b3ContactEdge* m_next; // next contact edge in the fixture contact list
 };
 
 typedef b3Contact* b3ContactCreateFcn(b3Fixture* shapeA, b3Fixture* shapeB, b3BlockAllocator* allocator);
@@ -55,10 +55,13 @@ struct b3ContactRegister
 	bool primary;
 };
 
+// The class manages contact between two shapes. A contact exists for each overlapping
+// AABB in the broad-phase (except if filtered). Therefore a contact object may exist
+// that has no contact points.
 class b3Contact
 {
 public:
-	// Get the shape A in this contact.
+	// Get the fixture A in this contact.
 	const b3Fixture* GetFixtureA() const;
 	b3Fixture* GetFixtureA();
 
@@ -79,14 +82,8 @@ public:
 	// Get a world contact manifold from this contact.
 	void GetWorldManifold(b3WorldManifold* out, u32 index) const;
 	
-	// Are the shapes in this contact overlapping?
-	bool IsOverlapping() const;
-
-	// Has this contact at least one sensor shape?
-	bool IsSensorContact() const;
-
-	// Has this contact at least one dynamic body?
-	bool HasDynamicBody() const;
+	// Is this contact touching?
+	bool IsTouching() const;
 
 	// Get the next contact in the world contact list.
 	const b3Contact* GetNext() const;
@@ -102,7 +99,7 @@ protected:
 	// Flags
 	enum 
 	{
-		e_overlapFlag = 0x0001,
+		e_touchingFlag = 0x0001,
 		e_islandFlag = 0x0002,
 	};
 
@@ -141,17 +138,15 @@ protected:
 	virtual void FindPairs() { }
 
 	u32 m_flags;
-	
+
+	// Nodes for connecting bodies.
+	b3ContactEdge m_nodeA;
+	b3ContactEdge m_nodeB;
+
 	b3Fixture* m_fixtureA;
 	b3Fixture* m_fixtureB;
 
-	// To the fixture A edge list.
-	b3ContactEdge m_edgeA;
-	
-	// To the fixture B edge list.
-	b3ContactEdge m_edgeB;
-	
-	// Contact manifolds.
+	// Contact manifolds containing the contact points.
 	u32 m_manifoldCapacity;
 	b3Manifold* m_manifolds;
 	u32 m_manifoldCount;
@@ -203,9 +198,9 @@ inline u32 b3Contact::GetManifoldCount() const
 	return m_manifoldCount;
 }
 
-inline bool b3Contact::IsOverlapping() const 
+inline bool b3Contact::IsTouching() const 
 {
-	return (m_flags & e_overlapFlag) != 0;
+	return (m_flags & e_touchingFlag) != 0;
 }
 
 inline const b3Contact* b3Contact::GetNext() const

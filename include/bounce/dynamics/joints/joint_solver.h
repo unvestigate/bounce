@@ -47,7 +47,7 @@ class b3JointSolver
 public :
 	b3JointSolver(const b3JointSolverDef* def);
 
-	void InitializeConstraints();
+	void InitializeVelocityConstraints();
 	void WarmStart();
 	void SolveVelocityConstraints();	
 	bool SolvePositionConstraints();

@@ -44,11 +44,11 @@ void b3MeshAndHullContact::Evaluate(b3Manifold& manifold, const b3Transform& xfA
 {
 	B3_ASSERT(cacheIndex < m_triangleCount);
 	
-	b3Transform xf0A = GetFixtureA()->GetBody()->GetSweep().GetTransform(scalar(0));
-	b3Transform xf0B = GetFixtureB()->GetBody()->GetSweep().GetTransform(scalar(0));
+	b3Transform xf0A = m_fixtureA->GetBody()->GetSweep().GetTransform(scalar(0));
+	b3Transform xf0B = m_fixtureB->GetBody()->GetSweep().GetTransform(scalar(0));
 
-	b3MeshShape* mesh = (b3MeshShape*)GetFixtureA()->GetShape();
+	b3MeshShape* mesh = (b3MeshShape*)m_fixtureA->GetShape();
 	b3TriangleShape triangle;
 	mesh->GetChildTriangle(&triangle, m_triangles[cacheIndex].index);
-	b3CollideTriangleAndHull(manifold, xfA, &triangle, xfB, (b3HullShape*)GetFixtureB()->GetShape(), &m_triangles[cacheIndex].cache, xf0A, xf0B);
+	b3CollideTriangleAndHull(manifold, xfA, &triangle, xfB, (b3HullShape*)m_fixtureB->GetShape(), &m_triangles[cacheIndex].cache, xf0A, xf0B);
 }

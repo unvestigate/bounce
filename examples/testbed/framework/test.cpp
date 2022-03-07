@@ -131,7 +131,7 @@ void Test::Step()
 
 	// Step
 	m_world.SetSleeping(g_testSettings->sleep);
-	m_world.SetWarmStart(g_testSettings->warmStart);
+	m_world.SetWarmStarting(g_testSettings->warmStart);
 	m_world.Step(g_testSettings->inv_hertz, g_testSettings->velocityIterations, g_testSettings->positionIterations);
 
 	// Draw

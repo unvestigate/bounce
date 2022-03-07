@@ -28,15 +28,15 @@ void b3SphereJointDef::Initialize(b3Body* bA, b3Body* bB, const b3Vec3& anchor)
 	localAnchorB = bodyB->GetLocalPoint(anchor);
 }
 
-b3SphereJoint::b3SphereJoint(const b3SphereJointDef* def)
+b3SphereJoint::b3SphereJoint(const b3SphereJointDef* def) : b3Joint(def)
 {
-	m_type = b3JointType::e_sphereJoint;
+	m_type = e_sphereJoint;
 	m_localAnchorA = def->localAnchorA;
 	m_localAnchorB = def->localAnchorB;
 	m_impulse.SetZero();
 }
 
-void b3SphereJoint::InitializeConstraints(const b3SolverData* data)
+void b3SphereJoint::InitializeVelocityConstraints(const b3SolverData* data)
 {
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;

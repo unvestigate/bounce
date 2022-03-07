@@ -20,7 +20,7 @@
 #include <bounce/dynamics/body.h>
 #include <bounce/common/draw.h>
 
-b3MouseJoint::b3MouseJoint(const b3MouseJointDef* def) 
+b3MouseJoint::b3MouseJoint(const b3MouseJointDef* def) : b3Joint(def)
 {
 	m_type = e_mouseJoint;
 	m_worldTargetA = def->target;
@@ -49,7 +49,7 @@ static B3_FORCE_INLINE void b3ComputeSoftConstraintCoefficients(scalar& gamma, s
 	bias = gamma * h * k * C;
 }
 
-void b3MouseJoint::InitializeConstraints(const b3SolverData* data) 
+void b3MouseJoint::InitializeVelocityConstraints(const b3SolverData* data) 
 {
 	m_indexB = m_bodyB->m_islandID;
 	m_mB = m_bodyB->m_invMass;

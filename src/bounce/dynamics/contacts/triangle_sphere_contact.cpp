@@ -41,5 +41,5 @@ b3TriangleAndSphereContact::b3TriangleAndSphereContact(b3Fixture* fixtureA, b3Fi
 
 void b3TriangleAndSphereContact::Evaluate(b3Manifold& manifold, const b3Transform& xfA, const b3Transform& xfB) 
 {
-	b3CollideTriangleAndSphere(manifold, xfA, (b3TriangleShape*)GetFixtureA()->GetShape(), xfB, (b3SphereShape*)GetFixtureB()->GetShape());
+	b3CollideTriangleAndSphere(manifold, xfA, (b3TriangleShape*)m_fixtureA->GetShape(), xfB, (b3SphereShape*)m_fixtureB->GetShape());
 }

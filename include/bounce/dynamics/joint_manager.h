@@ -29,10 +29,8 @@ class b3BlockAllocator;
 class b3JointManager
 {
 public:
-	b3JointManager();
-	
 	b3Joint* Create(const b3JointDef* def);
-	void Destroy(b3Joint* j);
+	void Destroy(b3Joint* joint);
 
 	b3List<b3Joint> m_jointList;
 	b3BlockAllocator* m_allocator;

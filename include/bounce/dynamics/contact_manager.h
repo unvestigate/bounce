@@ -48,7 +48,6 @@ public:
 	// Perform narrow-phase collision detection.
 	void UpdateContacts();
 
-	b3Contact* Create(b3Fixture* fixtureA, b3Fixture* fixtureB);
 	void Destroy(b3Contact* c);
 
 	b3BroadPhase m_broadPhase;	

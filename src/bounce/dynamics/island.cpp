@@ -133,10 +133,7 @@ void b3Island::Solve(const b3Vec3& gravity, scalar dt, u32 velocityIterations, u
 		{
 			// Integrate forces
 			v += h * (b3Mul(b->m_gravityScale, gravity) + b->m_invMass * b->m_force);
-			
-			// Clear forces
-			b->m_force.SetZero();
-			
+
 			// Integrate torques
 			b3Vec3 dw1 = h * b->m_worldInvI * b->m_torque;
 			
@@ -147,9 +144,6 @@ void b3Island::Solve(const b3Vec3& gravity, scalar dt, u32 velocityIterations, u
 
 			w += dw1 + dw2;
 
-			// Clear torques
-			b->m_torque.SetZero();
-			
 			// Apply local damping.
 			// ODE: dv/dt + c * v = 0
 			// Solution: v(t) = v0 * exp(-c * t)
@@ -203,7 +197,7 @@ void b3Island::Solve(const b3Vec3& gravity, scalar dt, u32 velocityIterations, u
 			contactSolver.WarmStart();
 		}
 
-		jointSolver.InitializeConstraints();
+		jointSolver.InitializeVelocityConstraints();
 
 		if (flags & e_warmStartBit)
 		{

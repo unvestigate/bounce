@@ -117,7 +117,7 @@ b3Fixture* b3Body::CreateFixture(const b3FixtureDef& def)
 	fixture->m_broadPhaseID = m_world->m_contactManager.m_broadPhase.CreateProxy(aabb, fixture);
 
 	// Tell the world that a new shape was added so new contacts can be created.
-	m_world->m_flags |= b3World::e_newContactsFlag;
+	m_world->m_newContacts = true;
 
 	return fixture;
 }
@@ -202,7 +202,7 @@ void b3Body::SetTransform(const b3Vec3& position, const b3Quat& orientation)
 		f->Synchronize(broadPhase, m_xf, m_xf);
 	}
 
-	m_world->m_flags |= b3World::e_newContactsFlag;
+	m_world->m_newContacts = true;
 }
 
 void b3Body::SetTransform(const b3Vec3& position, const b3Mat33& orientation)
@@ -249,7 +249,7 @@ bool b3Body::ShouldCollide(const b3Body* other) const
 		b3Joint* j = je->m_joint;
 		if (je->m_other == other)
 		{
-			if (j->m_collideLinked == false)
+			if (j->m_collideConnected == false)
 			{
 				return false;
 			}

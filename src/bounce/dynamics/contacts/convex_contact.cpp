@@ -35,13 +35,11 @@ b3ConvexContact::b3ConvexContact(b3Fixture* fixtureA, b3Fixture* fixtureB) : b3C
 
 bool b3ConvexContact::TestOverlap()
 {
-	b3Fixture* fixtureA = GetFixtureA();
-	b3Shape* shapeA = fixtureA->GetShape();
-	b3Transform xfA = fixtureA->GetBody()->GetTransform();
+	b3Shape* shapeA = m_fixtureA->GetShape();
+	b3Transform xfA = m_fixtureA->GetBody()->GetTransform();
 
-	b3Fixture* fixtureB = GetFixtureB();
-	b3Shape* shapeB = fixtureB->GetShape();
-	b3Transform xfB = fixtureB->GetBody()->GetTransform();
+	b3Shape* shapeB = m_fixtureB->GetShape();
+	b3Transform xfB = m_fixtureB->GetBody()->GetTransform();
 
 	return b3TestOverlap(xfA, 0, shapeA, xfB, 0, shapeB, &m_cache);
 }

@@ -34,7 +34,7 @@ void b3WeldJointDef::Initialize(b3Body* bA, b3Body* bB, const b3Vec3& anchor)
 	referenceRotation = b3Conjugate(qA) * qB;
 }
 
-b3WeldJoint::b3WeldJoint(const b3WeldJointDef* def)
+b3WeldJoint::b3WeldJoint(const b3WeldJointDef* def) : b3Joint(def)
 {
 	m_type = e_weldJoint;
 	m_localAnchorA = def->localAnchorA;
@@ -82,7 +82,7 @@ static B3_FORCE_INLINE void b3ComputeSoftConstraintCoefficients(scalar& gamma, s
 	bias = gamma * h * k * C;
 }
 
-void b3WeldJoint::InitializeConstraints(const b3SolverData* data)
+void b3WeldJoint::InitializeVelocityConstraints(const b3SolverData* data)
 {
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;

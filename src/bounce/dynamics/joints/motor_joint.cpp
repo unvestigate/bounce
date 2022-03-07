@@ -32,7 +32,7 @@ void b3MotorJointDef::Initialize(b3Body* bA, b3Body* bB)
 	angularOffset = bodyA->GetLocalFrame(qB);
 }
 
-b3MotorJoint::b3MotorJoint(const b3MotorJointDef* def)
+b3MotorJoint::b3MotorJoint(const b3MotorJointDef* def) : b3Joint(def)
 {
 	m_type = e_motorJoint;
 	m_linearOffset = def->linearOffset;
@@ -45,7 +45,7 @@ b3MotorJoint::b3MotorJoint(const b3MotorJointDef* def)
 	m_correctionFactor = def->correctionFactor;
 }
 
-void b3MotorJoint::InitializeConstraints(const b3SolverData* data)
+void b3MotorJoint::InitializeVelocityConstraints(const b3SolverData* data)
 {
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;

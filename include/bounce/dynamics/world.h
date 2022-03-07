@@ -96,15 +96,17 @@ public:
 	// This interface is used for drawing the world entities.
 	void SetDebugDraw(b3Draw* draw);
 
-	// Set the world profiler.
+	// Set the profiler interface.
 	void SetProfiler(b3Profiler* profiler);
 
-	// Enable body sleeping. This improves performance.
+	// Enable/disable body sleeping. This improves performance.
 	void SetSleeping(bool flag);
+	bool GetSleeping() const { return m_sleeping; }
 
-	// Enable warm-starting for the constraint solvers. This improves stability significantly.
-	void SetWarmStart(bool flag);
-	
+	// Enable/disable warm starting. For testing.
+	void SetWarmStarting(bool flag) { m_warmStarting = flag; }
+	bool GetWarmStarting() const { return m_warmStarting; }
+
 	// Set the acceleration due to the gravity force between this world and each dynamic 
 	// body in the world. 
 	// The acceleration has units of m/s^2.
@@ -112,6 +114,12 @@ public:
 
 	// Get the acceleration due to gravity force in m/s^2.
 	const b3Vec3& GetGravity() const;
+
+	// Set flag to control automatic clearing of forces after each time step.
+	void SetAutoClearForces(bool flag);
+
+	// Get the flag that controls automatic clearing of forces after each time step.
+	bool GetAutoClearForces() const;
 
 	// Create a new rigid body.
 	b3Body* CreateBody(const b3BodyDef& def);
@@ -129,6 +137,10 @@ public:
 	// The function parameters are the ammount of time to simulate, 
 	// and the number of constraint solver iterations.
 	void Step(scalar dt, u32 velocityIterations, u32 positionIterations);
+	
+	// Manually clear the force buffer on all bodies. By default, forces are cleared automatically
+	// after each call to Step. The default behavior is modified by calling SetAutoClearForces.
+	void ClearForces();
 
 	// Perform a ray cast with the world.
 	// The given ray cast listener will be notified when a ray intersects a shape 
@@ -198,13 +210,6 @@ public:
 	// Draw solid the entities in this world.
 	void DrawSolid() const;
 private:
-	// Flags
-	enum 
-	{
-		e_newContactsFlag = 0x0001,
-		e_clearForcesFlag = 0x0002,
-	};
-	
 	friend class b3Body;
 	friend class b3Fixture;
 	friend class b3Contact;
@@ -216,7 +221,8 @@ private:
 
 	bool m_sleeping;
 	bool m_warmStarting;
-	u32 m_flags;
+	bool m_newContacts;
+	bool m_clearForces;
 	b3Vec3 m_gravity;
 	
 	// Stack allocator
@@ -275,9 +281,14 @@ inline const b3Vec3& b3World::GetGravity() const
 	return m_gravity;
 }
 
-inline void b3World::SetWarmStart(bool flag)
+inline void b3World::SetAutoClearForces(bool flag)
 {
-	m_warmStarting = flag;
+	m_clearForces = flag;
+}
+
+inline bool b3World::GetAutoClearForces() const
+{
+	return m_clearForces;
 }
 
 inline const b3List<b3Body>& b3World::GetBodyList() const

@@ -24,54 +24,7 @@
 #include <bounce/collision/shapes/mesh_shape.h>
 #include <bounce/collision/geometry/hull.h>
 #include <bounce/collision/geometry/mesh.h>
-#include <bounce/common/memory/block_allocator.h>
 #include <bounce/common/draw.h>
-
-void b3Shape::Destroy(b3Shape* shape, b3BlockAllocator* allocator)
-{
-	switch (shape->GetType())
-	{
-	case e_sphere:
-	{
-		b3SphereShape* sphere = (b3SphereShape*)shape;
-		sphere->~b3SphereShape();
-		allocator->Free(shape, sizeof(b3SphereShape));
-		break;
-	}
-	case e_capsule:
-	{
-		b3CapsuleShape* capsule = (b3CapsuleShape*)shape;
-		capsule->~b3CapsuleShape();
-		allocator->Free(shape, sizeof(b3CapsuleShape));
-		break;
-	}
-	case e_triangle:
-	{
-		b3TriangleShape* triangle = (b3TriangleShape*)shape;
-		triangle->~b3TriangleShape();
-		allocator->Free(shape, sizeof(b3TriangleShape));
-		break;
-	}
-	case e_hull:
-	{
-		b3HullShape* hull = (b3HullShape*)shape;
-		hull->~b3HullShape();
-		allocator->Free(shape, sizeof(b3HullShape));
-		break;
-	}
-	case e_mesh:
-	{
-		b3MeshShape* mesh = (b3MeshShape*)shape;
-		mesh->~b3MeshShape();
-		allocator->Free(shape, sizeof(b3MeshShape));
-		break;
-	}
-	default:
-	{
-		B3_ASSERT(false);
-	}
-	}
-}
 
 void b3Shape::Draw(b3Draw* draw, const b3Transform& xf, const b3Color& color) const
 {

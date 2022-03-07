@@ -143,7 +143,7 @@ protected:
 	
 	b3WheelJoint(const b3WheelJointDef* def);
 
-	void InitializeConstraints(const b3SolverData* data);
+	void InitializeVelocityConstraints(const b3SolverData* data);
 	void WarmStart(const b3SolverData* data);
 	void SolveVelocityConstraints(const b3SolverData* data);
 	bool SolvePositionConstraints(const b3SolverData* data);

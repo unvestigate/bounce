@@ -20,28 +20,20 @@
 #include <bounce/dynamics/joints/joint.h>
 #include <bounce/dynamics/body.h>
 
-b3JointManager::b3JointManager() 
-{
-}
-
 b3Joint* b3JointManager::Create(const b3JointDef* def)
 {
 	b3Body* bodyA = def->bodyA;
 	b3Body* bodyB = def->bodyB;
 
-	// There must not be one joint linking the same bodies.
+	// There must not be one joint connecting the same bodies.
 	B3_ASSERT(bodyA != bodyB);
 	if (bodyA == bodyB)
 	{
 		return nullptr;
 	}
 
-	// Create the new joint.
+	// Call the factory to create the new joint.
 	b3Joint* j = b3Joint::Create(def, m_allocator);
-	
-	j->m_flags = 0;
-	j->m_collideLinked = def->collideLinked;
-	j->m_userData = def->userData;
 
 	// Add the joint to body A's joint edge list
 	j->m_bodyA = bodyA;
@@ -55,10 +47,11 @@ b3Joint* b3JointManager::Create(const b3JointDef* def)
 	j->m_edgeB.m_joint = j;
 	bodyB->m_jointList.PushFront(&j->m_edgeB);
 
-	// Add the joint to the world joint list
+	// Connect the joint to the world joint list
 	m_jointList.PushFront(j);
 
-	// Creating a joint doesn't awake the bodies.
+	// Note: creating a joint doesn't awake the bodies.
+	
 	return j;
 }
 
@@ -66,6 +59,10 @@ void b3JointManager::Destroy(b3Joint* j)
 {
 	b3Body* bodyA = j->GetBodyA();
 	b3Body* bodyB = j->GetBodyB();
+
+	// Wake up connected bodies.
+	bodyA->SetAwake(true);
+	bodyB->SetAwake(true);
 
 	// Remove the joint from body A's joint list.
 	bodyA->m_jointList.Remove(&j->m_edgeA);
@@ -75,7 +72,7 @@ void b3JointManager::Destroy(b3Joint* j)
 
 	// Remove the joint from the world joint list.
 	m_jointList.Remove(j);
-	
+
 	// Destroy the joint.
 	b3Joint::Destroy(j, m_allocator);
 }

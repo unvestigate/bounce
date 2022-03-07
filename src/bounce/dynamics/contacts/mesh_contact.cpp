@@ -173,7 +173,7 @@ void b3MeshContact::FindPairs()
 	// Clear the index cache.
 	m_triangleCount = 0;
 
-	const b3MeshShape* meshShapeA = (b3MeshShape*)GetFixtureA()->GetShape();
+	const b3MeshShape* meshShapeA = (b3MeshShape*)m_fixtureA->GetShape();
 	const b3Mesh* meshA = meshShapeA->m_mesh;
 	const b3StaticTree* treeA = &meshA->tree;
 
@@ -183,7 +183,7 @@ void b3MeshContact::FindPairs()
 
 bool b3MeshContact::Report(u32 proxyId)
 {
-	b3MeshShape* meshShapeA = (b3MeshShape*)GetFixtureA()->GetShape();
+	b3MeshShape* meshShapeA = (b3MeshShape*)m_fixtureA->GetShape();
 	const b3Mesh* meshA = meshShapeA->m_mesh;
 	const b3StaticTree* treeA = &meshA->tree;
 
@@ -214,14 +214,12 @@ bool b3MeshContact::Report(u32 proxyId)
 
 bool b3MeshContact::TestOverlap()
 {
-	b3Fixture* fixtureA = GetFixtureA();
-	b3Shape* shapeA = fixtureA->GetShape();
-	b3Body* bodyA = fixtureA->GetBody();
+	b3Shape* shapeA = m_fixtureA->GetShape();
+	b3Body* bodyA = m_fixtureA->GetBody();
 	b3Transform xfA = bodyA->GetTransform();
 
-	b3Fixture* fixtureB = GetFixtureB();
-	b3Shape* shapeB = fixtureB->GetShape();
-	b3Body* bodyB = fixtureB->GetBody();
+	b3Shape* shapeB = m_fixtureB->GetShape();
+	b3Body* bodyB = m_fixtureB->GetBody();
 	b3Transform xfB = bodyB->GetTransform();
 
 	// Test if at least one triangle of the shape B overlaps the shape A.

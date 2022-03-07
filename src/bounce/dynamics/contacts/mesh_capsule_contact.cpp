@@ -44,8 +44,8 @@ void b3MeshAndCapsuleContact::Evaluate(b3Manifold& manifold, const b3Transform& 
 {
 	B3_ASSERT(cacheIndex < m_triangleCount);
 	
-	b3MeshShape* mesh = (b3MeshShape*)GetFixtureA()->GetShape();
+	b3MeshShape* mesh = (b3MeshShape*)m_fixtureA->GetShape();
 	b3TriangleShape triangle;
 	mesh->GetChildTriangle(&triangle, m_triangles[cacheIndex].index);
-	b3CollideTriangleAndCapsule(manifold, xfA, &triangle, xfB, (b3CapsuleShape*)GetFixtureB()->GetShape());
+	b3CollideTriangleAndCapsule(manifold, xfA, &triangle, xfB, (b3CapsuleShape*)m_fixtureB->GetShape());
 } 

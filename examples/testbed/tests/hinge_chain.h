@@ -68,7 +68,7 @@ public:
 
 				b3RevoluteJointDef jd;
 				jd.Initialize(lastHinge, hinge, hingeAxis, hingeAnchor, 0.0f, 0.5f * B3_PI);
-				jd.collideLinked = false;
+				jd.collideConnected = false;
 
 				b3RevoluteJoint* rj = (b3RevoluteJoint*)m_world.CreateJoint(jd);
 			} 

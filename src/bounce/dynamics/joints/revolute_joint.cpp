@@ -47,7 +47,7 @@ void b3RevoluteJointDef::Initialize(b3Body* bA, b3Body* bB,
 	upperAngle = upper;
 }
 
-b3RevoluteJoint::b3RevoluteJoint(const b3RevoluteJointDef* def)
+b3RevoluteJoint::b3RevoluteJoint(const b3RevoluteJointDef* def) : b3Joint(def)
 {
 	m_type = e_revoluteJoint;
 	m_referenceRotation = def->referenceRotation;
@@ -74,7 +74,7 @@ b3RevoluteJoint::b3RevoluteJoint(const b3RevoluteJointDef* def)
 	m_angularImpulse.SetZero();
 }
 
-void b3RevoluteJoint::InitializeConstraints(const b3SolverData* data)
+void b3RevoluteJoint::InitializeVelocityConstraints(const b3SolverData* data)
 {
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;
@@ -407,7 +407,7 @@ bool b3RevoluteJoint::SolvePositionConstraints(const b3SolverData* data)
 		b3Vec3 v2 = RfB.y;
 		b3Vec3 w2 = RfB.z;
 
-		b3Vec3 limitAxis = RfA.z;
+		b3Vec3 limitAxis = w1;
 
 		scalar K = b3Dot((iA + iB) * limitAxis, limitAxis);
 

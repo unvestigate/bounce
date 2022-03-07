@@ -30,7 +30,7 @@ void b3WheelJointDef::Initialize(b3Body* bA, b3Body* bB, const b3Vec3& anchor, c
 	localAxisB = bodyB->GetLocalVector(axisB);
 }
 
-b3WheelJoint::b3WheelJoint(const b3WheelJointDef* def)
+b3WheelJoint::b3WheelJoint(const b3WheelJointDef* def) : b3Joint(def)
 {
 	m_type = e_wheelJoint;
 	m_localAnchorA = def->localAnchorA;
@@ -67,7 +67,7 @@ b3WheelJoint::b3WheelJoint(const b3WheelJointDef* def)
 	m_springImpulse = scalar(0);
 }
 
-void b3WheelJoint::InitializeConstraints(const b3SolverData* data)
+void b3WheelJoint::InitializeVelocityConstraints(const b3SolverData* data)
 {
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;

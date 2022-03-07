@@ -54,7 +54,7 @@ void b3ConeJointDef::Initialize(b3Body* bA, b3Body* bB,
 	coneAngle = angle;
 }
 
-b3ConeJoint::b3ConeJoint(const b3ConeJointDef* def)
+b3ConeJoint::b3ConeJoint(const b3ConeJointDef* def) : b3Joint(def)
 {
 	m_type = e_coneJoint;
 	m_localAnchorA = def->localAnchorA;
@@ -73,7 +73,7 @@ b3ConeJoint::b3ConeJoint(const b3ConeJointDef* def)
 	m_impulse.SetZero();
 }
 
-void b3ConeJoint::InitializeConstraints(const b3SolverData* data)
+void b3ConeJoint::InitializeVelocityConstraints(const b3SolverData* data)
 {
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;
@@ -254,7 +254,7 @@ bool b3ConeJoint::SolvePositionConstraints(const b3SolverData* data)
 
 		// C = cone / 2 - angle >= 0
 		scalar cosine = b3Dot(u2, u1);
-		scalar sine = b3Length(m_coneAxis);
+		scalar sine = b3Length(coneAxis);
 		scalar angle = atan2(sine, cosine);
 
 		if (scalar(0.5) * m_coneAngle < angle)

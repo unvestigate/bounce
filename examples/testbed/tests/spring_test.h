@@ -85,7 +85,7 @@ public:
 		{
 			b3SpringJointDef def;
 			def.Initialize(frame, wheelLF, b3Vec3(-1.0f, 9.0f, 4.5), b3Vec3(-1.0f, 9.0f, 4.5f));
-			def.collideLinked = true;
+			def.collideConnected = true;
 			def.dampingRatio = 0.5f;
 			def.frequencyHz = 4.0f;
 
@@ -112,7 +112,7 @@ public:
 		{
 			b3SpringJointDef def;
 			def.Initialize(frame, wheelRF, b3Vec3(1.0f, 9.0, 4.5), b3Vec3(1.0f, 9.0, 4.5f));
-			def.collideLinked = true;
+			def.collideConnected = true;
 			def.dampingRatio = 0.5f;
 			def.frequencyHz = 4.0f;
 
@@ -139,7 +139,7 @@ public:
 		{
 			b3SpringJointDef def;
 			def.Initialize(frame, wheelLB, b3Vec3(-1.0f, 9.0f, -4.5f), b3Vec3(-1.0f, 9.0f, -4.5f));
-			def.collideLinked = true;
+			def.collideConnected = true;
 			def.dampingRatio = 0.8f;
 			def.frequencyHz = 4.0f;
 
@@ -166,7 +166,7 @@ public:
 		{
 			b3SpringJointDef def;
 			def.Initialize(frame, wheelRB, b3Vec3(1.0f, 9.0f, -4.5f), b3Vec3(1.0f, 9.0f, -4.5f));
-			def.collideLinked = true;
+			def.collideConnected = true;
 			def.frequencyHz = 4.0f;
 			def.dampingRatio = 0.8f;
 

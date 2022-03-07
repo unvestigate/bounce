@@ -85,7 +85,7 @@ public:
 			b3ConeJointDef cd;
 			cd.bodyA = hip;
 			cd.bodyB = head;
-			cd.collideLinked = false;
+			cd.collideConnected = false;
 			cd.enableConeLimit = true;
 			cd.Initialize(hip, head, b3Vec3(0.0f, 1.0f, 0.0f), b3Vec3(0.0f, 11.55f, 0.0f), 0.25f * B3_PI);
 			b3ConeJoint* cj = (b3ConeJoint*)m_world.CreateJoint(cd);
@@ -115,7 +115,7 @@ public:
 			b3ConeJointDef cd;
 			cd.bodyA = hip;
 			cd.bodyB = lArm;
-			cd.collideLinked = false;
+			cd.collideConnected = false;
 			cd.enableConeLimit = true;
 			cd.Initialize(hip, lArm, b3Vec3(-1.0f, 0.0f, 0.0f), b3Vec3(-1.0f, 11.0f, 0.0f), B3_PI);
 			b3ConeJoint* cj = (b3ConeJoint*)m_world.CreateJoint(cd);
@@ -145,7 +145,7 @@ public:
 			b3ConeJointDef cd;
 			cd.bodyA = hip;
 			cd.bodyB = rArm;
-			cd.collideLinked = false;
+			cd.collideConnected = false;
 			cd.enableConeLimit = true;
 			cd.Initialize(hip, rArm, b3Vec3(1.0f, 0.0f, 0.0f), b3Vec3(1.0f, 11.0f, 0.0f), B3_PI);
 			b3ConeJoint* cj = (b3ConeJoint*)m_world.CreateJoint(cd);
@@ -174,7 +174,7 @@ public:
 			b3ConeJointDef cd;
 			cd.bodyA = hip;
 			cd.bodyB = lLeg;
-			cd.collideLinked = false;
+			cd.collideConnected = false;
 			cd.enableConeLimit = true;
 			cd.Initialize(hip, lLeg, b3Vec3(0.0f, -1.0f, 0.0f), b3Vec3(-0.5f, 8.5f, 0.0f), 0.25f * B3_PI);
 			b3ConeJoint* cj = (b3ConeJoint*)m_world.CreateJoint(cd);
@@ -203,7 +203,7 @@ public:
 			b3ConeJointDef cd;
 			cd.bodyA = hip;
 			cd.bodyB = rLeg;
-			cd.collideLinked = false;
+			cd.collideConnected = false;
 			cd.enableConeLimit = true;
 			cd.Initialize(hip, rLeg, b3Vec3(0.0f, -1.0f, 0.0f), b3Vec3(0.5f, 8.5f, 0.0f), 0.25f * B3_PI);
 			b3ConeJoint* cj = (b3ConeJoint*)m_world.CreateJoint(cd);

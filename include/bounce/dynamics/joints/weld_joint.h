@@ -141,7 +141,7 @@ private:
 
 	b3WeldJoint(const b3WeldJointDef* def);
 
-	virtual void InitializeConstraints(const b3SolverData* data);
+	virtual void InitializeVelocityConstraints(const b3SolverData* data);
 	virtual void WarmStart(const b3SolverData* data);
 	virtual void SolveVelocityConstraints(const b3SolverData* data);
 	virtual bool SolvePositionConstraints(const b3SolverData* data);

@@ -239,8 +239,6 @@ void b3ContactSolver::InitializeConstraints()
 				}
 			}
 
-			B3_ASSERT(pointCount > 0);
-			
 			// Add friction constraints.	
 			if(pointCount > 0)
 			{

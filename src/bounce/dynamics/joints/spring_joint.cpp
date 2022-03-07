@@ -33,7 +33,7 @@ void b3SpringJointDef::Initialize(b3Body* bA, b3Body* bB, const b3Vec3& anchorA,
 	length = b3Distance(anchorA, anchorB);
 }
 
-b3SpringJoint::b3SpringJoint(const b3SpringJointDef* def) 
+b3SpringJoint::b3SpringJoint(const b3SpringJointDef* def) : b3Joint(def)
 {
 	m_type = e_springJoint;
 	m_localAnchorA = def->localAnchorA;
@@ -94,7 +94,7 @@ void b3SpringJoint::SetDampingRatio(scalar ratio)
 	m_dampingRatio = ratio;
 }
 
-void b3SpringJoint::InitializeConstraints(const b3SolverData* data) 
+void b3SpringJoint::InitializeVelocityConstraints(const b3SolverData* data) 
 {
 	m_indexA = m_bodyA->m_islandID;
 	m_indexB = m_bodyB->m_islandID;

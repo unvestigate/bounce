@@ -19,10 +19,10 @@
 #ifndef B3_JOINT_H
 #define B3_JOINT_H
 
+#include <bounce/common/template/list.h>
 #include <bounce/common/math/transform.h>
 #include <bounce/common/math/mat22.h>
 #include <bounce/common/math/mat33.h>
-#include <bounce/common/template/list.h>
 #include <bounce/dynamics/time_step.h>
 
 class b3Body;
@@ -43,10 +43,10 @@ enum b3JointType
 	e_frictionJoint,
 	e_motorJoint,
 	e_prismaticJoint,
-	e_wheelJoint,
-	e_typeCount,
+	e_wheelJoint
 };
 
+// Joint definitions used to construct joints.
 struct b3JointDef
 {
 	b3JointDef()
@@ -55,26 +55,37 @@ struct b3JointDef
 		bodyA = nullptr;
 		bodyB = nullptr;
 		userData = nullptr;
-		collideLinked = false;
+		collideConnected = false;
 	}
 
+	// The joint type is set automatically for concrete joint types.
 	b3JointType type;
-	b3Body* bodyA;
-	b3Body* bodyB;
+
+	// Use this to attach application specific data to your joints.
 	void* userData;
-	bool collideLinked;
+
+	// The first attached body.
+	b3Body* bodyA;
+	
+	// The second attached body.
+	b3Body* bodyB;
+	
+	// Set this flag to true if the attached bodies should collide.
+	bool collideConnected;
 };
 
 // A joint edge to a joint graph, where a body is a vertex and a joint an edge.
+// A joint edge belongs to a doubly linked list maintained in each attached body.
+// Each joint has two joint nodes, one for each attached body.
 struct b3JointEdge
 {
-	b3Body* m_other;
-	b3Joint* m_joint;
-	b3JointEdge* m_prev;
-	b3JointEdge* m_next;
+	b3Body* m_other; // the other body attached
+	b3Joint* m_joint; // the joint
+	b3JointEdge* m_prev; // previous joint edge in the body joint list
+	b3JointEdge* m_next; // the next joint edge in the body joint list
 };
 
-// Base joint class. For simplicity, a joint is unique per body pair. 
+// Base joint class. 
 // There are many joint types, some of them provide motors and limits.
 class b3Joint
 {
@@ -97,23 +108,16 @@ public:
 	// Set the user data to be associated with the joint.
 	void SetUserData(void* data);
 
-	// Should the bodies linked by this joint collide with each other?
-	bool CollideLinked() const;
-	
-	// Set if the bodies linked by this joint should collide with each other.
-	void SetCollideLinked(bool bit);
-	
+	// Should the bodies connected by this joint collide with each other?
+	// Note: modifying the collide connect flag won't work correctly because
+	// the flag is only checked when fixture AABBs begin to overlap.
+	bool GetCollideConnected() const;
+
 	// Dump this joint to the log file.
-	virtual void Dump() const
-	{
-		b3Log("Dump feature not implemented for this joint type.\n");
-	}
+	virtual void Dump() const { b3Log("Dump feature not implemented for this joint type.\n"); }
 
 	// Draw this joint.
-	virtual void Draw(b3Draw* draw) const
-	{
-		b3Log("Draw feature not implemented for this joint type.\n");
-	}
+	virtual void Draw(b3Draw* draw) const = 0;
 
 	// Get the next joint in the world joint list.
 	const b3Joint* GetNext() const;
@@ -126,41 +130,32 @@ protected:
 	friend class b3JointSolver;
 	friend class b3List<b3Joint>;
 	
+	// Joint factory create/destroy functions.
 	static b3Joint* Create(const b3JointDef* def, b3BlockAllocator* allocator);
 	static void Destroy(b3Joint* j, b3BlockAllocator* allocator);
 
-	b3Joint() {	}
+	b3Joint(const b3JointDef* def);
 	virtual ~b3Joint() { }
 	
-	virtual void InitializeConstraints(const b3SolverData* data) = 0;
+	virtual void InitializeVelocityConstraints(const b3SolverData* data) = 0;
 	virtual void WarmStart(const b3SolverData* data) = 0;
 	virtual void SolveVelocityConstraints(const b3SolverData* data) = 0;
+	
+	// This returns true if the position errors are within tolerance.
 	virtual bool SolvePositionConstraints(const b3SolverData* data) = 0;
 
-	enum 
-	{
-		e_islandFlag = 0x0001,
-		e_activeFlag = 0x0002
-	};
-	
 	b3JointType m_type;
-	u32 m_flags;
-
 	b3Body* m_bodyA;
 	b3Body* m_bodyB;
-
-	// To the body A joint edge list.
 	b3JointEdge m_edgeA;
-
-	// To the body B joint edge list.
 	b3JointEdge m_edgeB;
-
-	void* m_userData;
-	bool m_collideLinked;
-
-	// Links to the world joint list.
 	b3Joint* m_prev;
 	b3Joint* m_next;
+
+	bool m_islandFlag;
+	bool m_collideConnected;
+
+	void* m_userData;
 };
 
 inline b3JointType b3Joint::GetType() const 
@@ -203,14 +198,9 @@ inline void b3Joint::SetUserData(void* data)
 	m_userData = data;
 }
 
-inline void b3Joint::SetCollideLinked(bool bit)
+inline bool b3Joint::GetCollideConnected() const
 {
-	m_collideLinked = bit;
-}
-
-inline bool b3Joint::CollideLinked() const
-{
-	return m_collideLinked;
+	return m_collideConnected;
 }
 
 inline b3Joint* b3Joint::GetNext()

@@ -26,17 +26,18 @@
 #include <bounce/collision/shapes/triangle_shape.h>
 #include <bounce/collision/shapes/hull_shape.h>
 #include <bounce/collision/shapes/mesh_shape.h>
-#include <bounce/collision/geometry/sphere.h>
-#include <bounce/collision/geometry/capsule.h>
 #include <bounce/collision/geometry/hull.h>
 #include <bounce/collision/geometry/mesh.h>
 #include <bounce/common/memory/block_allocator.h>
+#include <bounce/common/draw.h>
 
 b3Fixture::b3Fixture()
 {
 	m_body = nullptr;
+	m_prev = nullptr;
+	m_next = nullptr;
 	m_shape = nullptr;
-	m_density = 0.0f;
+	m_density = scalar(0);
 }
 
 void b3Fixture::Create(b3BlockAllocator* allocator, b3Body* body, const b3FixtureDef* def)
@@ -44,19 +45,64 @@ void b3Fixture::Create(b3BlockAllocator* allocator, b3Body* body, const b3Fixtur
 	m_userData = def->userData;
 	m_friction = def->friction;
 	m_restitution = def->restitution;
-
+	
 	m_body = body;
-
+	
 	m_isSensor = def->isSensor;
-
+	
 	m_shape = def->shape->Clone(allocator);
-
+	
 	m_density = def->density;
 }
 
 void b3Fixture::Destroy(b3BlockAllocator* allocator)
 {
-	b3Shape::Destroy(m_shape, allocator);
+	// Free the child shape.
+	switch (m_shape->m_type)
+	{
+	case b3Shape::e_sphere:
+	{
+		b3SphereShape* s = (b3SphereShape*)m_shape;
+		s->~b3SphereShape();
+		allocator->Free(s, sizeof(b3SphereShape));
+		break;
+	}
+	case b3Shape::e_capsule:
+	{
+		b3CapsuleShape* s = (b3CapsuleShape*)m_shape;
+		s->~b3CapsuleShape();
+		allocator->Free(s, sizeof(b3CapsuleShape));
+		break;
+	}
+	case b3Shape::e_triangle:
+	{
+		b3TriangleShape* s = (b3TriangleShape*)m_shape;
+		s->~b3TriangleShape();
+		allocator->Free(s, sizeof(b3TriangleShape));
+		break;
+	}
+	case b3Shape::e_hull:
+	{
+		b3HullShape* s = (b3HullShape*)m_shape;
+		s->~b3HullShape();
+		allocator->Free(s, sizeof(b3HullShape));
+		break;
+	}
+	case b3Shape::e_mesh:
+	{
+		b3MeshShape* s = (b3MeshShape*)m_shape;
+		s->~b3MeshShape();
+		allocator->Free(s, sizeof(b3MeshShape));
+		break;
+	}
+	default:
+	{
+		B3_ASSERT(false);
+		break;
+	}
+	}
+	
+	m_shape = nullptr;
 }
 
 void b3Fixture::SetSensor(bool flag)
@@ -108,35 +154,35 @@ void b3Fixture::Dump(u32 bodyIndex) const
 	{
 	case b3Shape::e_sphere:
 	{
-		b3SphereShape* sphere = (b3SphereShape*) m_shape;
+		b3SphereShape* s = (b3SphereShape*) m_shape;
 		b3Log("		b3SphereShape shape;\n");
-		b3Log("		shape.m_center.Set(%f, %f, %f);\n", sphere->m_center.x, sphere->m_center.y, sphere->m_center.z);
-		b3Log("		shape.m_radius = %f;\n", sphere->m_radius);
+		b3Log("		shape.m_center.Set(%f, %f, %f);\n", s->m_center.x, s->m_center.y, s->m_center.z);
+		b3Log("		shape.m_radius = %f;\n", s->m_radius);
 		break;
 	}
 	case b3Shape::e_capsule:
 	{
-		b3CapsuleShape* capsule = (b3CapsuleShape*)m_shape;
+		b3CapsuleShape* s = (b3CapsuleShape*)m_shape;
 		b3Log("		b3CapsuleShape shape;\n");
-		b3Log("		shape.m_centers[0].Set(%f, %f, %f);\n", capsule->m_vertex1.x, capsule->m_vertex1.y, capsule->m_vertex1.z);
-		b3Log("		shape.m_centers[1].Set(%f, %f, %f);\n", capsule->m_vertex2.x, capsule->m_vertex2.y, capsule->m_vertex2.z);
-		b3Log("		shape.m_radius = %f;\n", capsule->m_radius);
+		b3Log("		shape.m_centers[0].Set(%f, %f, %f);\n", s->m_vertex1.x, s->m_vertex1.y, s->m_vertex1.z);
+		b3Log("		shape.m_centers[1].Set(%f, %f, %f);\n", s->m_vertex2.x, s->m_vertex2.y, s->m_vertex2.z);
+		b3Log("		shape.m_radius = %f;\n", s->m_radius);
 		break;
 	}
 	case b3Shape::e_triangle:
 	{
-		b3TriangleShape* triangle = (b3TriangleShape*)m_shape;
+		b3TriangleShape* s = (b3TriangleShape*)m_shape;
 		b3Log("		b3TriangleShape shape;\n");
-		b3Log("		shape.m_vertex1.Set(%f, %f, %f);\n", triangle->m_vertex1.x, triangle->m_vertex1.y, triangle->m_vertex1.z);
-		b3Log("		shape.m_vertex2.Set(%f, %f, %f);\n", triangle->m_vertex2.x, triangle->m_vertex2.y, triangle->m_vertex2.z);
-		b3Log("		shape.m_vertex3.Set(%f, %f, %f);\n", triangle->m_vertex3.x, triangle->m_vertex3.y, triangle->m_vertex3.z);
-		b3Log("		shape.m_radius = %f;\n", triangle->m_radius);
+		b3Log("		shape.m_vertex1.Set(%f, %f, %f);\n", s->m_vertex1.x, s->m_vertex1.y, s->m_vertex1.z);
+		b3Log("		shape.m_vertex2.Set(%f, %f, %f);\n", s->m_vertex2.x, s->m_vertex2.y, s->m_vertex2.z);
+		b3Log("		shape.m_vertex3.Set(%f, %f, %f);\n", s->m_vertex3.x, s->m_vertex3.y, s->m_vertex3.z);
+		b3Log("		shape.m_radius = %f;\n", s->m_radius);
 		break;
 	}
 	case b3Shape::e_hull:
 	{
-		b3HullShape* hs = (b3HullShape*)m_shape;
-		const b3Hull* h = hs->m_hull;
+		b3HullShape* s = (b3HullShape*)m_shape;
+		const b3Hull* h = s->m_hull;
 		
 		b3Log("		u8* marker = (u8*) b3Alloc(%d);\n", h->GetSize());
 		b3Log("		\n");
@@ -189,13 +235,13 @@ void b3Fixture::Dump(u32 bodyIndex) const
 		b3Log("		\n");
 		b3Log("		b3HullShape shape;\n");
 		b3Log("		shape.m_hull = h;\n");
-		b3Log("		shape.m_radius = %f;\n", hs->m_radius);
+		b3Log("		shape.m_radius = %f;\n", s->m_radius);
 		break;
 	}
 	case b3Shape::e_mesh:
 	{
-		b3MeshShape* ms = (b3MeshShape*)m_shape;
-		const b3Mesh* m = ms->m_mesh;
+		b3MeshShape* s = (b3MeshShape*)m_shape;
+		const b3Mesh* m = s->m_mesh;
 		
 		b3Log("		u8* marker = (u8*) b3Alloc(%d);\n", m->GetSize());
 		b3Log("		\n");
@@ -224,10 +270,11 @@ void b3Fixture::Dump(u32 bodyIndex) const
 		b3Log("		\n");
 		b3Log("		\n");
 		b3Log("		m->BuildTree();\n");		
+		b3Log("		m->BuildAdjacency();\n");
 		b3Log("		\n");
 		b3Log("		b3MeshShape shape;\n");
 		b3Log("		shape.m_mesh = m;\n");
-		b3Log("		shape.m_radius = %f;\n", ms->m_radius);
+		b3Log("		shape.m_radius = %f;\n", s->m_radius);
 		break;
 	}
 	default:
