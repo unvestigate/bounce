@@ -182,11 +182,8 @@ public:
 	const b3List<b3Contact>& GetContactList() const;
 	b3List<b3Contact>& GetContactList();
 	
-	// Draw the entities in this world.
-	void Draw() const;
-	
-	// Draw solid the entities in this world.
-	void DrawSolid() const;
+	// Draw the physics entities in this world.
+	void DebugDraw() const;
 private:
 	friend class b3Body;
 	friend class b3Fixture;

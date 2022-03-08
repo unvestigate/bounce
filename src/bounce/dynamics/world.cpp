@@ -875,7 +875,7 @@ void b3World::QueryAABB(b3QueryListener* listener, b3QueryFilter* filter, const 
 	m_contactManager.m_broadPhase.QueryAABB(&wrapper, aabb);
 }
 
-void b3World::Draw() const
+void b3World::DebugDraw() const
 {
 	if (m_debugDraw == nullptr)
 	{
@@ -899,9 +899,28 @@ void b3World::Draw() const
 	{
 		for (b3Body* b = m_bodyList.m_head; b; b = b->m_next)
 		{
+			b3Color color;
+			if (b->IsAwake() == false)
+			{
+				color = b3Color(scalar(0.5), scalar(0.25), scalar(0.25), scalar(1));
+			}
+			else if (b->GetType() == e_staticBody)
+			{
+				color = b3Color(scalar(0.5), scalar(0.5), scalar(0.5), scalar(1));
+			}
+			else if (b->GetType() == e_dynamicBody)
+			{
+				color = b3Color(scalar(1), scalar(0.5), scalar(0.5), scalar(1));
+			}
+			else
+			{
+				color = b3Color(scalar(0.5), scalar(0.5), scalar(1), scalar(1));
+			}
+
 			for (b3Fixture* f = b->m_fixtureList.m_head; f; f = f->m_next)
 			{
 				f->Draw(m_debugDraw, b3Color_black);
+				f->DrawSolid(m_debugDraw, color);
 			}
 		}
 	}
@@ -988,40 +1007,6 @@ void b3World::Draw() const
 					}
 				}
 			}
-		}
-	}
-}
-
-void b3World::DrawSolid() const
-{
-	if (m_debugDraw == nullptr)
-	{
-		return;
-	}
-
-	for (b3Body* b = m_bodyList.m_head; b; b = b->GetNext())
-	{
-		b3Color c;
-		if (b->IsAwake() == false)
-		{
-			c = b3Color(scalar(0.5), scalar(0.25), scalar(0.25), scalar(1));
-		}
-		else if (b->GetType() == e_staticBody)
-		{
-			c = b3Color(scalar(0.5), scalar(0.5), scalar(0.5), scalar(1));
-		}
-		else if (b->GetType() == e_dynamicBody)
-		{
-			c = b3Color(scalar(1), scalar(0.5), scalar(0.5), scalar(1));
-		}
-		else
-		{
-			c = b3Color(scalar(0.5), scalar(0.5), scalar(1), scalar(1));
-		}
-
-		for (b3Fixture* f = b->GetFixtureList().m_head; f; f = f->GetNext())
-		{
-			f->DrawSolid(m_debugDraw, c);
 		}
 	}
 }

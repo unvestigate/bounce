@@ -147,9 +147,8 @@ void Test::Step()
 
 	m_draw.SetFlags(drawFlags);
 	
-	m_world.Draw();
-	m_world.DrawSolid();
-
+	m_world.DebugDraw();
+	
 	if (g_testSettings->pause)
 	{
 		DrawString(b3Color_white, "*PAUSED*");
