@@ -42,20 +42,20 @@ b3FrictionJoint::b3FrictionJoint(const b3FrictionJointDef* def) : b3Joint(def)
 	m_maxTorque = def->maxTorque;
 }
 
-void b3FrictionJoint::InitializeVelocityConstraints(const b3SolverData* data)
+void b3FrictionJoint::InitializeVelocityConstraints(const b3SolverData& data)
 {
-	m_indexA = m_bodyA->m_islandID;
-	m_indexB = m_bodyB->m_islandID;
+	m_indexA = m_bodyA->m_islandIndex;
+	m_indexB = m_bodyB->m_islandIndex;
 	m_mA = m_bodyA->m_invMass;
 	m_mB = m_bodyB->m_invMass;
-	m_iA = data->invInertias[m_indexA];
-	m_iB = data->invInertias[m_indexB];
+	m_iA = data.invInertias[m_indexA];
+	m_iB = data.invInertias[m_indexB];
 
 	b3Vec3 localCenterA = m_bodyA->m_sweep.localCenter;
 	b3Vec3 localCenterB = m_bodyB->m_sweep.localCenter;
 	
-	b3Quat qA = data->positions[m_indexA].q;
-	b3Quat qB = data->positions[m_indexB].q;
+	b3Quat qA = data.positions[m_indexA].q;
+	b3Quat qB = data.positions[m_indexB].q;
 
 	// Compute effective mass for the block solver
 	m_rA = b3Mul(qA, m_localAnchorA - localCenterA);
@@ -69,14 +69,25 @@ void b3FrictionJoint::InitializeVelocityConstraints(const b3SolverData* data)
 
 	m_linearMass = M + RA * m_iA * RAT + RB * m_iB * RBT;
 	m_angularMass = m_iA + m_iB;
+
+	if (data.step.warmStarting)
+	{
+		m_linearImpulse *= data.step.dtRatio;
+		m_angularImpulse *= data.step.dtRatio;
+	}
+	else
+	{
+		m_linearImpulse.SetZero();
+		m_angularImpulse.SetZero();
+	}
 }
 
-void b3FrictionJoint::WarmStart(const b3SolverData* data)
+void b3FrictionJoint::WarmStart(const b3SolverData& data)
 {
-	b3Vec3 vA = data->velocities[m_indexA].v;
-	b3Vec3 wA = data->velocities[m_indexA].w;
-	b3Vec3 vB = data->velocities[m_indexB].v;
-	b3Vec3 wB = data->velocities[m_indexB].w;
+	b3Vec3 vA = data.velocities[m_indexA].v;
+	b3Vec3 wA = data.velocities[m_indexA].w;
+	b3Vec3 vB = data.velocities[m_indexB].v;
+	b3Vec3 wB = data.velocities[m_indexB].w;
 
 	b3Vec3 P = m_linearImpulse;
 
@@ -86,20 +97,20 @@ void b3FrictionJoint::WarmStart(const b3SolverData* data)
 	vB += m_mB * P;
 	wB += m_iB * (b3Cross(m_rB, P) + m_angularImpulse);
 
-	data->velocities[m_indexA].v = vA;
-	data->velocities[m_indexA].w = wA;
-	data->velocities[m_indexB].v = vB;
-	data->velocities[m_indexB].w = wB;
+	data.velocities[m_indexA].v = vA;
+	data.velocities[m_indexA].w = wA;
+	data.velocities[m_indexB].v = vB;
+	data.velocities[m_indexB].w = wB;
 }
 
-void b3FrictionJoint::SolveVelocityConstraints(const b3SolverData* data)
+void b3FrictionJoint::SolveVelocityConstraints(const b3SolverData& data)
 {
-	b3Vec3 vA = data->velocities[m_indexA].v;
-	b3Vec3 wA = data->velocities[m_indexA].w;
-	b3Vec3 vB = data->velocities[m_indexB].v;
-	b3Vec3 wB = data->velocities[m_indexB].w;
+	b3Vec3 vA = data.velocities[m_indexA].v;
+	b3Vec3 wA = data.velocities[m_indexA].w;
+	b3Vec3 vB = data.velocities[m_indexB].v;
+	b3Vec3 wB = data.velocities[m_indexB].w;
 
-	scalar h = data->dt;
+	scalar h = data.step.dt;
 
 	// Solve angular friction.
 	{
@@ -145,13 +156,13 @@ void b3FrictionJoint::SolveVelocityConstraints(const b3SolverData* data)
 		wB += m_iB * b3Cross(m_rB, impulse);
 	}
 	
-	data->velocities[m_indexA].v = vA;
-	data->velocities[m_indexA].w = wA;
-	data->velocities[m_indexB].v = vB;
-	data->velocities[m_indexB].w = wB;
+	data.velocities[m_indexA].v = vA;
+	data.velocities[m_indexA].w = wA;
+	data.velocities[m_indexB].v = vB;
+	data.velocities[m_indexB].w = wB;
 }
 
-bool b3FrictionJoint::SolvePositionConstraints(const b3SolverData* data)
+bool b3FrictionJoint::SolvePositionConstraints(const b3SolverData& data)
 {
 	B3_NOT_USED(data);
 	return true;

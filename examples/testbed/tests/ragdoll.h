@@ -49,8 +49,6 @@ public:
 			bd.position.Set(0.0f, 10.0f, 0.0f);
 			hip = m_world.CreateBody(bd);
 
-			hip->ApplyForceToCenter(b3Vec3(0.0f, 0.0f, -5000.0f), true);
-
 			b3CapsuleShape cs;
 			cs.m_vertex1.Set(0.0f, 0.5f, 0.0f);
 			cs.m_vertex2.Set(0.0f, -0.5f, 0.0f);

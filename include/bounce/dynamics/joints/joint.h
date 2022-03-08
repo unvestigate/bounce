@@ -137,12 +137,12 @@ protected:
 	b3Joint(const b3JointDef* def);
 	virtual ~b3Joint() { }
 	
-	virtual void InitializeVelocityConstraints(const b3SolverData* data) = 0;
-	virtual void WarmStart(const b3SolverData* data) = 0;
-	virtual void SolveVelocityConstraints(const b3SolverData* data) = 0;
+	virtual void InitializeVelocityConstraints(const b3SolverData& data) = 0;
+	virtual void WarmStart(const b3SolverData& data) = 0;
+	virtual void SolveVelocityConstraints(const b3SolverData& data) = 0;
 	
 	// This returns true if the position errors are within tolerance.
-	virtual bool SolvePositionConstraints(const b3SolverData* data) = 0;
+	virtual bool SolvePositionConstraints(const b3SolverData& data) = 0;
 
 	b3JointType m_type;
 	b3Body* m_bodyA;

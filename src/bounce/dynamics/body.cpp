@@ -551,7 +551,7 @@ void b3Body::SetAngularSleepTolerance(scalar tolerance)
 
 void b3Body::Dump() const
 {
-	u32 bodyIndex = m_islandID;
+	u32 bodyIndex = m_islandIndex;
 
 	b3Log("		{\n");
 	b3Log("		b3BodyDef bd;\n");

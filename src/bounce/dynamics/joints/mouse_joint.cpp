@@ -49,15 +49,15 @@ static B3_FORCE_INLINE void b3ComputeSoftConstraintCoefficients(scalar& gamma, s
 	bias = gamma * h * k * C;
 }
 
-void b3MouseJoint::InitializeVelocityConstraints(const b3SolverData* data) 
+void b3MouseJoint::InitializeVelocityConstraints(const b3SolverData& data) 
 {
-	m_indexB = m_bodyB->m_islandID;
+	m_indexB = m_bodyB->m_islandIndex;
 	m_mB = m_bodyB->m_invMass;
-	m_iB = data->invInertias[m_indexB];
+	m_iB = data.invInertias[m_indexB];
 	m_localCenterB = m_bodyB->m_sweep.localCenter;
 
-	b3Vec3 xB = data->positions[m_indexB].x;
-	b3Quat qB = data->positions[m_indexB].q;
+	b3Vec3 xB = data.positions[m_indexB].x;
+	b3Quat qB = data.positions[m_indexB].q;
 
 	// Compute the effective mass matrix.
 	m_rB = b3Mul(qB, m_localAnchorB - m_localCenterB);
@@ -69,7 +69,7 @@ void b3MouseJoint::InitializeVelocityConstraints(const b3SolverData* data)
 
 	b3Vec3 C = xB + m_rB - m_worldTargetA;
 
-	scalar h = data->dt;
+	scalar h = data.step.dt;
 
 	b3Vec3 gamma, bias;
 
@@ -82,25 +82,34 @@ void b3MouseJoint::InitializeVelocityConstraints(const b3SolverData* data)
 
 	invM += m_gamma;
 	m_mass = b3Inverse(invM);
+
+	if (data.step.warmStarting)
+	{
+		m_impulse *= data.step.dtRatio;
+	}
+	else
+	{
+		m_impulse.SetZero();
+	}
 }
 
-void b3MouseJoint::WarmStart(const b3SolverData* data) 
+void b3MouseJoint::WarmStart(const b3SolverData& data) 
 {
-	data->velocities[m_indexB].v += m_mB * m_impulse;
-	data->velocities[m_indexB].w += m_iB * b3Cross(m_rB, m_impulse);
+	data.velocities[m_indexB].v += m_mB * m_impulse;
+	data.velocities[m_indexB].w += m_iB * b3Cross(m_rB, m_impulse);
 }
 
-void b3MouseJoint::SolveVelocityConstraints(const b3SolverData* data) 
+void b3MouseJoint::SolveVelocityConstraints(const b3SolverData& data) 
 {
-	b3Vec3 vB = data->velocities[m_indexB].v;
-	b3Vec3 wB = data->velocities[m_indexB].w;
+	b3Vec3 vB = data.velocities[m_indexB].v;
+	b3Vec3 wB = data.velocities[m_indexB].w;
 
 	b3Vec3 Cdot = vB + b3Cross(wB, m_rB);
 
 	b3Vec3 impulse = -m_mass * (Cdot + m_bias + m_gamma * m_impulse);
 	b3Vec3 oldImpulse = m_impulse;
 	m_impulse += impulse;
-	scalar maxImpulse = data->dt * m_maxForce;
+	scalar maxImpulse = data.step.dt * m_maxForce;
 	if (b3Dot(m_impulse, m_impulse) > maxImpulse * maxImpulse)
 	{
 		m_impulse *= maxImpulse / b3Length(m_impulse);
@@ -110,14 +119,14 @@ void b3MouseJoint::SolveVelocityConstraints(const b3SolverData* data)
 	vB += m_mB * impulse;
 	wB += m_iB * b3Cross(m_rB, impulse);
 	
-	data->velocities[m_indexB].v = vB;
-	data->velocities[m_indexB].w = wB;
+	data.velocities[m_indexB].v = vB;
+	data.velocities[m_indexB].w = wB;
 }
 
-bool b3MouseJoint::SolvePositionConstraints(const b3SolverData* data) 
+bool b3MouseJoint::SolvePositionConstraints(const b3SolverData& data) 
 {
-    B3_NOT_USED(data);
 	// There is no position correction for this constraint.
+	B3_NOT_USED(data);
 	return true;
 }
 

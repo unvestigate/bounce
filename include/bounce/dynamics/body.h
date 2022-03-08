@@ -409,7 +409,7 @@ private:
 	bool ShouldCollide(const b3Body* other) const;
 
 	b3BodyType m_type;
-	u32 m_islandID;
+	u32 m_islandIndex;
 	u32 m_flags;
 	
 	// Body sleeping

@@ -22,7 +22,6 @@
 #include <bounce/common/math/vec2.h>
 #include <bounce/common/math/mat22.h>
 #include <bounce/dynamics/time_step.h>
-#include <bounce/collision/collide/manifold.h>
 
 class b3StackAllocator;
 class b3Contact;
@@ -76,16 +75,16 @@ struct b3VelocityConstraintManifold
 	
 	b3Vec3 normal;
 
-	scalar motorImpulse;
-	scalar motorMass;
-	scalar motorSpeed;
-
 	b3Vec3 tangent1;
-	scalar tangentSpeed1;
 	b3Vec3 tangent2;
+	scalar tangentSpeed1;
 	scalar tangentSpeed2;
 	b3Mat22 tangentMass;
 	b3Vec2 tangentImpulse;
+
+	scalar motorImpulse;
+	scalar motorMass;
+	scalar motorSpeed;
 
 	b3VelocityConstraintPoint* points;
 	u32 pointCount;
@@ -107,13 +106,13 @@ struct b3ContactVelocityConstraint
 
 struct b3ContactSolverDef 
 {
+	b3TimeStep step;
+	b3Contact** contacts;
+	u32 count;
 	b3Position* positions;
 	b3Velocity* velocities;
 	b3Mat33* invInertias;
-	b3Contact** contacts;
-	u32 count;
 	b3StackAllocator* allocator;
-	scalar dt;
 };
 
 // The idea is to allow anything to bounce off an inelastic surface.
@@ -134,23 +133,23 @@ public:
 	b3ContactSolver(const b3ContactSolverDef* def);
 	~b3ContactSolver();
 
-	void InitializeConstraints();
-	void WarmStart();
+	void InitializeVelocityConstraints();
 	
+	void WarmStart();
 	void SolveVelocityConstraints();
 	void StoreImpulses();
 
 	bool SolvePositionConstraints();
-protected:
+
+	b3TimeStep m_step;
 	b3Position* m_positions;
 	b3Velocity* m_velocities;
-	b3Mat33* m_inertias;
+	b3Mat33* m_invInertias;
 	b3Contact** m_contacts;
+	u32 m_count;
+	b3StackAllocator* m_allocator;
 	b3ContactPositionConstraint* m_positionConstraints;
 	b3ContactVelocityConstraint* m_velocityConstraints;
-	u32 m_count;
-	scalar m_dt, m_invDt;
-	b3StackAllocator* m_allocator;
 };
 
 #endif

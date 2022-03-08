@@ -24,24 +24,24 @@ class ShiftCenter : public Test
 public:
 	ShiftCenter()
 	{
-		// Transform grid into a terrain
-		for (u32 i = 0; i < m_terrainMesh.vertexCount; ++i)
-		{
-			m_terrainMesh.vertices[i].y = RandomFloat(0.0f, 1.0f);
-		}
-
-		m_terrainMesh.BuildTree();
-		m_terrainMesh.BuildAdjacency();
-
 		{
 			b3BodyDef bd;
 			b3Body* body = m_world.CreateBody(bd);
 
-			b3MeshShape hs;
-			hs.m_mesh = &m_terrainMesh;
+			// Transform grid into a terrain
+			for (u32 i = 0; i < m_terrain.vertexCount; ++i)
+			{
+				m_terrain.vertices[i].y = RandomFloat(0.0f, 1.0f);
+			}
+
+			m_terrain.BuildTree();
+			m_terrain.BuildAdjacency();
+
+			b3MeshShape ms;
+			ms.m_mesh = &m_terrain;
 
 			b3FixtureDef sd;
-			sd.shape = &hs;
+			sd.shape = &ms;
 
 			body->CreateFixture(sd);
 		}
@@ -71,13 +71,14 @@ public:
 			b3Mat33 Ic = md.I - md.mass * b3Steiner(md.center);
 
 			// Change center of mass
-			md.center.Set(4.0f, 0.0f, 0.0f);
+			md.center.Set(3.0f, 0.0f, 0.0f);
 
 			// Shift inertia to local body origin
 			b3Mat33 I2 = Ic + md.mass * b3Steiner(md.center);
 
 			md.I = I2;
 
+			// Now Bounce will find Ic correctly
 			body->SetMassData(&md);
 		}
 	}
@@ -88,7 +89,7 @@ public:
 	}
 
 	b3BoxHull m_box;
-	b3GridMesh<25, 25> m_terrainMesh;
+	b3GridMesh<25, 25> m_terrain;
 };
 
 #endif

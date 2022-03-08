@@ -79,9 +79,7 @@ struct b3PrismaticJointDef : public b3JointDef
 	// The desired motor speed in radians per second.
 	scalar motorSpeed;
 
-	// This controls how faster the constraint error should be resolved per step.
-	// This is a value in the range [0, 1].
-	// Rotation only.
+	// Rotational position correction factor in the range [0, 1].
 	scalar correctionFactor;
 };
 
@@ -148,10 +146,10 @@ public:
 	// Get the maximum motor  force, usually in N.
 	scalar GetMaxMotorForce() const { return m_maxMotorForce; }
 
-	// Set the correction factor in the range [0, 1].
+	// Set the rotational position correction factor in the range [0, 1].
 	void SetCorrectionFactor(scalar factor);
 
-	// Get the correction factor in the range [0, 1].
+	// Get the rotational position correction factor in the range [0, 1].
 	scalar GetCorrectionFactor() const;
 
 	// Draw this joint
@@ -161,10 +159,10 @@ protected:
 
 	b3PrismaticJoint(const b3PrismaticJointDef* def);
 
-	void InitializeVelocityConstraints(const b3SolverData* data);
-	void WarmStart(const b3SolverData* data);
-	void SolveVelocityConstraints(const b3SolverData* data);
-	bool SolvePositionConstraints(const b3SolverData* data);
+	void InitializeVelocityConstraints(const b3SolverData& data);
+	void WarmStart(const b3SolverData& data);
+	void SolveVelocityConstraints(const b3SolverData& data);
+	bool SolvePositionConstraints(const b3SolverData& data);
 
 	// Solver shared
 	b3Vec3 m_localAnchorA;

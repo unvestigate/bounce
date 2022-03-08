@@ -17,9 +17,7 @@
 */
 
 #include <bounce/dynamics/island.h>
-#include <bounce/dynamics/body.h>
 #include <bounce/dynamics/world_callbacks.h>
-#include <bounce/dynamics/time_step.h>
 #include <bounce/dynamics/joints/joint.h>
 #include <bounce/dynamics/joints/joint_solver.h>
 #include <bounce/dynamics/contacts/contact.h>
@@ -27,7 +25,7 @@
 #include <bounce/common/memory/stack_allocator.h>
 #include <bounce/common/profiler.h>
 
-b3Island::b3Island(b3StackAllocator* allocator, u32 bodyCapacity, u32 contactCapacity, u32 jointCapacity, b3ContactListener* listener, b3Profiler* profiler) 
+b3Island::b3Island(u32 bodyCapacity, u32 contactCapacity, u32 jointCapacity, b3StackAllocator* allocator, b3ContactListener* listener, b3Profiler* profiler)
 {
 	m_allocator = allocator;
 	m_listener = listener;
@@ -51,42 +49,13 @@ b3Island::b3Island(b3StackAllocator* allocator, u32 bodyCapacity, u32 contactCap
 
 b3Island::~b3Island() 
 {
-	// @note Reverse order of construction.
+	// Note: Reverse order of construction.
 	m_allocator->Free(m_joints);
 	m_allocator->Free(m_contacts);
 	m_allocator->Free(m_invInertias);
 	m_allocator->Free(m_positions);
 	m_allocator->Free(m_velocities);
 	m_allocator->Free(m_bodies);
-}
-
-void b3Island::Clear() 
-{
-	m_bodyCount = 0;
-	m_contactCount = 0;
-	m_jointCount = 0;
-}
-
-void b3Island::Add(b3Body* b) 
-{
-	B3_ASSERT(m_bodyCount < m_bodyCapacity);
-	b->m_islandID = m_bodyCount;
-	m_bodies[m_bodyCount] = b;
-	++m_bodyCount;
-}
-
-void b3Island::Add(b3Contact* c) 
-{
-	B3_ASSERT(m_contactCount < m_contactCapacity);
-	m_contacts[m_contactCount] = c;
-	++m_contactCount;
-}
-
-void b3Island::Add(b3Joint* j) 
-{
-	B3_ASSERT(m_jointCount < m_jointCapacity);
-	m_joints[m_jointCount] = j;
-	++m_jointCount;
 }
 
 // Numerical Methods (Erin, p60)
@@ -111,9 +80,9 @@ static B3_FORCE_INLINE b3Vec3 b3SolveGyro(const b3Quat& q, const b3Mat33& Ib, co
 	return w2;
 }
 
-void b3Island::Solve(const b3Vec3& gravity, scalar dt, u32 velocityIterations, u32 positionIterations, u32 flags)
+void b3Island::Solve(const b3TimeStep& step, const b3Vec3& gravity, bool allowSleep)
 {
-	scalar h = dt;
+	scalar h = step.dt;
 
 	// 1. Integrate velocities
 	for (u32 i = 0; i < m_bodyCount; ++i) 
@@ -168,38 +137,38 @@ void b3Island::Solve(const b3Vec3& gravity, scalar dt, u32 velocityIterations, u
 	}
 
 	b3JointSolverDef jointSolverDef;
-	jointSolverDef.joints = m_joints;
-	jointSolverDef.count = m_jointCount;
+	jointSolverDef.step = step;
 	jointSolverDef.positions = m_positions;
 	jointSolverDef.velocities = m_velocities;
 	jointSolverDef.invInertias = m_invInertias;
-	jointSolverDef.dt = h;
+	jointSolverDef.joints = m_joints;
+	jointSolverDef.count = m_jointCount;
 	b3JointSolver jointSolver(&jointSolverDef);
 
 	b3ContactSolverDef contactSolverDef;
-	contactSolverDef.allocator = m_allocator;
-	contactSolverDef.contacts = m_contacts;
-	contactSolverDef.count = m_contactCount;
+	contactSolverDef.step = step;
 	contactSolverDef.positions = m_positions;
 	contactSolverDef.velocities = m_velocities;
 	contactSolverDef.invInertias = m_invInertias;
-	contactSolverDef.dt = h;
+	contactSolverDef.contacts = m_contacts;
+	contactSolverDef.count = m_contactCount;
+	contactSolverDef.allocator = m_allocator;
 	b3ContactSolver contactSolver(&contactSolverDef);
 
-	// 2. Initialize constraints
+	// 2. Initialize velocity constraints
 	{
-		B3_PROFILE(m_profiler, "Initialize Constraints");
+		B3_PROFILE(m_profiler, "Initialize Velocity Constraints");
 		
-		contactSolver.InitializeConstraints();
+		contactSolver.InitializeVelocityConstraints();
 
-		if (flags & e_warmStartBit)
+		if (step.warmStarting)
 		{
 			contactSolver.WarmStart();
 		}
 
 		jointSolver.InitializeVelocityConstraints();
 
-		if (flags & e_warmStartBit)
+		if (step.warmStarting)
 		{
 			jointSolver.WarmStart();
 		}
@@ -209,13 +178,13 @@ void b3Island::Solve(const b3Vec3& gravity, scalar dt, u32 velocityIterations, u
 	{
 		B3_PROFILE(m_profiler, "Solve Velocity Constraints");
 
-		for (u32 i = 0; i < velocityIterations; ++i)
+		for (u32 i = 0; i < step.velocityIterations; ++i)
 		{
 			jointSolver.SolveVelocityConstraints();
 			contactSolver.SolveVelocityConstraints();
 		}
 
-		if (flags & e_warmStartBit)
+		if (step.warmStarting)
 		{
 			contactSolver.StoreImpulses();
 		}
@@ -268,7 +237,7 @@ void b3Island::Solve(const b3Vec3& gravity, scalar dt, u32 velocityIterations, u
 	{
 		B3_PROFILE(m_profiler, "Solve Position Constraints");
 		
-		for (u32 i = 0; i < positionIterations; ++i) 
+		for (u32 i = 0; i < step.positionIterations; ++i) 
 		{
 			bool contactsSolved = contactSolver.SolvePositionConstraints();
 			bool jointsSolved = jointSolver.SolvePositionConstraints();
@@ -298,7 +267,7 @@ void b3Island::Solve(const b3Vec3& gravity, scalar dt, u32 velocityIterations, u
 	Report();
 
 	// 7. Put bodies under unconsiderable motion to sleep
-	if (flags & e_sleepBit) 
+	if (allowSleep) 
 	{
 		scalar minSleepTime = B3_MAX_SCALAR;
 

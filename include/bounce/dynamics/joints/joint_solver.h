@@ -34,12 +34,12 @@ struct b3Jacobian
 
 struct b3JointSolverDef 
 {
-	scalar dt;
-	u32 count;
-	b3Joint** joints;
+	b3TimeStep step;
 	b3Position* positions;
 	b3Velocity* velocities;
 	b3Mat33* invInertias;
+	b3Joint** joints;
+	u32 count;
 };
 
 class b3JointSolver 
@@ -48,6 +48,7 @@ public :
 	b3JointSolver(const b3JointSolverDef* def);
 
 	void InitializeVelocityConstraints();
+	
 	void WarmStart();
 	void SolveVelocityConstraints();	
 	bool SolvePositionConstraints();

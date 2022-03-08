@@ -58,10 +58,7 @@ struct b3WeldJointDef : public b3JointDef
 	// Rotation only.
 	scalar dampingRatio;
 
-	// This controls how faster the constraint error should be resolved per step 
-	// if softness is disabled. 
-	// This is a value in the range [0, 1].
-	// Rotation only.
+	// Rotational position correction factor in the range [0, 1].
 	scalar correctionFactor;
 };
 
@@ -126,10 +123,10 @@ public:
 		return m_dampingRatio;
 	}
 
-	// Set the correction factor in the range [0, 1].
+	// Set the rotational position correction factor in the range [0, 1].
 	void SetCorrectionFactor(scalar factor);
 
-	// Get the correction factor in the range [0, 1].
+	// Get the rotational position correction factor in the range [0, 1].
 	scalar GetCorrectionFactor() const;
 
 	// Draw this joint.
@@ -141,10 +138,10 @@ private:
 
 	b3WeldJoint(const b3WeldJointDef* def);
 
-	virtual void InitializeVelocityConstraints(const b3SolverData* data);
-	virtual void WarmStart(const b3SolverData* data);
-	virtual void SolveVelocityConstraints(const b3SolverData* data);
-	virtual bool SolvePositionConstraints(const b3SolverData* data);
+	virtual void InitializeVelocityConstraints(const b3SolverData& data);
+	virtual void WarmStart(const b3SolverData& data);
+	virtual void SolveVelocityConstraints(const b3SolverData& data);
+	virtual bool SolvePositionConstraints(const b3SolverData& data);
 
 	// Solver shared
 	b3Vec3 m_localAnchorA;

@@ -93,10 +93,10 @@ private:
 
 	b3FrictionJoint(const b3FrictionJointDef* def);
 
-	virtual void InitializeVelocityConstraints(const b3SolverData* data);
-	virtual void WarmStart(const b3SolverData* data);
-	virtual void SolveVelocityConstraints(const b3SolverData* data);
-	virtual bool SolvePositionConstraints(const b3SolverData* data);
+	virtual void InitializeVelocityConstraints(const b3SolverData& data);
+	virtual void WarmStart(const b3SolverData& data);
+	virtual void SolveVelocityConstraints(const b3SolverData& data);
+	virtual bool SolvePositionConstraints(const b3SolverData& data);
 
 	// Solver shared
 	b3Vec3 m_localAnchorA;

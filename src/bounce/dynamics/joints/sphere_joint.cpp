@@ -36,21 +36,21 @@ b3SphereJoint::b3SphereJoint(const b3SphereJointDef* def) : b3Joint(def)
 	m_impulse.SetZero();
 }
 
-void b3SphereJoint::InitializeVelocityConstraints(const b3SolverData* data)
+void b3SphereJoint::InitializeVelocityConstraints(const b3SolverData& data)
 {
-	m_indexA = m_bodyA->m_islandID;
-	m_indexB = m_bodyB->m_islandID;
+	m_indexA = m_bodyA->m_islandIndex;
+	m_indexB = m_bodyB->m_islandIndex;
 	m_mA = m_bodyA->m_invMass;
 	m_mB = m_bodyB->m_invMass;
 	m_localCenterA = m_bodyA->m_sweep.localCenter;
 	m_localCenterB = m_bodyB->m_sweep.localCenter;
 	m_localInvIA = m_bodyA->m_invI;
 	m_localInvIB = m_bodyB->m_invI;
-	m_iA = data->invInertias[m_indexA];
-	m_iB = data->invInertias[m_indexB];
+	m_iA = data.invInertias[m_indexA];
+	m_iB = data.invInertias[m_indexB];
 
-	b3Quat qA = data->positions[m_indexA].q;
-	b3Quat qB = data->positions[m_indexB].q;
+	b3Quat qA = data.positions[m_indexA].q;
+	b3Quat qB = data.positions[m_indexB].q;
 
 	// Compute effective mass for the block solver
 	m_rA = b3Mul(qA, m_localAnchorA - m_localCenterA);
@@ -63,14 +63,23 @@ void b3SphereJoint::InitializeVelocityConstraints(const b3SolverData* data)
 	b3Mat33 M = b3Mat33Diagonal(m_mA + m_mB);
 
 	m_mass = M + RA * m_iA * RAT + RB * m_iB * RBT;
+
+	if (data.step.warmStarting)
+	{
+		m_impulse *= data.step.dtRatio;
+	}
+	else
+	{
+		m_impulse.SetZero();
+	}
 }
 
-void b3SphereJoint::WarmStart(const b3SolverData* data)
+void b3SphereJoint::WarmStart(const b3SolverData& data)
 {
-	b3Vec3 vA = data->velocities[m_indexA].v;
-	b3Vec3 wA = data->velocities[m_indexA].w;
-	b3Vec3 vB = data->velocities[m_indexB].v;
-	b3Vec3 wB = data->velocities[m_indexB].w;
+	b3Vec3 vA = data.velocities[m_indexA].v;
+	b3Vec3 wA = data.velocities[m_indexA].w;
+	b3Vec3 vB = data.velocities[m_indexB].v;
+	b3Vec3 wB = data.velocities[m_indexB].w;
 
 	vA -= m_mA * m_impulse;
 	wA -= m_iA * b3Cross(m_rA, m_impulse);
@@ -78,18 +87,18 @@ void b3SphereJoint::WarmStart(const b3SolverData* data)
 	vB += m_mB * m_impulse;
 	wB += m_iB * b3Cross(m_rB, m_impulse);
 	
-	data->velocities[m_indexA].v = vA;
-	data->velocities[m_indexA].w = wA;
-	data->velocities[m_indexB].v = vB;
-	data->velocities[m_indexB].w = wB;
+	data.velocities[m_indexA].v = vA;
+	data.velocities[m_indexA].w = wA;
+	data.velocities[m_indexB].v = vB;
+	data.velocities[m_indexB].w = wB;
 }
 
-void b3SphereJoint::SolveVelocityConstraints(const b3SolverData* data)
+void b3SphereJoint::SolveVelocityConstraints(const b3SolverData& data)
 {
-	b3Vec3 vA = data->velocities[m_indexA].v;
-	b3Vec3 wA = data->velocities[m_indexA].w;
-	b3Vec3 vB = data->velocities[m_indexB].v;
-	b3Vec3 wB = data->velocities[m_indexB].w;
+	b3Vec3 vA = data.velocities[m_indexA].v;
+	b3Vec3 wA = data.velocities[m_indexA].w;
+	b3Vec3 vB = data.velocities[m_indexB].v;
+	b3Vec3 wB = data.velocities[m_indexB].w;
 
 	b3Vec3 Cdot = vB + b3Cross(wB, m_rB) - vA - b3Cross(wA, m_rA);
 	b3Vec3 impulse = m_mass.Solve(-Cdot);
@@ -102,20 +111,20 @@ void b3SphereJoint::SolveVelocityConstraints(const b3SolverData* data)
 	vB += m_mB * impulse;
 	wB += m_iB * b3Cross(m_rB, impulse);
 	
-	data->velocities[m_indexA].v = vA;
-	data->velocities[m_indexA].w = wA;
-	data->velocities[m_indexB].v = vB;
-	data->velocities[m_indexB].w = wB;
+	data.velocities[m_indexA].v = vA;
+	data.velocities[m_indexA].w = wA;
+	data.velocities[m_indexB].v = vB;
+	data.velocities[m_indexB].w = wB;
 }
 
-bool b3SphereJoint::SolvePositionConstraints(const b3SolverData* data)
+bool b3SphereJoint::SolvePositionConstraints(const b3SolverData& data)
 {
-	b3Vec3 xA = data->positions[m_indexA].x;
-	b3Quat qA = data->positions[m_indexA].q;
-	b3Vec3 xB = data->positions[m_indexB].x;
-	b3Quat qB = data->positions[m_indexB].q;
-	b3Mat33 iA = data->invInertias[m_indexA];
-	b3Mat33 iB = data->invInertias[m_indexB];
+	b3Vec3 xA = data.positions[m_indexA].x;
+	b3Quat qA = data.positions[m_indexA].q;
+	b3Vec3 xB = data.positions[m_indexB].x;
+	b3Quat qB = data.positions[m_indexB].q;
+	b3Mat33 iA = data.invInertias[m_indexA];
+	b3Mat33 iB = data.invInertias[m_indexB];
 
 	// Compute effective mass
 	b3Vec3 rA = b3Mul(qA, m_localAnchorA - m_localCenterA);
@@ -142,13 +151,13 @@ bool b3SphereJoint::SolvePositionConstraints(const b3SolverData* data)
 	qB.Normalize();
 	iB = b3RotateToFrame(m_localInvIB, qB);
 
-	data->positions[m_indexA].x = xA;
-	data->positions[m_indexA].q = qA;
-	data->invInertias[m_indexA] = iA;
+	data.positions[m_indexA].x = xA;
+	data.positions[m_indexA].q = qA;
+	data.invInertias[m_indexA] = iA;
 
-	data->positions[m_indexB].x = xB;
-	data->positions[m_indexB].q = qB;
-	data->invInertias[m_indexB] = iB;
+	data.positions[m_indexB].x = xB;
+	data.positions[m_indexB].q = qB;
+	data.invInertias[m_indexB] = iB;
 
 	return b3Length(C) <= B3_LINEAR_SLOP;
 }

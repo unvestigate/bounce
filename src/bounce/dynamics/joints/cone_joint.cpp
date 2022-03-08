@@ -73,10 +73,10 @@ b3ConeJoint::b3ConeJoint(const b3ConeJointDef* def) : b3Joint(def)
 	m_impulse.SetZero();
 }
 
-void b3ConeJoint::InitializeVelocityConstraints(const b3SolverData* data)
+void b3ConeJoint::InitializeVelocityConstraints(const b3SolverData& data)
 {
-	m_indexA = m_bodyA->m_islandID;
-	m_indexB = m_bodyB->m_islandID;
+	m_indexA = m_bodyA->m_islandIndex;
+	m_indexB = m_bodyB->m_islandIndex;
 
 	m_mA = m_bodyA->m_invMass;
 	m_mB = m_bodyB->m_invMass;
@@ -87,14 +87,14 @@ void b3ConeJoint::InitializeVelocityConstraints(const b3SolverData* data)
 	m_localInvIA = m_bodyA->m_invI;
 	m_localInvIB = m_bodyB->m_invI;
 
-	m_iA = data->invInertias[m_indexA];
-	m_iB = data->invInertias[m_indexB];
+	m_iA = data.invInertias[m_indexA];
+	m_iB = data.invInertias[m_indexB];
 
-	b3Vec3 xA = data->positions[m_indexA].x;
-	b3Quat qA = data->positions[m_indexA].q;
+	b3Vec3 xA = data.positions[m_indexA].x;
+	b3Quat qA = data.positions[m_indexA].q;
 
-	b3Vec3 xB = data->positions[m_indexB].x;
-	b3Quat qB = data->positions[m_indexB].q;
+	b3Vec3 xB = data.positions[m_indexB].x;
+	b3Quat qB = data.positions[m_indexB].q;
 
 	b3Quat fA = qA * m_localRotationA;
 	b3Quat fB = qB * m_localRotationB;
@@ -149,14 +149,26 @@ void b3ConeJoint::InitializeVelocityConstraints(const b3SolverData* data)
 	{
 		m_coneState = e_inactiveLimit;
 	}
+
+	if (data.step.warmStarting)
+	{
+		// Scale impulses to support a variable time step.
+		m_impulse *= data.step.dtRatio;
+		m_coneImpulse *= data.step.dtRatio;
+	}
+	else
+	{
+		m_impulse.SetZero();
+		m_coneImpulse = scalar(0);
+	}
 }
 
-void b3ConeJoint::WarmStart(const b3SolverData* data)
+void b3ConeJoint::WarmStart(const b3SolverData& data)
 {
-	b3Vec3 vA = data->velocities[m_indexA].v;
-	b3Vec3 wA = data->velocities[m_indexA].w;
-	b3Vec3 vB = data->velocities[m_indexB].v;
-	b3Vec3 wB = data->velocities[m_indexB].w;
+	b3Vec3 vA = data.velocities[m_indexA].v;
+	b3Vec3 wA = data.velocities[m_indexA].w;
+	b3Vec3 vB = data.velocities[m_indexB].v;
+	b3Vec3 wB = data.velocities[m_indexB].w;
 
 	{
 		vA -= m_mA * m_impulse;
@@ -174,18 +186,18 @@ void b3ConeJoint::WarmStart(const b3SolverData* data)
 		wB += m_iB * L;
 	}
 
-	data->velocities[m_indexA].v = vA;
-	data->velocities[m_indexA].w = wA;
-	data->velocities[m_indexB].v = vB;
-	data->velocities[m_indexB].w = wB;
+	data.velocities[m_indexA].v = vA;
+	data.velocities[m_indexA].w = wA;
+	data.velocities[m_indexB].v = vB;
+	data.velocities[m_indexB].w = wB;
 }
 
-void b3ConeJoint::SolveVelocityConstraints(const b3SolverData* data)
+void b3ConeJoint::SolveVelocityConstraints(const b3SolverData& data)
 {
-	b3Vec3 vA = data->velocities[m_indexA].v;
-	b3Vec3 wA = data->velocities[m_indexA].w;
-	b3Vec3 vB = data->velocities[m_indexB].v;
-	b3Vec3 wB = data->velocities[m_indexB].w;
+	b3Vec3 vA = data.velocities[m_indexA].v;
+	b3Vec3 wA = data.velocities[m_indexA].w;
+	b3Vec3 vB = data.velocities[m_indexB].v;
+	b3Vec3 wB = data.velocities[m_indexB].w;
 
 	// Solve linear constraint.
 	{
@@ -216,20 +228,20 @@ void b3ConeJoint::SolveVelocityConstraints(const b3SolverData* data)
 		wB += m_iB * P;
 	}
 
-	data->velocities[m_indexA].v = vA;
-	data->velocities[m_indexA].w = wA;
-	data->velocities[m_indexB].v = vB;
-	data->velocities[m_indexB].w = wB;
+	data.velocities[m_indexA].v = vA;
+	data.velocities[m_indexA].w = wA;
+	data.velocities[m_indexB].v = vB;
+	data.velocities[m_indexB].w = wB;
 }
 
-bool b3ConeJoint::SolvePositionConstraints(const b3SolverData* data)
+bool b3ConeJoint::SolvePositionConstraints(const b3SolverData& data)
 {
-	b3Vec3 xA = data->positions[m_indexA].x;
-	b3Quat qA = data->positions[m_indexA].q;
-	b3Vec3 xB = data->positions[m_indexB].x;
-	b3Quat qB = data->positions[m_indexB].q;
-	b3Mat33 iA = data->invInertias[m_indexA];
-	b3Mat33 iB = data->invInertias[m_indexB];
+	b3Vec3 xA = data.positions[m_indexA].x;
+	b3Quat qA = data.positions[m_indexA].q;
+	b3Vec3 xB = data.positions[m_indexB].x;
+	b3Quat qB = data.positions[m_indexB].q;
+	b3Mat33 iA = data.invInertias[m_indexA];
+	b3Mat33 iB = data.invInertias[m_indexB];
 
 	scalar mA = m_mA;
 	scalar mB = m_mB;
@@ -310,12 +322,12 @@ bool b3ConeJoint::SolvePositionConstraints(const b3SolverData* data)
 		iB = b3RotateToFrame(m_localInvIB, qB);
 	}
 
-	data->positions[m_indexA].x = xA;
-	data->positions[m_indexA].q = qA;
-	data->positions[m_indexB].x = xB;
-	data->positions[m_indexB].q = qB;
-	data->invInertias[m_indexA] = iA;
-	data->invInertias[m_indexB] = iB;
+	data.positions[m_indexA].x = xA;
+	data.positions[m_indexA].q = qA;
+	data.positions[m_indexB].x = xB;
+	data.positions[m_indexB].q = qB;
+	data.invInertias[m_indexA] = iA;
+	data.invInertias[m_indexB] = iB;
 
 	return linearError <= B3_LINEAR_SLOP && limitError <= B3_ANGULAR_SLOP;
 }

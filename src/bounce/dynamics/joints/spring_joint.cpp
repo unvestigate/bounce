@@ -94,10 +94,10 @@ void b3SpringJoint::SetDampingRatio(scalar ratio)
 	m_dampingRatio = ratio;
 }
 
-void b3SpringJoint::InitializeVelocityConstraints(const b3SolverData* data) 
+void b3SpringJoint::InitializeVelocityConstraints(const b3SolverData& data) 
 {
-	m_indexA = m_bodyA->m_islandID;
-	m_indexB = m_bodyB->m_islandID;
+	m_indexA = m_bodyA->m_islandIndex;
+	m_indexB = m_bodyB->m_islandIndex;
 
 	m_mA = m_bodyA->m_invMass;
 	m_mB = m_bodyB->m_invMass;
@@ -108,13 +108,13 @@ void b3SpringJoint::InitializeVelocityConstraints(const b3SolverData* data)
 	m_localInvIA = m_bodyA->m_invI;
 	m_localInvIB = m_bodyB->m_invI;
 
-	m_iA = data->invInertias[m_indexA];
-	m_iB = data->invInertias[m_indexB];
+	m_iA = data.invInertias[m_indexA];
+	m_iB = data.invInertias[m_indexB];
 
-	b3Vec3 xA = data->positions[m_indexA].x;
-	b3Quat qA = data->positions[m_indexA].q;
-	b3Vec3 xB = data->positions[m_indexB].x;
-	b3Quat qB = data->positions[m_indexB].q;
+	b3Vec3 xA = data.positions[m_indexA].x;
+	b3Quat qA = data.positions[m_indexA].q;
+	b3Vec3 xB = data.positions[m_indexB].x;
+	b3Quat qB = data.positions[m_indexB].q;
 
 	m_rA = b3Mul(qA, m_localAnchorA - m_localCenterA);
 	m_rB = b3Mul(qB, m_localAnchorB - m_localCenterB);
@@ -163,7 +163,7 @@ void b3SpringJoint::InitializeVelocityConstraints(const b3SolverData* data)
 		// bias = beta / h * C
 		// bias = (m_gamma * h * k) * C
 
-		scalar h = data->dt;
+		scalar h = data.step.dt;
 		m_gamma = h * (d + h * k);
 		m_gamma = m_gamma != scalar(0) ? scalar(1) / m_gamma : scalar(0);
 		m_bias = m_gamma * h * k * C;
@@ -176,24 +176,33 @@ void b3SpringJoint::InitializeVelocityConstraints(const b3SolverData* data)
 		m_bias = scalar(0);
 		m_gamma = scalar(0);
 	}
+
+	if (data.step.warmStarting)
+	{
+		m_impulse *= data.step.dtRatio;
+	}
+	else
+	{
+		m_impulse = scalar(0);
+	}
 }
 
-void b3SpringJoint::WarmStart(const b3SolverData* data) 
+void b3SpringJoint::WarmStart(const b3SolverData& data) 
 {
 	b3Vec3 P = m_impulse * m_n;
 	
-	data->velocities[m_indexA].v -= m_mA * P;
-	data->velocities[m_indexA].w -= m_iA * b3Cross(m_rA, P);
-	data->velocities[m_indexB].v += m_mB * P;
-	data->velocities[m_indexB].w += m_iB * b3Cross(m_rB, P);
+	data.velocities[m_indexA].v -= m_mA * P;
+	data.velocities[m_indexA].w -= m_iA * b3Cross(m_rA, P);
+	data.velocities[m_indexB].v += m_mB * P;
+	data.velocities[m_indexB].w += m_iB * b3Cross(m_rB, P);
 }
 
-void b3SpringJoint::SolveVelocityConstraints(const b3SolverData* data) 
+void b3SpringJoint::SolveVelocityConstraints(const b3SolverData& data) 
 {
-	b3Vec3 vA = data->velocities[m_indexA].v;
-	b3Vec3 wA = data->velocities[m_indexA].w;
-	b3Vec3 vB = data->velocities[m_indexB].v;
-	b3Vec3 wB = data->velocities[m_indexB].w;
+	b3Vec3 vA = data.velocities[m_indexA].v;
+	b3Vec3 wA = data.velocities[m_indexA].w;
+	b3Vec3 vB = data.velocities[m_indexB].v;
+	b3Vec3 wB = data.velocities[m_indexB].w;
 
 	b3Vec3 dv = vB + b3Cross(wB, m_rB) - vA - b3Cross(wA, m_rA);
 	scalar Cdot = b3Dot(m_n, dv);
@@ -209,13 +218,13 @@ void b3SpringJoint::SolveVelocityConstraints(const b3SolverData* data)
 	vB += m_mB * P;
 	wB += m_iB * b3Cross(m_rB, P);
 
-	data->velocities[m_indexA].v = vA;
-	data->velocities[m_indexA].w = wA;
-	data->velocities[m_indexB].v = vB;
-	data->velocities[m_indexB].w = wB;
+	data.velocities[m_indexA].v = vA;
+	data.velocities[m_indexA].w = wA;
+	data.velocities[m_indexB].v = vB;
+	data.velocities[m_indexB].w = wB;
 }
 
-bool b3SpringJoint::SolvePositionConstraints(const b3SolverData* data) 
+bool b3SpringJoint::SolvePositionConstraints(const b3SolverData& data) 
 {
 	if (m_frequencyHz > scalar(0))
 	{
@@ -224,12 +233,12 @@ bool b3SpringJoint::SolvePositionConstraints(const b3SolverData* data)
 		return true;
 	}
 
-	b3Vec3 xA = data->positions[m_indexA].x;
-	b3Quat qA = data->positions[m_indexA].q;
-	b3Vec3 xB = data->positions[m_indexB].x;
-	b3Quat qB = data->positions[m_indexB].q;
-	b3Mat33 iA = data->invInertias[m_indexA];
-	b3Mat33 iB = data->invInertias[m_indexB];
+	b3Vec3 xA = data.positions[m_indexA].x;
+	b3Quat qA = data.positions[m_indexA].q;
+	b3Vec3 xB = data.positions[m_indexB].x;
+	b3Quat qB = data.positions[m_indexB].q;
+	b3Mat33 iA = data.invInertias[m_indexA];
+	b3Mat33 iB = data.invInertias[m_indexB];
 	scalar mA = m_mA;
 	scalar mB = m_mB;
 
@@ -260,12 +269,12 @@ bool b3SpringJoint::SolvePositionConstraints(const b3SolverData* data)
 	qB += b3Derivative(qB, b3Mul(iB, b3Cross(rB, impulse)));
 	iB = b3RotateToFrame(m_localInvIB, qB);
 
-	data->positions[m_indexA].x = xA;
-	data->positions[m_indexA].q = qA;
-	data->positions[m_indexB].x = xB;
-	data->positions[m_indexB].q = qB;
-	data->invInertias[m_indexA] = iA;
-	data->invInertias[m_indexB] = iB;
+	data.positions[m_indexA].x = xA;
+	data.positions[m_indexA].q = qA;
+	data.positions[m_indexB].x = xB;
+	data.positions[m_indexB].q = qB;
+	data.invInertias[m_indexA] = iA;
+	data.invInertias[m_indexB] = iB;
 
 	return b3Abs(C) < B3_LINEAR_SLOP;
 }

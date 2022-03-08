@@ -86,6 +86,7 @@ ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/world.h
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/world_callbacks.h
 
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/contact.h
+${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/contact_solver.h
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/convex_contact.h
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/mesh_contact.h
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/sphere_contact.h

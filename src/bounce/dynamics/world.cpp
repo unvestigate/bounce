@@ -48,6 +48,8 @@ b3World::b3World()
 
 	m_gravity.Set(scalar(0), scalar(-9.8), scalar(0));
 	
+	m_inv_dt0 = scalar(0);
+
 	m_contactManager.m_allocator = &m_blockAllocator;
 	m_jointManager.m_allocator = &m_blockAllocator;
 	
@@ -135,19 +137,41 @@ void b3World::Step(scalar dt, u32 velocityIterations, u32 positionIterations)
 		m_contactManager.FindNewContacts();
 		m_newContacts = false;
 	}
+	
+	b3TimeStep step;
+	step.dt = dt;
+	step.velocityIterations = velocityIterations;
+	step.positionIterations = positionIterations;
+	if (dt > scalar(0))
+	{
+		step.inv_dt = scalar(1) / dt;
+	}
+	else
+	{
+		step.inv_dt = scalar(0);
+	}
 
-	// Update contacts. This is where some contacts might be destroyed.
+	step.dtRatio = m_inv_dt0 * dt;
+	
+	step.warmStarting = m_warmStarting;
+
+	// Update contacts. This is where some contacts are destroyed.
 	m_contactManager.UpdateContacts();
 
 	// Integrate velocities, clear forces and torques, solve constraints, integrate positions.
-	if (dt > scalar(0))
+	if (step.dt > scalar(0))
 	{
-		Solve(dt, velocityIterations, positionIterations);
+		Solve(step);
+	}
 
-		if (m_clearForces)
-		{
-			ClearForces();
-		}
+	if (step.dt > scalar(0))
+	{
+		m_inv_dt0 = step.inv_dt;
+	}
+
+	if (m_clearForces)
+	{
+		ClearForces();
 	}
 }
 
@@ -160,9 +184,17 @@ void b3World::ClearForces()
 	}
 }
 
-void b3World::Solve(scalar dt, u32 velocityIterations, u32 positionIterations)
+void b3World::Solve(const b3TimeStep& step)
 {
 	B3_PROFILE(m_profiler, "Solve");
+
+	// Create a worst case island.
+	b3Island island(m_bodyList.m_count,
+		m_contactManager.m_contactList.m_count,
+		m_jointManager.m_jointList.m_count,
+		&m_stackAllocator,
+		m_contactManager.m_contactListener,
+		m_profiler);
 
 	// Clear all visited flags for the depth first search.
 	for (b3Body* b = m_bodyList.m_head; b; b = b->m_next)
@@ -179,18 +211,6 @@ void b3World::Solve(scalar dt, u32 velocityIterations, u32 positionIterations)
 	{
 		j->m_islandFlag = false;
 	}
-
-	u32 islandFlags = 0;
-	islandFlags |= m_warmStarting * b3Island::e_warmStartBit;
-	islandFlags |= m_sleeping * b3Island::e_sleepBit;
-
-	// Create a worst case island.
-	b3Island island(&m_stackAllocator, 
-		m_bodyList.m_count, 
-		m_contactManager.m_contactList.m_count, 
-		m_jointManager.m_jointList.m_count, 
-		m_contactManager.m_contactListener, 
-		m_profiler);
 
 	// Build and simulate awake islands.
 	u32 stackSize = m_bodyList.m_count;
@@ -210,7 +230,7 @@ void b3World::Solve(scalar dt, u32 velocityIterations, u32 positionIterations)
 		}
 
 		// The seed must be dynamic or kinematic.
-		if (seed->m_type == e_staticBody)
+		if (seed->GetType() == e_staticBody)
 		{
 			continue;
 		}
@@ -231,7 +251,7 @@ void b3World::Solve(scalar dt, u32 velocityIterations, u32 positionIterations)
 			b->m_flags |= b3Body::e_awakeFlag;
 
 			// Don't propagate islands across static bodies to keep them small.
-			if (b->m_type == e_staticBody)
+			if (b->GetType() == e_staticBody)
 			{
 				continue;
 			}
@@ -297,7 +317,7 @@ void b3World::Solve(scalar dt, u32 velocityIterations, u32 positionIterations)
 				b3Joint* joint = je->m_joint;
 
 				// The joint must not be on an island.
-				if (joint->m_islandFlag)
+				if (joint->m_islandFlag == true)
 				{
 					continue;
 				}
@@ -322,7 +342,7 @@ void b3World::Solve(scalar dt, u32 velocityIterations, u32 positionIterations)
 		}
 
 		// Integrate velocities, clear forces and torques, solve constraints, integrate positions.
-		island.Solve(m_gravity, dt, velocityIterations, positionIterations, islandFlags);
+		island.Solve(step, m_gravity, m_sleeping);
 
 		// Allow static bodies to participate in other islands.
 		for (u32 i = 0; i < island.m_bodyCount; ++i)
@@ -348,7 +368,7 @@ void b3World::Solve(scalar dt, u32 velocityIterations, u32 positionIterations)
 				continue;
 			}
 
-			if (b->m_type == e_staticBody)
+			if (b->GetType() == e_staticBody)
 			{
 				continue;
 			}

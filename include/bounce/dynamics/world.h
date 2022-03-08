@@ -217,36 +217,32 @@ private:
 	friend class b3MeshContact;
 	friend class b3Joint;
 
-	void Solve(scalar dt, u32 velocityIterations, u32 positionIterations);
+	void Solve(const b3TimeStep& step);
 
-	bool m_sleeping;
-	bool m_warmStarting;
-	bool m_newContacts;
-	bool m_clearForces;
-	b3Vec3 m_gravity;
-	
-	// Stack allocator
+	b3BlockAllocator m_blockAllocator;
 	b3StackAllocator m_stackAllocator;
 
-	// Block allocator
-	b3BlockAllocator m_blockAllocator;
+	b3ContactManager m_contactManager;
+	b3JointManager m_jointManager;
 
-	// List of bodies
 	b3List<b3Body> m_bodyList;
 	
-	// List of joints
-	b3JointManager m_jointManager;
+	b3Vec3 m_gravity;
+	bool m_sleeping;
 	
-	// List of contacts
-	b3ContactManager m_contactManager;
-
-	// Debug draw flags.
+	b3Draw* m_debugDraw;
 	u32 m_drawFlags;
 
-	// Debug draw. 
-	b3Draw* m_debugDraw;
+	// This is used to compute the time step ratio to
+	// support a variable time step.
+	scalar m_inv_dt0;
+	
+	bool m_newContacts;
+	bool m_clearForces;
+	
+	// These are for debugging the solver.
+	bool m_warmStarting;
 
-	// Profiler.
 	b3Profiler* m_profiler;
 };
 

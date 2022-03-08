@@ -27,16 +27,127 @@
 
 b3ContactSolver::b3ContactSolver(const b3ContactSolverDef* def)
 {
-	m_allocator = def->allocator;
-	m_count = def->count;
+	m_step = def->step;
 	m_positions = def->positions;
 	m_velocities = def->velocities;
-	m_inertias = def->invInertias;
+	m_invInertias = def->invInertias;
 	m_contacts = def->contacts;
+	m_count = def->count;
+	m_allocator = def->allocator;
 	m_positionConstraints = (b3ContactPositionConstraint*)m_allocator->Allocate(m_count * sizeof(b3ContactPositionConstraint));
 	m_velocityConstraints = (b3ContactVelocityConstraint*)m_allocator->Allocate(m_count * sizeof(b3ContactVelocityConstraint));
-	m_dt = def->dt;
-	m_invDt = m_dt != scalar(0) ? scalar(1) / m_dt : scalar(0);
+
+	for (u32 i = 0; i < m_count; ++i)
+	{
+		b3Contact* c = m_contacts[i];
+
+		b3Fixture* fixtureA = c->GetFixtureA();
+		b3Fixture* fixtureB = c->GetFixtureB();
+
+		b3Shape* shapeA = fixtureA->GetShape();
+		b3Shape* shapeB = fixtureB->GetShape();
+
+		b3Body* bodyA = fixtureA->GetBody();
+		b3Body* bodyB = fixtureB->GetBody();
+
+		u32 manifoldCount = c->m_manifoldCount;
+		b3Manifold* manifolds = c->m_manifolds;
+
+		b3ContactPositionConstraint* pc = m_positionConstraints + i;
+		b3ContactVelocityConstraint* vc = m_velocityConstraints + i;
+
+		pc->indexA = bodyA->m_islandIndex;
+		pc->invMassA = bodyA->m_invMass;
+		pc->localInvIA = bodyA->m_invI;
+		pc->localCenterA = bodyA->m_sweep.localCenter;
+		pc->radiusA = shapeA->m_radius;
+
+		pc->indexB = bodyB->m_islandIndex;
+		pc->invMassB = bodyB->m_invMass;
+		pc->localInvIB = bodyB->m_invI;
+		pc->localCenterB = bodyB->m_sweep.localCenter;
+		pc->radiusB = shapeB->m_radius;
+
+		pc->manifoldCount = manifoldCount;
+		pc->manifolds = (b3PositionConstraintManifold*)m_allocator->Allocate(manifoldCount * sizeof(b3PositionConstraintManifold));
+
+		vc->indexA = bodyA->m_islandIndex;
+		vc->invMassA = bodyA->m_invMass;
+		vc->invIA = m_invInertias[vc->indexA];
+
+		vc->indexB = bodyB->m_islandIndex;
+		vc->invMassB = bodyB->m_invMass;
+		vc->invIB = m_invInertias[vc->indexB];
+
+		vc->friction = b3MixFriction(fixtureA->m_friction, fixtureB->m_friction);
+		vc->restitution = b3MixRestitution(fixtureA->m_restitution, fixtureB->m_restitution);
+
+		vc->manifoldCount = manifoldCount;
+		vc->manifolds = (b3VelocityConstraintManifold*)m_allocator->Allocate(manifoldCount * sizeof(b3VelocityConstraintManifold));
+
+		for (u32 j = 0; j < manifoldCount; ++j)
+		{
+			b3Manifold* m = manifolds + j;
+			b3PositionConstraintManifold* pcm = pc->manifolds + j;
+			b3VelocityConstraintManifold* vcm = vc->manifolds + j;
+
+			pcm->pointCount = m->pointCount;
+			pcm->points = (b3PositionConstraintPoint*)m_allocator->Allocate(pcm->pointCount * sizeof(b3PositionConstraintPoint));
+
+			vcm->pointCount = m->pointCount;
+			vcm->points = (b3VelocityConstraintPoint*)m_allocator->Allocate(vcm->pointCount * sizeof(b3VelocityConstraintPoint));
+
+			vcm->rA.SetZero();
+			vcm->rB.SetZero();
+			vcm->normal.SetZero();
+			vcm->tangent1.SetZero();
+			vcm->tangent2.SetZero();
+
+			vcm->motorSpeed = m->motorSpeed;
+			vcm->tangentSpeed1 = m->tangentSpeed1;
+			vcm->tangentSpeed2 = m->tangentSpeed2;
+
+			if (m_step.warmStarting)
+			{
+				vcm->tangentImpulse = m_step.dtRatio * m->tangentImpulse;
+				vcm->motorImpulse = m_step.dtRatio * m->motorImpulse;
+			}
+			else
+			{
+				vcm->tangentImpulse.SetZero();
+				vcm->motorImpulse = scalar(0);
+			}
+
+			vcm->tangentMass.SetZero();
+			vcm->motorMass = scalar(0);
+			
+			for (u32 k = 0; k < m->pointCount; ++k)
+			{
+				b3ManifoldPoint* cp = m->points + k;
+				b3PositionConstraintPoint* pcp = pcm->points + k;
+				b3VelocityConstraintPoint* vcp = vcm->points + k;
+
+				pcp->localNormalA = cp->localNormal1;
+				pcp->localPointA = cp->localPoint1;
+				pcp->localPointB = cp->localPoint2;
+
+				vcp->rA.SetZero();
+				vcp->rB.SetZero();
+				vcp->normal.SetZero();
+				vcp->normalMass = scalar(0);
+				vcp->velocityBias = scalar(0);
+
+				if (m_step.warmStarting)
+				{
+					vcp->normalImpulse = m_step.dtRatio * cp->normalImpulse;
+				}
+				else
+				{
+					vcp->normalImpulse = scalar(0);
+				}
+			}
+		}
+	}
 }
 
 b3ContactSolver::~b3ContactSolver()
@@ -66,89 +177,8 @@ b3ContactSolver::~b3ContactSolver()
 	m_allocator->Free(m_positionConstraints);
 }
 
-void b3ContactSolver::InitializeConstraints()
+void b3ContactSolver::InitializeVelocityConstraints()
 {
-	for (u32 i = 0; i < m_count; ++i)
-	{
-		b3Contact* c = m_contacts[i];
-
-		b3Fixture* fixtureA = c->GetFixtureA();
-		b3Fixture* fixtureB = c->GetFixtureB();
-
-		b3Shape* shapeA = fixtureA->GetShape();
-		b3Shape* shapeB = fixtureB->GetShape();
-
-		b3Body* bodyA = fixtureA->GetBody();
-		b3Body* bodyB = fixtureB->GetBody();
-
-		u32 manifoldCount = c->m_manifoldCount;
-		b3Manifold* manifolds = c->m_manifolds;
-
-		b3ContactPositionConstraint* pc = m_positionConstraints + i;
-		b3ContactVelocityConstraint* vc = m_velocityConstraints + i;
-
-		pc->indexA = bodyA->m_islandID;
-		pc->invMassA = bodyA->m_invMass;
-		pc->localInvIA = bodyA->m_invI;
-		pc->localCenterA = bodyA->m_sweep.localCenter;
-		pc->radiusA = shapeA->m_radius;
-
-		pc->indexB = bodyB->m_islandID;
-		pc->invMassB = bodyB->m_invMass;
-		pc->localInvIB = bodyB->m_invI;
-		pc->localCenterB = bodyB->m_sweep.localCenter;
-		pc->radiusB = shapeB->m_radius;
-
-		pc->manifoldCount = manifoldCount;
-		pc->manifolds = (b3PositionConstraintManifold*)m_allocator->Allocate(manifoldCount * sizeof(b3PositionConstraintManifold));
-
-		vc->indexA = bodyA->m_islandID;
-		vc->invMassA = bodyA->m_invMass;
-		vc->invIA = m_inertias[vc->indexA];
-
-		vc->indexB = bodyB->m_islandID;
-		vc->invMassB = bodyB->m_invMass;
-		vc->invIB = m_inertias[vc->indexB];
-
-		vc->friction = b3MixFriction(fixtureA->m_friction, fixtureB->m_friction);
-		vc->restitution = b3MixRestitution(fixtureA->m_restitution, fixtureB->m_restitution);
-
-		vc->manifoldCount = manifoldCount;
-		vc->manifolds = (b3VelocityConstraintManifold*)m_allocator->Allocate(manifoldCount * sizeof(b3VelocityConstraintManifold));
-
-		for (u32 j = 0; j < manifoldCount; ++j)
-		{
-			b3Manifold* m = manifolds + j;
-			b3PositionConstraintManifold* pcm = pc->manifolds + j;
-			b3VelocityConstraintManifold* vcm = vc->manifolds + j;
-
-			pcm->pointCount = m->pointCount;
-			pcm->points = (b3PositionConstraintPoint*)m_allocator->Allocate(pcm->pointCount * sizeof(b3PositionConstraintPoint));
-			
-			vcm->pointCount = m->pointCount;
-			vcm->points = (b3VelocityConstraintPoint*)m_allocator->Allocate(vcm->pointCount * sizeof(b3VelocityConstraintPoint));
-			
-			vcm->tangentImpulse = m->tangentImpulse;
-			vcm->motorImpulse = m->motorImpulse;
-			vcm->motorSpeed = m->motorSpeed;
-			vcm->tangentSpeed1 = m->tangentSpeed1;
-			vcm->tangentSpeed2 = m->tangentSpeed2;
-
-			for (u32 k = 0; k < m->pointCount; ++k)
-			{
-				b3ManifoldPoint* cp = m->points + k;
-				b3PositionConstraintPoint* pcp = pcm->points + k;
-				b3VelocityConstraintPoint* vcp = vcm->points + k;
-
-				pcp->localNormalA = cp->localNormal1;
-				pcp->localPointA = cp->localPoint1;
-				pcp->localPointB = cp->localPoint2;
-
-				vcp->normalImpulse = cp->normalImpulse;
-			}
-		}
-	}
-
 	for (u32 i = 0; i < m_count; ++i)
 	{
 		b3Contact* c = m_contacts[i];
@@ -218,7 +248,7 @@ void b3ContactSolver::InitializeConstraints()
 				vcp->rA = rA;
 				vcp->rB = rB;
 
-				// Add normal constraint.
+				// Normal constraint.
 				{
 					vcp->normal = normal;
 
@@ -239,7 +269,7 @@ void b3ContactSolver::InitializeConstraints()
 				}
 			}
 
-			// Add friction constraints.	
+			// Friction constraints.	
 			if(pointCount > 0)
 			{
 				b3Vec3 rA = wm.center - xA;
@@ -270,7 +300,7 @@ void b3ContactSolver::InitializeConstraints()
 					vcm->tangentMass = b3Inverse(K);
 				}
 
-				// Add twist constraint.
+				// Twist constraint.
 				{
 					scalar mass = b3Dot(vcm->normal, (iA + iB) * vcm->normal);
 					vcm->motorMass = mass > scalar(0) ? scalar(1) / mass : scalar(0);
@@ -519,11 +549,11 @@ bool b3ContactSolver::SolvePositionConstraints()
 
 		b3Vec3 cA = m_positions[indexA].x;
 		b3Quat qA = m_positions[indexA].q;
-		b3Mat33 iA = m_inertias[indexA];
+		b3Mat33 iA = m_invInertias[indexA];
 
 		b3Vec3 cB = m_positions[indexB].x;
 		b3Quat qB = m_positions[indexB].q;
-		b3Mat33 iB = m_inertias[indexB];
+		b3Mat33 iB = m_invInertias[indexB];
 
 		u32 manifoldCount = pc->manifoldCount;
 
@@ -584,11 +614,11 @@ bool b3ContactSolver::SolvePositionConstraints()
 
 		m_positions[indexA].x = cA;
 		m_positions[indexA].q = qA;
-		m_inertias[indexA] = iA;
+		m_invInertias[indexA] = iA;
 
 		m_positions[indexB].x = cB;
 		m_positions[indexB].q = qB;
-		m_inertias[indexB] = iB;
+		m_invInertias[indexB] = iB;
 	}
 
 	return minSeparation >= scalar(-3) * B3_LINEAR_SLOP;

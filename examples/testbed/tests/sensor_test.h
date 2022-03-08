@@ -43,10 +43,10 @@ public:
 			
 			b3Body* body = m_world.CreateBody(bd);
 			
-			static b3BoxHull boxHull(2.0f, 4.0f, 0.5f);
+			m_boxHull.SetExtents(2.0f, 4.0f, 0.5f);
 
 			b3HullShape hs;
-			hs.m_hull = &boxHull;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef sd;
 			sd.shape = &hs;
@@ -158,6 +158,7 @@ public:
 		return new SensorTest();
 	}
 	
+	b3BoxHull m_boxHull;
 	b3Body* m_character;
 	b3Fixture* m_sensor;
 	bool m_attack;
