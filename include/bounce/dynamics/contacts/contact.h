@@ -21,7 +21,6 @@
 
 #include <bounce/common/math/math.h>
 #include <bounce/common/template/list.h>
-#include <bounce/common/template/array.h>
 #include <bounce/dynamics/fixture.h>
 #include <bounce/collision/collide/manifold.h>
 
@@ -32,7 +31,6 @@ class b3Body;
 class b3Contact;
 class b3ContactListener;
 class b3BlockAllocator;
-struct b3ConvexCache;
 
 // A contact edge to a contact graph, where a body is a vertex and a contact an edge.
 // A contact edge belongs to a doubly linked list maintained in each attached fixture.
