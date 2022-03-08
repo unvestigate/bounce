@@ -180,7 +180,7 @@ protected:
 	scalar m_restitution;
 	scalar m_friction;
 
-	u32 m_broadPhaseID;
+	u32 m_proxyId;
 
 	bool m_isSensor;
 	void* m_userData;

@@ -156,11 +156,11 @@ void b3ContactManager::UpdateContacts()
 	while (c)
 	{
 		b3Fixture* fixtureA = c->m_fixtureA;
-		u32 proxyA = fixtureA->m_broadPhaseID;
+		u32 proxyA = fixtureA->m_proxyId;
 		b3Body* bodyA = fixtureA->m_body;
 
 		b3Fixture* fixtureB = c->m_fixtureB;
-		u32 proxyB = fixtureB->m_broadPhaseID;
+		u32 proxyB = fixtureB->m_proxyId;
 		b3Body* bodyB = fixtureB->m_body;
 
 		// Check if the bodies must not collide with each other.

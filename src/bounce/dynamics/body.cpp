@@ -116,7 +116,7 @@ b3Fixture* b3Body::CreateFixture(const b3FixtureDef& def)
 	// Compute the world AABB of the new fixture and assign a broad-phase proxy to it.
 	b3AABB aabb;
 	fixture->ComputeAABB(&aabb);
-	fixture->m_broadPhaseID = m_world->m_contactManager.m_broadPhase.CreateProxy(aabb, fixture);
+	fixture->m_proxyId = m_world->m_contactManager.m_broadPhase.CreateProxy(aabb, fixture);
 
 	// Tell the world that a new shape was added so new contacts can be created.
 	m_world->m_newContacts = true;
@@ -137,9 +137,9 @@ void b3Body::DestroyJoints()
 	b3JointEdge* je = m_jointList.m_head;
 	while (je)
 	{
-		b3JointEdge* tmp = je;
+		b3JointEdge* boom = je;
 		je = je->m_next;
-		m_world->m_jointManager.Destroy(tmp->m_joint);
+		m_world->m_jointManager.Destroy(boom->m_joint);
 	}
 }
 
@@ -158,12 +158,13 @@ void b3Body::DestroyFixture(b3Fixture* fixture)
 	fixture->DestroyContacts();
 	
 	// Destroy the broad-phase proxy associated with the fixture.
-	m_world->m_contactManager.m_broadPhase.DestroyProxy(fixture->m_broadPhaseID);
+	m_world->m_contactManager.m_broadPhase.DestroyProxy(fixture->m_proxyId);
 	
 	b3BlockAllocator* allocator = &m_world->m_blockAllocator;
 
 	// Destroy the fixture.
 	fixture->m_body = nullptr;
+	fixture->m_prev = nullptr;
 	fixture->m_next = nullptr;
 	fixture->Destroy(allocator);
 	fixture->~b3Fixture();
@@ -179,9 +180,9 @@ void b3Body::DestroyFixtures()
 	b3Fixture* f = m_fixtureList.m_head;
 	while (f) 
 	{
-		b3Fixture* tmp = f;
+		b3Fixture* boom = f;
 		f = f->m_next;
-		DestroyFixture(tmp);
+		DestroyFixture(boom);
 	}
 }
 
@@ -492,7 +493,7 @@ void b3Body::SetType(b3BodyType type)
 	b3BroadPhase* phase = &m_world->m_contactManager.m_broadPhase;
 	for (b3Fixture* f = m_fixtureList.m_head; f; f = f->m_next)
 	{
-		phase->TouchProxy(f->m_broadPhaseID);
+		phase->TouchProxy(f->m_proxyId);
 	}
 }
 

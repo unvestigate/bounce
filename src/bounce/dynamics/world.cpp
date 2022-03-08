@@ -100,8 +100,7 @@ void b3World::DestroyBody(b3Body* b)
 {
 	b->DestroyFixtures();
 	b->DestroyJoints();
-	b->DestroyContacts();
-
+	
 	m_bodyList.Remove(b);
 	b->~b3Body();
 	m_blockAllocator.Free(b, sizeof(b3Body));
@@ -931,7 +930,7 @@ void b3World::DebugDraw() const
 		{
 			for (b3Fixture* f = b->m_fixtureList.m_head; f; f = f->m_next)
 			{
-				const b3AABB& aabb = m_contactManager.m_broadPhase.GetFatAABB(f->m_broadPhaseID);
+				const b3AABB& aabb = m_contactManager.m_broadPhase.GetFatAABB(f->m_proxyId);
 				m_debugDraw->DrawAABB(aabb, b3Color_pink);
 			}
 		}
