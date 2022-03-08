@@ -25,6 +25,8 @@
 b3Body::b3Body(const b3BodyDef& def, b3World* world) 
 {
 	m_world = world;
+	m_prev = nullptr;
+	m_next = nullptr;
 	m_type = def.type;
 	m_flags = 0;
 	
