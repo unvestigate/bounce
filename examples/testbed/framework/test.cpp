@@ -136,16 +136,17 @@ void Test::Step()
 
 	// Draw
 	u32 drawFlags = 0;
-	drawFlags += g_testSettings->drawBounds * b3World::e_aabbsFlag;
-	drawFlags += g_testSettings->drawShapes * b3World::e_shapesFlag;
-	drawFlags += g_testSettings->drawCenterOfMasses * b3World::e_centerOfMassesFlag;
-	drawFlags += g_testSettings->drawJoints * b3World::e_jointsFlag;
-	drawFlags += g_testSettings->drawContactPoints * b3World::e_contactPointsFlag;
-	drawFlags += g_testSettings->drawContactNormals * b3World::e_contactNormalsFlag;
-	drawFlags += g_testSettings->drawContactTangents * b3World::e_contactTangentsFlag;
-	drawFlags += g_testSettings->drawContactPolygons * b3World::e_contactPolygonsFlag;
+	drawFlags += g_testSettings->drawBounds * b3Draw::e_aabbsFlag;
+	drawFlags += g_testSettings->drawShapes * b3Draw::e_shapesFlag;
+	drawFlags += g_testSettings->drawCenterOfMasses * b3Draw::e_centerOfMassesFlag;
+	drawFlags += g_testSettings->drawJoints * b3Draw::e_jointsFlag;
+	drawFlags += g_testSettings->drawContactPoints * b3Draw::e_contactPointsFlag;
+	drawFlags += g_testSettings->drawContactNormals * b3Draw::e_contactNormalsFlag;
+	drawFlags += g_testSettings->drawContactTangents * b3Draw::e_contactTangentsFlag;
+	drawFlags += g_testSettings->drawContactPolygons * b3Draw::e_contactPolygonsFlag;
 
-	m_world.SetDrawFlags(drawFlags);
+	m_draw.SetFlags(drawFlags);
+	
 	m_world.Draw();
 	m_world.DrawSolid();
 

@@ -53,7 +53,6 @@ b3World::b3World()
 	m_contactManager.m_allocator = &m_blockAllocator;
 	m_jointManager.m_allocator = &m_blockAllocator;
 	
-	m_drawFlags = 0;
 	m_debugDraw = nullptr;
 	m_profiler = nullptr;
 	
@@ -883,9 +882,9 @@ void b3World::Draw() const
 		return;
 	}
 
-	u32 flags = m_drawFlags;
+	u32 flags = m_debugDraw->GetFlags();
 
-	if (flags & e_centerOfMassesFlag)
+	if (flags & b3Draw::e_centerOfMassesFlag)
 	{
 		for (b3Body* b = m_bodyList.m_head; b; b = b->m_next)
 		{
@@ -896,7 +895,7 @@ void b3World::Draw() const
 		}
 	}
 
-	if (flags & e_shapesFlag)
+	if (flags & b3Draw::e_shapesFlag)
 	{
 		for (b3Body* b = m_bodyList.m_head; b; b = b->m_next)
 		{
@@ -907,7 +906,7 @@ void b3World::Draw() const
 		}
 	}
 
-	if (flags & e_aabbsFlag)
+	if (flags & b3Draw::e_aabbsFlag)
 	{
 		for (b3Body* b = m_bodyList.m_head; b; b = b->m_next)
 		{
@@ -919,7 +918,7 @@ void b3World::Draw() const
 		}
 	}
 
-	if (flags & e_jointsFlag)
+	if (flags & b3Draw::e_jointsFlag)
 	{
 		for (b3Joint* j = m_jointManager.m_jointList.m_head; j; j = j->m_next)
 		{
@@ -952,12 +951,12 @@ void b3World::Draw() const
 
 				points[j] = p;
 
-				if (flags & e_contactPointsFlag)
+				if (flags & b3Draw::e_contactPointsFlag)
 				{
 					m_debugDraw->DrawPoint(p, scalar(4), mp->persistCount > 0 ? b3Color_green : b3Color_red);
 				}
 
-				if (flags & e_contactNormalsFlag)
+				if (flags & b3Draw::e_contactNormalsFlag)
 				{
 					m_debugDraw->DrawSegment(p, p + n, b3Color_white);
 				}
@@ -970,12 +969,12 @@ void b3World::Draw() const
 				t1 = wm.tangent1;
 				t2 = wm.tangent2;
 
-				if (flags & e_contactNormalsFlag)
+				if (flags & b3Draw::e_contactNormalsFlag)
 				{
 					m_debugDraw->DrawSegment(p, p + n, b3Color_yellow);
 				}
 
-				if (flags & e_contactTangentsFlag)
+				if (flags & b3Draw::e_contactTangentsFlag)
 				{
 					m_debugDraw->DrawSegment(p, p + t1, b3Color_yellow);
 					m_debugDraw->DrawSegment(p, p + t2, b3Color_yellow);
@@ -983,7 +982,7 @@ void b3World::Draw() const
 
 				if (m->pointCount > 2)
 				{
-					if (flags & e_contactPolygonsFlag)
+					if (flags & b3Draw::e_contactPolygonsFlag)
 					{
 						m_debugDraw->DrawSolidPolygon(wm.normal, points, sizeof(b3Vec3), m->pointCount, b3Color_pink, false);
 					}

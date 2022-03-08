@@ -28,10 +28,38 @@
 #include <bounce/collision/geometry/aabb.h>
 #include <bounce/collision/geometry/plane.h>
 
-// Debug draw interface.
+// Implement and register this class with a b2World to provide debug drawing of physics
+// entities in your game.
 class b3Draw
 {
 public:
+	b3Draw() : m_flags(0) { }
+	virtual ~b3Draw() { }
+
+	enum
+	{
+		e_shapesFlag = 0x0001,
+		e_centerOfMassesFlag = 0x0002,
+		e_jointsFlag = 0x0004,
+		e_contactPointsFlag = 0x0008,
+		e_contactNormalsFlag = 0x0010,
+		e_contactTangentsFlag = 0x0020,
+		e_contactPolygonsFlag = 0x0040,
+		e_aabbsFlag = 0x0080,
+	};
+
+	// Set the draw flags.
+	void SetFlags(u32 flags);
+
+	// Get the drawing flags.
+	u32 GetFlags() const;
+
+	// Append flags to the current drawing flag.
+	void AppendFlags(u32 flags);
+
+	// Clear drawing flags.
+	void ClearFlags();
+
 	// Draw a point.
 	virtual void DrawPoint(const b3Vec3& p, scalar size, const b3Color& color, bool depthEnabled = true) = 0;
 
@@ -88,6 +116,28 @@ public:
 
 	// Draw a transform.
 	virtual void DrawTransform(const b3Transform& xf, bool depthEnabled = true) = 0;
+
+	u32 m_flags;
 };
+
+inline void b3Draw::SetFlags(u32 flags)
+{
+	m_flags = flags;
+}
+
+inline u32 b3Draw::GetFlags() const
+{
+	return m_flags;
+}
+
+inline void b3Draw::AppendFlags(u32 flags)
+{
+	m_flags |= flags;
+}
+
+inline void b3Draw::ClearFlags()
+{
+	m_flags = 0;
+}
 
 #endif

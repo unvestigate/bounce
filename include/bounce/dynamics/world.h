@@ -68,19 +68,6 @@ struct b3ShapeCastSingleOutput
 class b3World
 {
 public:
-	// Bit flags to tell the world what needs to be draw.
-	enum 
-	{
-		e_shapesFlag = 0x0001,
-		e_centerOfMassesFlag = 0x0002,
-		e_jointsFlag = 0x0004,
-		e_contactPointsFlag = 0x0008,
-		e_contactNormalsFlag = 0x0010,
-		e_contactTangentsFlag = 0x0020,
-		e_contactPolygonsFlag = 0x0040,
-		e_aabbsFlag = 0x0080,
-	};
-	
 	b3World();
 	~b3World();
 
@@ -194,16 +181,7 @@ public:
 	// Get the list of contacts in this world.
 	const b3List<b3Contact>& GetContactList() const;
 	b3List<b3Contact>& GetContactList();
-
-	// Set the draw flags.
-	void SetDrawFlags(u32 flags);
 	
-	// Append flags to the current draw flag.
-	void AppendDrawFlags(u32 flags);
-	
-	// Clear draw flags.
-	void ClearDrawFlags();
-		
 	// Draw the entities in this world.
 	void Draw() const;
 	
@@ -231,7 +209,6 @@ private:
 	bool m_sleeping;
 	
 	b3Draw* m_debugDraw;
-	u32 m_drawFlags;
 
 	// This is used to compute the time step ratio to
 	// support a variable time step.
@@ -317,19 +294,4 @@ inline b3List<b3Contact>& b3World::GetContactList()
 	return m_contactManager.m_contactList;
 }
 
-inline void b3World::SetDrawFlags(u32 flags)
-{
-	m_drawFlags = flags;
-}
-
-inline void b3World::AppendDrawFlags(u32 flags)
-{
-	m_drawFlags |= flags;
-}
-
-inline void b3World::ClearDrawFlags()
-{
-	m_drawFlags = 0;	
-}
-	
 #endif
