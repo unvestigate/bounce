@@ -188,7 +188,7 @@ world->SetGravity(gravity);
 Next we need to define the simulation parameters. First we must set a time-step for the simulation. A time-step is how many seconds the simulation should be advanced at each step. For performing a single time-step the following function needs to be called.
 
 ```cpp
-void b3World::Step(float32 timeStep, u32 velocityIterations, u32 positionIterations);
+void b3World::Step(float32 timeStep, uint32 velocityIterations, uint32 positionIterations);
 ```
 
 It is recommended to use a small and constant time step during the simulation for several reasons. Mainly because of simulation realism, determinism, and stability. Remember that thus time has units of seconds.
@@ -200,8 +200,8 @@ const float32 timeStep = 1.0f / 60.0f;
 In order to satisfy constraints (due to joints and contacts) while reaching good performance, Bounce uses iterative constraint solvers. The iterative constraint solvers require defining the number of solver iterations. The velocity solver corrects violated velocities of rigid bodies while the position solver fixes violated positions of rigid bodies. Basically the number of iterations depends on the simulation configuration. For example, a tall stack of boxes will probably require a large number of velocity iterations in order to remain stable. A small number of iterations can make the stack fall. This is not realistic.
 
 ```cpp
-const u32 velocityIterations = 8;
-const u32 positionIterations = 2;
+const uint32 velocityIterations = 8;
+const uint32 positionIterations = 2;
 ```
 
 Now that we have set up the world let us add some rigid bodies to it.
