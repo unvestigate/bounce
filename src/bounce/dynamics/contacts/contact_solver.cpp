@@ -37,7 +37,7 @@ b3ContactSolver::b3ContactSolver(const b3ContactSolverDef* def)
 	m_positionConstraints = (b3ContactPositionConstraint*)m_allocator->Allocate(m_count * sizeof(b3ContactPositionConstraint));
 	m_velocityConstraints = (b3ContactVelocityConstraint*)m_allocator->Allocate(m_count * sizeof(b3ContactVelocityConstraint));
 
-	for (u32 i = 0; i < m_count; ++i)
+	for (uint32 i = 0; i < m_count; ++i)
 	{
 		b3Contact* c = m_contacts[i];
 
@@ -50,7 +50,7 @@ b3ContactSolver::b3ContactSolver(const b3ContactSolverDef* def)
 		b3Body* bodyA = fixtureA->GetBody();
 		b3Body* bodyB = fixtureB->GetBody();
 
-		u32 manifoldCount = c->m_manifoldCount;
+		uint32 manifoldCount = c->m_manifoldCount;
 		b3Manifold* manifolds = c->m_manifolds;
 
 		b3ContactPositionConstraint* pc = m_positionConstraints + i;
@@ -85,7 +85,7 @@ b3ContactSolver::b3ContactSolver(const b3ContactSolverDef* def)
 		vc->manifoldCount = manifoldCount;
 		vc->manifolds = (b3VelocityConstraintManifold*)m_allocator->Allocate(manifoldCount * sizeof(b3VelocityConstraintManifold));
 
-		for (u32 j = 0; j < manifoldCount; ++j)
+		for (uint32 j = 0; j < manifoldCount; ++j)
 		{
 			b3Manifold* m = manifolds + j;
 			b3PositionConstraintManifold* pcm = pc->manifolds + j;
@@ -121,7 +121,7 @@ b3ContactSolver::b3ContactSolver(const b3ContactSolverDef* def)
 			vcm->tangentMass.SetZero();
 			vcm->motorMass = scalar(0);
 			
-			for (u32 k = 0; k < m->pointCount; ++k)
+			for (uint32 k = 0; k < m->pointCount; ++k)
 			{
 				b3ManifoldPoint* cp = m->points + k;
 				b3PositionConstraintPoint* pcp = pcm->points + k;
@@ -153,15 +153,15 @@ b3ContactSolver::b3ContactSolver(const b3ContactSolverDef* def)
 b3ContactSolver::~b3ContactSolver()
 {
 	// Reverse free.
-	for (u32 index1 = m_count; index1 > 0; --index1)
+	for (uint32 index1 = m_count; index1 > 0; --index1)
 	{
-		u32 i1 = index1 - 1;
+		uint32 i1 = index1 - 1;
 		b3ContactPositionConstraint* pc = m_positionConstraints + i1;
 		b3ContactVelocityConstraint* vc = m_velocityConstraints + i1;
 		
-		for (u32 index2 = pc->manifoldCount; index2 > 0; --index2)
+		for (uint32 index2 = pc->manifoldCount; index2 > 0; --index2)
 		{
-			u32 i2 = index2 - 1;
+			uint32 i2 = index2 - 1;
 			b3PositionConstraintManifold* pcm = pc->manifolds + i2;
 			b3VelocityConstraintManifold* vcm = vc->manifolds + i2;
 			
@@ -179,10 +179,10 @@ b3ContactSolver::~b3ContactSolver()
 
 void b3ContactSolver::InitializeVelocityConstraints()
 {
-	for (u32 i = 0; i < m_count; ++i)
+	for (uint32 i = 0; i < m_count; ++i)
 	{
 		b3Contact* c = m_contacts[i];
-		u32 manifoldCount = c->m_manifoldCount;
+		uint32 manifoldCount = c->m_manifoldCount;
 
 		b3ContactPositionConstraint* pc = m_positionConstraints + i;
 		b3ContactVelocityConstraint* vc = m_velocityConstraints + i;
@@ -193,11 +193,11 @@ void b3ContactSolver::InitializeVelocityConstraints()
 		b3Vec3 localCenterA = pc->localCenterA;
 		b3Vec3 localCenterB = pc->localCenterB;
 
-		u32 indexA = vc->indexA;
+		uint32 indexA = vc->indexA;
 		scalar mA = vc->invMassA;
 		b3Mat33 iA = vc->invIA;
 
-		u32 indexB = vc->indexB;
+		uint32 indexB = vc->indexB;
 		scalar mB = vc->invMassB;
 		b3Mat33 iB = vc->invIB;
 
@@ -219,7 +219,7 @@ void b3ContactSolver::InitializeVelocityConstraints()
 		xfB.rotation = qB;
 		xfB.translation = xB - b3Mul(qB, localCenterB);
 
-		for (u32 j = 0; j < manifoldCount; ++j)
+		for (uint32 j = 0; j < manifoldCount; ++j)
 		{
 			b3Manifold* m = c->m_manifolds + j;
 			b3VelocityConstraintManifold* vcm = vc->manifolds + j;
@@ -231,9 +231,9 @@ void b3ContactSolver::InitializeVelocityConstraints()
 			vcm->tangent1 = wm.tangent1;
 			vcm->tangent2 = wm.tangent2;
 
-			u32 pointCount = wm.pointCount;
+			uint32 pointCount = wm.pointCount;
 
-			for (u32 k = 0; k < pointCount; ++k)
+			for (uint32 k = 0; k < pointCount; ++k)
 			{
 				b3WorldManifoldPoint* mp = wm.points + k;
 
@@ -312,31 +312,31 @@ void b3ContactSolver::InitializeVelocityConstraints()
 
 void b3ContactSolver::WarmStart()
 {
-	for (u32 i = 0; i < m_count; ++i)
+	for (uint32 i = 0; i < m_count; ++i)
 	{
 		b3ContactVelocityConstraint* vc = m_velocityConstraints + i;
 
-		u32 indexA = vc->indexA;
+		uint32 indexA = vc->indexA;
 		scalar mA = vc->invMassA;
 		b3Mat33 iA = vc->invIA;
 
-		u32 indexB = vc->indexB;
+		uint32 indexB = vc->indexB;
 		scalar mB = vc->invMassB;
 		b3Mat33 iB = vc->invIB;
 
-		u32 manifoldCount = vc->manifoldCount;
+		uint32 manifoldCount = vc->manifoldCount;
 
 		b3Vec3 vA = m_velocities[indexA].v;
 		b3Vec3 wA = m_velocities[indexA].w;
 		b3Vec3 vB = m_velocities[indexB].v;
 		b3Vec3 wB = m_velocities[indexB].w;
 
-		for (u32 j = 0; j < manifoldCount; ++j)
+		for (uint32 j = 0; j < manifoldCount; ++j)
 		{
 			b3VelocityConstraintManifold* vcm = vc->manifolds + j;
-			u32 pointCount = vcm->pointCount;
+			uint32 pointCount = vcm->pointCount;
 
-			for (u32 k = 0; k < pointCount; ++k)
+			for (uint32 k = 0; k < pointCount; ++k)
 			{
 				b3VelocityConstraintPoint* vcp = vcm->points + k;
 
@@ -372,16 +372,16 @@ void b3ContactSolver::WarmStart()
 
 void b3ContactSolver::SolveVelocityConstraints()
 {
-	for (u32 i = 0; i < m_count; ++i)
+	for (uint32 i = 0; i < m_count; ++i)
 	{
 		b3ContactVelocityConstraint* vc = m_velocityConstraints + i;
-		u32 manifoldCount = vc->manifoldCount;
+		uint32 manifoldCount = vc->manifoldCount;
 
-		u32 indexA = vc->indexA;
+		uint32 indexA = vc->indexA;
 		scalar mA = vc->invMassA;
 		b3Mat33 iA = vc->invIA;
 
-		u32 indexB = vc->indexB;
+		uint32 indexB = vc->indexB;
 		scalar mB = vc->invMassB;
 		b3Mat33 iB = vc->invIB;
 
@@ -390,17 +390,17 @@ void b3ContactSolver::SolveVelocityConstraints()
 		b3Vec3 vB = m_velocities[indexB].v;
 		b3Vec3 wB = m_velocities[indexB].w;
 
-		for (u32 j = 0; j < manifoldCount; ++j)
+		for (uint32 j = 0; j < manifoldCount; ++j)
 		{
 			b3VelocityConstraintManifold* vcm = vc->manifolds + j;
-			u32 pointCount = vcm->pointCount;
+			uint32 pointCount = vcm->pointCount;
 
 			scalar motorSpeed = vcm->motorSpeed;
 			scalar tangentSpeed1 = vcm->tangentSpeed1;
 			scalar tangentSpeed2 = vcm->tangentSpeed2;
 
 			scalar normalImpulse = scalar(0);
-			for (u32 k = 0; k < pointCount; ++k)
+			for (uint32 k = 0; k < pointCount; ++k)
 			{
 				b3VelocityConstraintPoint* vcp = vcm->points + k;
 				B3_ASSERT(vcp->normalImpulse >= scalar(0));
@@ -488,24 +488,24 @@ void b3ContactSolver::SolveVelocityConstraints()
 
 void b3ContactSolver::StoreImpulses()
 {
-	for (u32 i = 0; i < m_count; ++i)
+	for (uint32 i = 0; i < m_count; ++i)
 	{
 		b3Contact* c = m_contacts[i];
 		b3Manifold* manifolds = c->m_manifolds;
-		u32 manifoldCount = c->m_manifoldCount;
+		uint32 manifoldCount = c->m_manifoldCount;
 
 		b3ContactVelocityConstraint* vc = m_velocityConstraints + i;
 
-		for (u32 j = 0; j < manifoldCount; ++j)
+		for (uint32 j = 0; j < manifoldCount; ++j)
 		{
 			b3Manifold* m = manifolds + j;
-			u32 pointCount = m->pointCount;
+			uint32 pointCount = m->pointCount;
 
 			b3VelocityConstraintManifold* vcm = vc->manifolds + j;
 			m->tangentImpulse = vcm->tangentImpulse;
 			m->motorImpulse = vcm->motorImpulse;
 
-			for (u32 k = 0; k < pointCount; ++k)
+			for (uint32 k = 0; k < pointCount; ++k)
 			{
 				b3ManifoldPoint* cp = m->points + k;
 				b3VelocityConstraintPoint* vcp = vcm->points + k;
@@ -535,15 +535,15 @@ bool b3ContactSolver::SolvePositionConstraints()
 {
 	scalar minSeparation = scalar(0);
 
-	for (u32 i = 0; i < m_count; ++i)
+	for (uint32 i = 0; i < m_count; ++i)
 	{
 		b3ContactPositionConstraint* pc = m_positionConstraints + i;
 
-		u32 indexA = pc->indexA;
+		uint32 indexA = pc->indexA;
 		scalar mA = pc->invMassA;
 		b3Vec3 localCenterA = pc->localCenterA;
 
-		u32 indexB = pc->indexB;
+		uint32 indexB = pc->indexB;
 		scalar mB = pc->invMassB;
 		b3Vec3 localCenterB = pc->localCenterB;
 
@@ -555,15 +555,15 @@ bool b3ContactSolver::SolvePositionConstraints()
 		b3Quat qB = m_positions[indexB].q;
 		b3Mat33 iB = m_invInertias[indexB];
 
-		u32 manifoldCount = pc->manifoldCount;
+		uint32 manifoldCount = pc->manifoldCount;
 
-		for (u32 j = 0; j < manifoldCount; ++j)
+		for (uint32 j = 0; j < manifoldCount; ++j)
 		{
 			b3PositionConstraintManifold* pcm = pc->manifolds + j;
-			u32 pointCount = pcm->pointCount;
+			uint32 pointCount = pcm->pointCount;
 
 			// Solve normal constraints
-			for (u32 k = 0; k < pointCount; ++k)
+			for (uint32 k = 0; k < pointCount; ++k)
 			{
 				b3PositionConstraintPoint* pcp = pcm->points + k;
 

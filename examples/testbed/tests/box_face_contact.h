@@ -50,7 +50,7 @@ public:
 
 		b3CollideHullAndHull(manifold, m_xfA, &m_sA, m_xfB, &m_sB, &cache, m_xfA, m_xfB);
 
-		for (u32 i = 0; i < manifold.pointCount; ++i)
+		for (uint32 i = 0; i < manifold.pointCount; ++i)
 		{
 			b3WorldManifold wm;
 			wm.Initialize(&manifold, m_sA.m_radius, m_xfA, m_sB.m_radius, m_xfB);

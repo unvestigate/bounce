@@ -31,7 +31,7 @@ void b3BuildEdge(b3ClipVertex vOut[2],
 }
 
 void b3BuildPolygon(b3ClipPolygon& pOut,
-	const b3Transform& xf, u32 index, const b3Hull* hull)
+	const b3Transform& xf, uint32 index, const b3Hull* hull)
 {
 	B3_ASSERT(pOut.Count() == 0);
 
@@ -42,8 +42,8 @@ void b3BuildPolygon(b3ClipPolygon& pOut,
 	{
 		const b3HalfEdge* twin = hull->GetEdge(edge->twin);		
 		
-		u32 inEdge = edge->prev;
-		u32 outEdge = twin->twin;
+		uint32 inEdge = edge->prev;
+		uint32 outEdge = twin->twin;
 
 		b3ClipVertex clipVertex;
 		clipVertex.position = b3Mul(xf, hull->GetVertex(edge->origin));
@@ -58,10 +58,10 @@ void b3BuildPolygon(b3ClipPolygon& pOut,
 }
 
 // Sutherland-Hodgman clipping.
-u32 b3ClipEdgeToPlane(b3ClipVertex vOut[2],
+uint32 b3ClipEdgeToPlane(b3ClipVertex vOut[2],
 	const b3ClipVertex vIn[2], const b3ClipPlane& plane)
 {
-	u32 numOut = 0;
+	uint32 numOut = 0;
 
 	scalar distance1 = b3Distance(vIn[0].position, plane.plane);
 	scalar distance2 = b3Distance(vIn[1].position, plane.plane);
@@ -106,7 +106,7 @@ void b3ClipPolygonToPlane(b3ClipPolygon& pOut,
 	b3ClipVertex v1 = pIn.Back();
 	scalar distance1 = b3Distance(v1.position, plane.plane);
 
-	for (u32 i = 0; i < pIn.Count(); ++i)
+	for (uint32 i = 0; i < pIn.Count(); ++i)
 	{
 		b3ClipVertex v2 = pIn[i];
 		scalar distance2 = b3Distance(v2.position, plane.plane);
@@ -150,13 +150,13 @@ void b3ClipPolygonToPlane(b3ClipPolygon& pOut,
 }
 
 // Clip a segment to edge side planes.
-u32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
+uint32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
 	const b3ClipVertex vIn[2], const b3Capsule* hull)
 {
 	// Start from somewhere.
 	vOut[0] = vIn[0];
 	vOut[1] = vIn[1];
-	u32 numOut = 0;
+	uint32 numOut = 0;
 
 	b3Vec3 P1 = hull->vertex1;
 	b3Vec3 Q1 = hull->vertex2;
@@ -199,13 +199,13 @@ u32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
 }
 
 // Clip a segment to face side planes.
-u32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
-	const b3ClipVertex vIn[2], const b3Transform& xf, scalar r, u32 index, const b3Hull* hull)
+uint32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
+	const b3ClipVertex vIn[2], const b3Transform& xf, scalar r, uint32 index, const b3Hull* hull)
 {
 	// Start from somewhere.
 	vOut[0] = vIn[0];
 	vOut[1] = vIn[1];
-	u32 numOut = 0;
+	uint32 numOut = 0;
 
 	const b3Face* face = hull->GetFace(index);
 	const b3HalfEdge* begin = hull->GetEdge(face->edge);
@@ -213,7 +213,7 @@ u32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
 	do
 	{
 		const b3HalfEdge* twin = hull->GetEdge(edge->twin);
-		u32 edgeId = u32(twin->twin);
+		uint32 edgeId = uint32(twin->twin);
 
 		b3Plane plane = hull->GetEdgeSidePlane(edgeId);
 		plane.offset += r;
@@ -242,7 +242,7 @@ u32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
 
 // Clip a polygon to face side planes.
 void b3ClipPolygonToFace(b3ClipPolygon& pOut,
-	const b3ClipPolygon& pIn, const b3Transform& xf, scalar r, u32 index, const b3Hull* hull)
+	const b3ClipPolygon& pIn, const b3Transform& xf, scalar r, uint32 index, const b3Hull* hull)
 {
 	B3_ASSERT(pIn.Count() > 0);
 	B3_ASSERT(pOut.Count() == 0);
@@ -256,7 +256,7 @@ void b3ClipPolygonToFace(b3ClipPolygon& pOut,
 	do
 	{
 		const b3HalfEdge* twin = hull->GetEdge(edge->twin);
-		u32 edgeId = u32(twin->twin);
+		uint32 edgeId = uint32(twin->twin);
 
 		b3Plane plane = hull->GetEdgeSidePlane(edgeId);
 		plane.offset += r;

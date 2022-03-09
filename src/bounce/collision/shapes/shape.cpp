@@ -62,7 +62,7 @@ void b3Shape::Draw(b3Draw* draw, const b3Transform& xf, const b3Color& color) co
 	{
 		const b3HullShape* hs = (b3HullShape*)this;
 		const b3Hull* hull = hs->m_hull;
-		for (u32 i = 0; i < hull->edgeCount; i += 2)
+		for (uint32 i = 0; i < hull->edgeCount; i += 2)
 		{
 			const b3HalfEdge* edge = hull->GetEdge(i);
 			const b3HalfEdge* twin = hull->GetEdge(i + 1);
@@ -78,7 +78,7 @@ void b3Shape::Draw(b3Draw* draw, const b3Transform& xf, const b3Color& color) co
 	{
 		const b3MeshShape* ms = (b3MeshShape*)this;
 		const b3Mesh* mesh = ms->m_mesh;
-		for (u32 i = 0; i < mesh->triangleCount; ++i)
+		for (uint32 i = 0; i < mesh->triangleCount; ++i)
 		{
 			const b3MeshTriangle* t = mesh->triangles + i;
 
@@ -144,7 +144,7 @@ void b3Shape::DrawSolid(b3Draw* draw, const b3Transform& xf, const b3Color& colo
 
 		const b3Hull* hull = hullShape->m_hull;
 
-		for (u32 i = 0; i < hull->faceCount; ++i)
+		for (uint32 i = 0; i < hull->faceCount; ++i)
 		{
 			const b3Face* face = hull->GetFace(i);
 			const b3HalfEdge* begin = hull->GetEdge(face->edge);
@@ -154,10 +154,10 @@ void b3Shape::DrawSolid(b3Draw* draw, const b3Transform& xf, const b3Color& colo
 			const b3HalfEdge* edge = hull->GetEdge(begin->next);
 			do
 			{
-				u32 i1 = begin->origin;
-				u32 i2 = edge->origin;
+				uint32 i1 = begin->origin;
+				uint32 i2 = edge->origin;
 				const b3HalfEdge* next = hull->GetEdge(edge->next);
-				u32 i3 = next->origin;
+				uint32 i3 = next->origin;
 
 				b3Vec3 p1 = xf * hull->vertices[i1];
 				b3Vec3 p2 = xf * hull->vertices[i2];
@@ -176,7 +176,7 @@ void b3Shape::DrawSolid(b3Draw* draw, const b3Transform& xf, const b3Color& colo
 		const b3MeshShape* meshShape = (b3MeshShape*)this;
 
 		const b3Mesh* mesh = meshShape->m_mesh;
-		for (u32 i = 0; i < mesh->triangleCount; ++i)
+		for (uint32 i = 0; i < mesh->triangleCount; ++i)
 		{
 			const b3MeshTriangle* t = mesh->triangles + i;
 

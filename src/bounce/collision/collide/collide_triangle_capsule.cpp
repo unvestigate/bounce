@@ -25,7 +25,7 @@
 #include <bounce/collision/geometry/triangle_hull.h>
 
 static void b3BuildEdgeContact(b3Manifold& manifold,
-	const b3Transform& xf1, const b3TriangleHull* hull1, u32 index1, 
+	const b3Transform& xf1, const b3TriangleHull* hull1, uint32 index1, 
 	const b3Transform& xf2, const b3Capsule* hull2)
 {
 	const b3HalfEdge* edge1 = hull1->GetEdge(index1);
@@ -86,7 +86,7 @@ static void b3BuildEdgeContact(b3Manifold& manifold,
 }
 
 static void b3BuildFaceContact(b3Manifold& manifold,
-	const b3Transform& xf1, const b3TriangleHull* hull1, u32 index1, scalar r1,
+	const b3Transform& xf1, const b3TriangleHull* hull1, uint32 index1, scalar r1,
 	const b3Transform& xf2, const b3Capsule* hull2, scalar r2)
 {
 	b3Capsule worldHull2(xf2 * hull2->vertex1, xf2 * hull2->vertex2, r2);
@@ -95,7 +95,7 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 
 	// Clip edge 2 against the side planes of the reference face.
 	b3ClipVertex clipEdge2[2];
-	u32 clipCount = b3ClipEdgeToFace(clipEdge2, edge2, xf1, r1, index1, hull1);
+	uint32 clipCount = b3ClipEdgeToFace(clipEdge2, edge2, xf1, r1, index1, hull1);
 
 	// Project clipped edge 2 onto the reference face.
 	b3Plane localPlane1 = hull1->GetPlane(index1);
@@ -103,8 +103,8 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 
 	scalar totalRadius = r1 + r2;
 
-	u32 pointCount = 0;
-	for (u32 i = 0; i < clipCount; ++i)
+	uint32 pointCount = 0;
+	for (uint32 i = 0; i < clipCount; ++i)
 	{
 		b3Vec3 c2 = clipEdge2[i].position;
 		scalar s = b3Distance(c2, plane1);
@@ -161,7 +161,7 @@ void b3CollideTriangleAndCapsule(b3Manifold& manifold,
 
 		// Search reference face.
 		b3Vec3 localN1 = b3MulC(xf1.rotation, N1);
-		u32 index1 = hull1.GetSupportFace(localN1);
+		uint32 index1 = hull1.GetSupportFace(localN1);
 		b3Vec3 localFaceN1 = hull1.GetPlane(index1).normal;
 
 		// Paralell vectors |v1xv2| = sin(theta)
@@ -185,18 +185,18 @@ void b3CollideTriangleAndCapsule(b3Manifold& manifold,
 
 			if (featurePair.count1 == 2)
 			{
-				u32 v1 = featurePair.index1[0];
-				u32 v2 = featurePair.index1[1];
+				uint32 v1 = featurePair.index1[0];
+				uint32 v2 = featurePair.index1[1];
 
 				b3Vec3 vertices[3] = { s1->m_vertex1, s1->m_vertex2, s1->m_vertex3 };
 				bool hasWing[3] = { s1->m_hasE1Vertex, s1->m_hasE2Vertex, s1->m_hasE3Vertex };
 				b3Vec3 edgeWings[3] = { s1->m_e1Vertex, s1->m_e2Vertex, s1->m_e3Vertex };
 
 				bool edgeFound = false;
-				u32 edgeIndex;
-				for (u32 i = 0; i < 3; ++i)
+				uint32 edgeIndex;
+				for (uint32 i = 0; i < 3; ++i)
 				{
-					u32 j = i + 1 < 3 ? i + 1 : 0;
+					uint32 j = i + 1 < 3 ? i + 1 : 0;
 
 					if (v1 == i && v2 == j)
 					{
@@ -217,8 +217,8 @@ void b3CollideTriangleAndCapsule(b3Manifold& manifold,
 
 				if (hasWing[edgeIndex] == true)
 				{
-					u32 ev1 = edgeIndex;
-					u32 ev2 = edgeIndex + 1 < 3 ? edgeIndex + 1 : 0;
+					uint32 ev1 = edgeIndex;
+					uint32 ev2 = edgeIndex + 1 < 3 ? edgeIndex + 1 : 0;
 
 					// Put the closest point on the capsule to the frame of the triangle.
 					b3Vec3 Q = b3MulT(xf1, c2);

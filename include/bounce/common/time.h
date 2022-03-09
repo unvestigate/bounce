@@ -82,7 +82,7 @@ public:
     }
 
 private:
-    u64 m_c0;
+    uint64 m_c0;
     double m_t0;
     double m_t;
 };

@@ -35,7 +35,7 @@ public:
 	void Destroy(b3Joint* j);
 
 	b3Joint* m_jointList;
-	u32 m_jointCount;
+	uint32 m_jointCount;
 	b3BlockAllocator* m_allocator;
 };
 

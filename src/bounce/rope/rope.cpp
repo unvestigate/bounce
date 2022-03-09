@@ -116,7 +116,7 @@ b3Rope::b3Rope(const b3RopeDef& def)
 	m_linkCount = def.count;
 	m_links = (b3RopeBody*)b3Alloc(m_linkCount * sizeof(b3RopeBody));
 
-	for (u32 i = 0; i < m_linkCount; ++i)
+	for (uint32 i = 0; i < m_linkCount; ++i)
 	{
 		b3RopeBody* b = m_links + i;
 
@@ -133,7 +133,7 @@ b3Rope::b3Rope(const b3RopeDef& def)
 	m_links->m_v.SetZero();
 	m_links->m_sv.SetZero();
 
-	for (u32 i = 1; i < m_linkCount; ++i)
+	for (uint32 i = 1; i < m_linkCount; ++i)
 	{
 		b3RopeBody* b = m_links + i;
 		b3RopeBody* b0 = b - 1;
@@ -218,7 +218,7 @@ b3Vec3 b3Rope::GetAngularVelocity() const
 	return b3Mul(m_links->m_X.rotation, m_links->m_sv.w);
 }
 
-const b3Transform& b3Rope::GetLinkTransform(u32 index) const
+const b3Transform& b3Rope::GetLinkTransform(uint32 index) const
 {
 	B3_ASSERT(index < m_linkCount);
 	return m_links[index].m_X;
@@ -262,7 +262,7 @@ void b3Rope::Step(scalar h)
 		}
 	}
 
-	for (u32 i = 1; i < m_linkCount; ++i)
+	for (uint32 i = 1; i < m_linkCount; ++i)
 	{
 		b3RopeBody* link = m_links + i;
 		b3RopeBody* parent = link - 1;
@@ -309,7 +309,7 @@ void b3Rope::Step(scalar h)
 	}
 
 	// Propagate up bias forces and inertias.
-	for (u32 j = m_linkCount - 1; j >= 1; --j)
+	for (uint32 j = m_linkCount - 1; j >= 1; --j)
 	{
 		b3RopeBody* link = m_links + j;
 		b3RopeBody* parent = link - 1;
@@ -406,7 +406,7 @@ void b3Rope::Step(scalar h)
 		}
 	}
 
-	for (u32 j = 1; j < m_linkCount; ++j)
+	for (uint32 j = 1; j < m_linkCount; ++j)
 	{
 		b3RopeBody* link = m_links + j;
 		b3RopeBody* parent = link - 1;
@@ -469,7 +469,7 @@ void b3Rope::Step(scalar h)
 	}
 	
 	// Integrate joints
-	for (u32 i = 1; i < m_linkCount; ++i)
+	for (uint32 i = 1; i < m_linkCount; ++i)
 	{
 		b3RopeBody* link = m_links + i;
 
@@ -485,7 +485,7 @@ void b3Rope::Step(scalar h)
 	}
 
 	// Propagate down transforms
-	for (u32 j = 1; j < m_linkCount; ++j)
+	for (uint32 j = 1; j < m_linkCount; ++j)
 	{
 		b3RopeBody* link = m_links + j;
 		b3RopeBody* parent = link - 1;
@@ -509,7 +509,7 @@ void b3Rope::Draw(b3Draw* draw) const
 		draw->DrawSolidSphere(b->m_X.rotation.GetXAxis(), b->m_X.translation, scalar(0.2), b3Color_green);
 	}
 
-	for (u32 i = 1; i < m_linkCount; ++i)
+	for (uint32 i = 1; i < m_linkCount; ++i)
 	{
 		b3RopeBody* b = m_links + i;
 		b3RopeBody* b0 = b - 1;

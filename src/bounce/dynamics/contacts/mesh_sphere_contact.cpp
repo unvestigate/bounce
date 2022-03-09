@@ -40,7 +40,7 @@ b3MeshAndSphereContact::b3MeshAndSphereContact(b3Fixture* fixtureA, b3Fixture* f
 	B3_ASSERT(fixtureB->GetType() == b3Shape::e_sphere);
 }
 
-void b3MeshAndSphereContact::Evaluate(b3Manifold& manifold, const b3Transform& xfA, const b3Transform& xfB, u32 cacheIndex)
+void b3MeshAndSphereContact::Evaluate(b3Manifold& manifold, const b3Transform& xfA, const b3Transform& xfB, uint32 cacheIndex)
 {
 	B3_ASSERT(cacheIndex < m_triangleCount);
 	

@@ -187,7 +187,7 @@ void b3CollideCapsuleAndCapsule(b3Manifold& manifold,
 			b3BuildEdge(edge1, &hull1);
 
 			b3ClipVertex clipEdge1[2];
-			u32 clipCount = b3ClipEdgeToFace(clipEdge1, edge1, &hull2);
+			uint32 clipCount = b3ClipEdgeToFace(clipEdge1, edge1, &hull2);
 
 			if (clipCount == 2)
 			{

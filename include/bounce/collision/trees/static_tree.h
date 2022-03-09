@@ -37,12 +37,12 @@ struct b3StaticNode
 	}
 
 	b3AABB aabb;
-	u32 child1;
+	uint32 child1;
 	
 	union
 	{
-		u32 child2;
-		u32 index;
+		uint32 child2;
+		uint32 index;
 	};
 };
 
@@ -54,13 +54,13 @@ public:
 	~b3StaticTree();
 
 	// Build this tree from a list of AABBs.
-	void Build(const b3AABB* aabbs, u32 count);
+	void Build(const b3AABB* aabbs, uint32 count);
 
 	// Get the AABB of a given proxy.
-	const b3AABB& GetAABB(u32 proxyId) const;
+	const b3AABB& GetAABB(uint32 proxyId) const;
 
 	// Get the user data associated with a given proxy.
-	u32 GetUserData(u32 proxyId) const;
+	uint32 GetUserData(uint32 proxyId) const;
 
 	// Report the client callback all AABBs that are overlapping with
 	// the given AABB. The client callback must return true if the query 
@@ -75,29 +75,29 @@ public:
 	void RayCast(T* callback, const b3RayCastInput& input) const;
 
 	// Get the size in bytes of this tree.
-	u32 GetSize() const;
+	uint32 GetSize() const;
 
 	// Draw this tree.
 	void Draw(b3Draw* draw) const;
 private :
 	// Build this tree recursively.
-	void BuildRecursively(b3StaticNode* node, u32* indices, u32 count, const b3AABB* aabbs, u32 nodeCapacity, u32& leafCount, u32& internalCount);
+	void BuildRecursively(b3StaticNode* node, uint32* indices, uint32 count, const b3AABB* aabbs, uint32 nodeCapacity, uint32& leafCount, uint32& internalCount);
 	
 	// The root of this tree.
-	u32 m_root;
+	uint32 m_root;
 
 	// The nodes of this tree stored in an array.
-	u32 m_nodeCount;
+	uint32 m_nodeCount;
 	b3StaticNode* m_nodes;
 };
 
-inline const b3AABB& b3StaticTree::GetAABB(u32 proxyId) const
+inline const b3AABB& b3StaticTree::GetAABB(uint32 proxyId) const
 {
 	B3_ASSERT(proxyId < m_nodeCount);
 	return m_nodes[proxyId].aabb;
 }
 
-inline u32 b3StaticTree::GetUserData(u32 proxyId) const
+inline uint32 b3StaticTree::GetUserData(uint32 proxyId) const
 {
 	B3_ASSERT(proxyId < m_nodeCount);
 	B3_ASSERT(m_nodes[proxyId].IsLeaf());
@@ -112,12 +112,12 @@ inline void b3StaticTree::QueryAABB(T* callback, const b3AABB& aabb) const
 		return;
 	}
 
-	b3Stack<u32, 256> stack;
+	b3Stack<uint32, 256> stack;
 	stack.Push(m_root);
 
 	while (stack.IsEmpty() == false) 
 	{
-		u32 nodeIndex = stack.Top();
+		uint32 nodeIndex = stack.Top();
 
 		if (nodeIndex == B3_NULL_STATIC_NODE)
 		{
@@ -175,12 +175,12 @@ inline void b3StaticTree::RayCast(T* callback, const b3RayCastInput& input) cons
 	b3Vec3 e2 = b3Vec3_y;
 	b3Vec3 e3 = b3Vec3_z;
 
-	b3Stack<u32, 256> stack;
+	b3Stack<uint32, 256> stack;
 	stack.Push(m_root);
 	
 	while (stack.IsEmpty() == false)
 	{
-		u32 nodeIndex = stack.Top();
+		uint32 nodeIndex = stack.Top();
 
 		stack.Pop();
 
@@ -292,9 +292,9 @@ inline void b3StaticTree::RayCast(T* callback, const b3RayCastInput& input) cons
 	}
 }
 
-inline u32 b3StaticTree::GetSize() const
+inline uint32 b3StaticTree::GetSize() const
 {
-	u32 size = 0;
+	uint32 size = 0;
 	size += sizeof(b3StaticTree);
 	size += m_nodeCount * sizeof(b3StaticNode);
 	return size;

@@ -51,13 +51,13 @@ public:
 		translation.y = 1.5f * boxSize.y;
 		translation.z = -0.5f * scalar(e_count) * boxSize.z;
 
-		u32 count = e_count;
-		for (u32 i = 0; i < e_count; ++i)
+		uint32 count = e_count;
+		for (uint32 i = 0; i < e_count; ++i)
 		{
-			u32 j0 = 0, k0 = 0;
-			for (u32 j = j0; j < count; ++j)
+			uint32 j0 = 0, k0 = 0;
+			for (uint32 j = j0; j < count; ++j)
 			{
-				for (u32 k = k0; k < count; ++k)
+				for (uint32 k = k0; k < count; ++k)
 				{
 					b3BodyDef bd;
 					bd.type = b3BodyType::e_dynamicBody;

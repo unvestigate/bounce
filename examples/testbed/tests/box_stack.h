@@ -71,11 +71,11 @@ public:
 
 		translation.y += 9.0f;
 
-		for (u32 i = 0; i < e_h; ++i)
+		for (uint32 i = 0; i < e_h; ++i)
 		{
-			for (u32 j = 0; j < e_w; ++j)
+			for (uint32 j = 0; j < e_w; ++j)
 			{
-				for (u32 k = 0; k < e_d; ++k)
+				for (uint32 k = 0; k < e_d; ++k)
 				{
 					b3BodyDef bd;
 					bd.type = e_dynamicBody;
@@ -100,7 +100,7 @@ public:
 
 					body->CreateFixture(fd);
 
-					u32 bodyIndex = GetBodyIndex(i, j, k);
+					uint32 bodyIndex = GetBodyIndex(i, j, k);
 
 					m_bodies[bodyIndex] = body;
 				}
@@ -108,7 +108,7 @@ public:
 		}
 	}
 
-	u32 GetBodyIndex(u32 i, u32 j, u32 k)
+	uint32 GetBodyIndex(uint32 i, uint32 j, uint32 k)
 	{
 		B3_ASSERT(i < e_h);
 		B3_ASSERT(j < e_w);

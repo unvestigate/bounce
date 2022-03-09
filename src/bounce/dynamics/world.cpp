@@ -33,9 +33,9 @@
 #include <bounce/common/draw.h>
 #include <bounce/common/profiler.h>
 
-extern u32 b3_allocCalls, b3_maxAllocCalls;
-extern u32 b3_convexCalls, b3_convexCacheHits;
-extern u32 b3_gjkCalls, b3_gjkIters, b3_gjkMaxIters;
+extern uint32 b3_allocCalls, b3_maxAllocCalls;
+extern uint32 b3_convexCalls, b3_convexCacheHits;
+extern uint32 b3_gjkCalls, b3_gjkIters, b3_gjkMaxIters;
 extern bool b3_convexCache;
 
 b3World::b3World()
@@ -184,7 +184,7 @@ void b3World::DestroyJoint(b3Joint* j)
 	m_jointManager.Destroy(j);
 }
 
-void b3World::Step(scalar dt, u32 velocityIterations, u32 positionIterations)
+void b3World::Step(scalar dt, uint32 velocityIterations, uint32 positionIterations)
 {
 	B3_PROFILE(m_profiler, "Step");
 
@@ -279,7 +279,7 @@ void b3World::Solve(const b3TimeStep& step)
 	}
 
 	// Build and simulate awake islands.
-	u32 stackSize = m_bodyCount;
+	uint32 stackSize = m_bodyCount;
 	b3Body** stack = (b3Body * *)m_stackAllocator.Allocate(stackSize * sizeof(b3Body*));
 	for (b3Body* seed = m_bodyList; seed; seed = seed->m_next)
 	{
@@ -303,7 +303,7 @@ void b3World::Solve(const b3TimeStep& step)
 
 		// Perform a depth first search on this body constraint graph.
 		island.Clear();
-		u32 stackCount = 0;
+		uint32 stackCount = 0;
 		stack[stackCount++] = seed;
 		seed->m_flags |= b3Body::e_islandFlag;
 
@@ -411,7 +411,7 @@ void b3World::Solve(const b3TimeStep& step)
 		island.Solve(step, m_gravity, m_sleeping);
 
 		// Allow static bodies to participate in other islands.
-		for (u32 i = 0; i < island.m_bodyCount; ++i)
+		for (uint32 i = 0; i < island.m_bodyCount; ++i)
 		{
 			b3Body* b = island.m_bodies[i];
 			if (b->m_type == e_staticBody)
@@ -453,7 +453,7 @@ void b3World::Solve(const b3TimeStep& step)
 
 struct b3WorldRayCastWrapper
 {
-	scalar Report(const b3RayCastInput& input, u32 proxyId)
+	scalar Report(const b3RayCastInput& input, uint32 proxyId)
 	{
 		// Get shape associated with the proxy.
 		void* userData = broadPhase->GetUserData(proxyId);
@@ -501,7 +501,7 @@ void b3World::RayCast(b3RayCastListener* listener, b3RayCastFilter* filter, cons
 
 struct b3WorldRayCastSingleWrapper
 {
-	scalar Report(const b3RayCastInput& input, u32 proxyId)
+	scalar Report(const b3RayCastInput& input, uint32 proxyId)
 	{
 		// Get shape associated with the proxy.
 		void* userData = broadPhase->GetUserData(proxyId);
@@ -571,9 +571,9 @@ struct b3WorldShapeCastQueryWrapper
 {
 	struct MeshQueryWrapper
 	{
-		bool Report(u32 proxyId)
+		bool Report(uint32 proxyId)
 		{
-			u32 triangleIndex = wrapper->meshB->m_mesh->tree.GetUserData(proxyId);
+			uint32 triangleIndex = wrapper->meshB->m_mesh->tree.GetUserData(proxyId);
 
 			b3Body* bodyB = wrapper->fixtureB->GetBody();
 			b3Transform xfB = bodyB->GetTransform();
@@ -623,7 +623,7 @@ struct b3WorldShapeCastQueryWrapper
 		b3WorldShapeCastQueryWrapper* wrapper;
 	};
 
-	bool Report(u32 proxyId)
+	bool Report(uint32 proxyId)
 	{
 		void* userData = broadPhase->GetUserData(proxyId);
 		fixtureB = (b3Fixture*)userData;
@@ -773,7 +773,7 @@ struct b3WorldShapeCastQueryWrapper
 	b3MeshShape* meshB;
 
 	b3Fixture* fixture0;
-	u32 childIndex0;
+	uint32 childIndex0;
 	scalar fraction0;
 };
 
@@ -918,7 +918,7 @@ bool b3World::ShapeCastSingle(b3ShapeCastSingleOutput* output, b3ShapeCastFilter
 
 struct b3WorldQueryWrapper
 {
-	bool Report(u32 proxyID)
+	bool Report(uint32 proxyID)
 	{
 		b3Fixture* fixture = (b3Fixture*)broadPhase->GetUserData(proxyID);
 		if (filter->ShouldReport(fixture))
@@ -949,7 +949,7 @@ void b3World::DebugDraw() const
 		return;
 	}
 
-	u32 flags = m_debugDraw->GetFlags();
+	uint32 flags = m_debugDraw->GetFlags();
 
 	if (flags & b3Draw::e_centerOfMassesFlag)
 	{
@@ -1014,10 +1014,10 @@ void b3World::DebugDraw() const
 
 	for (b3Contact* c = m_contactManager.m_contactList; c; c = c->m_next)
 	{
-		u32 manifoldCount = c->m_manifoldCount;
+		uint32 manifoldCount = c->m_manifoldCount;
 		const b3Manifold* manifolds = c->m_manifolds;
 
-		for (u32 i = 0; i < manifoldCount; ++i)
+		for (uint32 i = 0; i < manifoldCount; ++i)
 		{
 			const b3Manifold* m = manifolds + i;
 			b3WorldManifold wm;
@@ -1027,7 +1027,7 @@ void b3World::DebugDraw() const
 			b3Vec3 t2 = wm.tangent2;
 
 			b3Vec3 points[B3_MAX_MANIFOLD_POINTS];
-			for (u32 j = 0; j < m->pointCount; ++j)
+			for (uint32 j = 0; j < m->pointCount; ++j)
 			{
 				const b3ManifoldPoint* mp = m->points + j;
 				const b3WorldManifoldPoint* wmp = wm.points + j;

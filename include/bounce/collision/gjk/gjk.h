@@ -32,14 +32,14 @@ struct b3SimplexVertex
 	b3Vec3 point2; // support vertex on proxy 2
 	b3Vec3 point; // minkowski vertex
 	scalar weight; // barycentric coordinate for point
-	u32 index1; // support 1 vertex index
-	u32 index2; // support 2 vertex index
+	uint32 index1; // support 1 vertex index
+	uint32 index2; // support 2 vertex index
 };
 
 struct b3Simplex
 {
 	b3SimplexVertex m_vertices[4];
-	u32 m_count;
+	uint32 m_count;
 
 	b3Vec3 GetSearchDirection(const b3Vec3& Q) const;
 	b3Vec3 GetClosestPoint() const;
@@ -68,7 +68,7 @@ struct b3GJKOutput
 	b3Vec3 point1; // closest point on proxy 1
 	b3Vec3 point2; // closest point on proxy 2
 	scalar distance; // euclidean distance between the closest points
-	u32 iterations; // number of GJK iterations
+	uint32 iterations; // number of GJK iterations
 };
 
 // Find the closest points and distance between two proxies.
@@ -85,20 +85,20 @@ b3GJKOutput b3GJK(const b3Transform& xf1, const b3GJKProxy& proxy1,
 struct b3SimplexCache
 {
 	scalar metric; // lenght or area or volume
-	u32 iterations; // number of GJK iterations
-	u16 count; // number of support vertices
-	u8 index1[4]; // support vertices on proxy 1
-	u8 index2[4]; // support vertices on proxy 2
+	uint32 iterations; // number of GJK iterations
+	uint16 count; // number of support vertices
+	uint8 index1[4]; // support vertices on proxy 1
+	uint8 index2[4]; // support vertices on proxy 2
 };
 
 // A feature pair contains the vertices of the features associated 
 // with the closest points.
 struct b3GJKFeaturePair
 {
-	u32 index1[3]; // vertices on proxy 1
-	u32 count1; // number of vertices on proxy 1
-	u32 index2[3]; // vertices on proxy 2
-	u32 count2; // number of vertices on proxy 2
+	uint32 index1[3]; // vertices on proxy 1
+	uint32 count1; // number of vertices on proxy 1
+	uint32 index2[3]; // vertices on proxy 2
+	uint32 count2; // number of vertices on proxy 2
 };
 
 // Identify the vertices of the features that the closest points between two 

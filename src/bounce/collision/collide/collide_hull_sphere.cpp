@@ -34,10 +34,10 @@ void b3CollideHullAndSphere(b3Manifold& manifold,
 	b3Vec3 cLocal = b3MulT(xf1, b3Mul(xf2, s2->m_center));
 
 	// Find the minimum separation face.	
-	u32 faceIndex = 0;
+	uint32 faceIndex = 0;
 	scalar separation = -B3_MAX_SCALAR;
 
-	for (u32 i = 0; i < hull1->faceCount; ++i)
+	for (uint32 i = 0; i < hull1->faceCount; ++i)
 	{
 		b3Plane plane = hull1->GetPlane(i);
 		scalar s = b3Distance(cLocal, plane);

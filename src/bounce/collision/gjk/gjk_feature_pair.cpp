@@ -22,9 +22,9 @@ b3GJKFeaturePair b3GetFeaturePair(const b3SimplexCache& cache)
 {
 	B3_ASSERT(0 < cache.count && cache.count < 4);
 
-	u32 vertexCount = cache.count;
-	u32 uniqueCount1 = b3UniqueCount(cache.index1, vertexCount);
-	u32 uniqueCount2 = b3UniqueCount(cache.index2, vertexCount);
+	uint32 vertexCount = cache.count;
+	uint32 uniqueCount1 = b3UniqueCount(cache.index1, vertexCount);
+	uint32 uniqueCount2 = b3UniqueCount(cache.index2, vertexCount);
 
 	if (vertexCount == 1)
 	{

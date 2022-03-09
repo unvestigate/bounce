@@ -84,8 +84,8 @@ private:
 	b3Vec3 m_localAnchorB;
 
 	// Solver temp
-	u32 m_indexA;
-	u32 m_indexB;
+	uint32 m_indexA;
+	uint32 m_indexB;
 	scalar m_mA;
 	scalar m_mB;
 	b3Mat33 m_iA;

@@ -26,7 +26,7 @@ void b3Manifold::Initialize()
 	motorSpeed = scalar(0);
 	tangentSpeed1 = scalar(0);
 	tangentSpeed2 = scalar(0);
-	for (u32 i = 0; i < B3_MAX_MANIFOLD_POINTS; ++i)
+	for (uint32 i = 0; i < B3_MAX_MANIFOLD_POINTS; ++i)
 	{
 		b3ManifoldPoint* p = points + i;
 		p->normalImpulse = scalar(0);
@@ -39,11 +39,11 @@ void b3Manifold::Initialize(const b3Manifold& oldManifold)
 	tangentImpulse = oldManifold.tangentImpulse;
 	motorImpulse = oldManifold.motorImpulse;
 
-	for (u32 i = 0; i < pointCount; ++i)
+	for (uint32 i = 0; i < pointCount; ++i)
 	{
 		b3ManifoldPoint* p1 = points + i;
 		
-		for (u32 j = 0; j < oldManifold.pointCount; ++j)
+		for (uint32 j = 0; j < oldManifold.pointCount; ++j)
 		{
 			const b3ManifoldPoint* p2 = oldManifold.points + j;
 			
@@ -76,7 +76,7 @@ void b3WorldManifold::Initialize(const b3Manifold* m, scalar rA, const b3Transfo
 	center.SetZero();
 	normal.SetZero();
 	pointCount = m->pointCount;
-	for (u32 i = 0; i < pointCount; ++i)
+	for (uint32 i = 0; i < pointCount; ++i)
 	{
 		const b3ManifoldPoint* p = m->points + i;
 		b3WorldManifoldPoint* wp = points + i;

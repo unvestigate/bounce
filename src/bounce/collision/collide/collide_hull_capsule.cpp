@@ -25,7 +25,7 @@
 #include <bounce/collision/geometry/capsule.h>
 
 static void b3BuildEdgeContact(b3Manifold& manifold,
-	const b3Transform& xf1, const b3Hull* hull1, u32 index1,
+	const b3Transform& xf1, const b3Hull* hull1, uint32 index1,
 	const b3Transform& xf2, const b3Capsule* hull2)
 {
 	const b3HalfEdge* edge1 = hull1->GetEdge(index1);
@@ -86,7 +86,7 @@ static void b3BuildEdgeContact(b3Manifold& manifold,
 }
 
 static void b3BuildFaceContact(b3Manifold& manifold,
-	const b3Transform& xf1, const b3Hull* hull1, u32 index1, scalar r1,
+	const b3Transform& xf1, const b3Hull* hull1, uint32 index1, scalar r1,
 	const b3Transform& xf2, const b3Capsule* hull2, scalar r2)
 {
 	b3Capsule worldHull2(xf2 * hull2->vertex1, xf2 * hull2->vertex2, r2);
@@ -95,7 +95,7 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 
 	// Clip the capsule segment against the side planes of the reference face.
 	b3ClipVertex clipEdge2[2];
-	u32 clipCount = b3ClipEdgeToFace(clipEdge2, edge2, xf1, r1, index1, hull1);
+	uint32 clipCount = b3ClipEdgeToFace(clipEdge2, edge2, xf1, r1, index1, hull1);
 
 	// Project clipped segment on the reference face.
 	b3Plane localPlane1 = hull1->GetPlane(index1);
@@ -103,8 +103,8 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 
 	scalar totalRadius = r1 + r2;
 
-	u32 pointCount = 0;
-	for (u32 i = 0; i < clipCount; ++i)
+	uint32 pointCount = 0;
+	for (uint32 i = 0; i < clipCount; ++i)
 	{
 		b3Vec3 c2 = clipEdge2[i].position;
 		scalar s = b3Distance(c2, plane1);
@@ -157,7 +157,7 @@ void b3CollideHullAndCapsule(b3Manifold& manifold,
 
 		// Search reference face.
 		b3Vec3 localN1 = b3MulC(xf1.rotation, N1);
-		u32 index1 = hull1->GetSupportFace(localN1);
+		uint32 index1 = hull1->GetSupportFace(localN1);
 		b3Vec3 localFaceN1 = hull1->GetPlane(index1).normal;
 
 		// Paralell vectors |v1xv2| = sin(theta)

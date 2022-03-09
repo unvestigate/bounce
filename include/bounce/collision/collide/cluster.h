@@ -27,7 +27,7 @@
 struct b3ClusterPolygonVertex
 {
 	b3Vec3 position; // point on the cluster plane
-	u32 clipIndex; // where did this vertex came from 
+	uint32 clipIndex; // where did this vertex came from 
 };
 
 // Used for contact cluster reduction.
@@ -40,7 +40,7 @@ void b3SortPolygon(b3ClusterPolygon& pOut,
 // Reduce a set of contact points to a quad (approximate convex polygon).
 // All points must lie in a common plane and an initial point must be given.
 void b3ReducePolygon(b3ClusterPolygon& pOut, 
-	const b3ClusterPolygon& pIn, const b3Vec3& pNormal, u32 initialPoint);
+	const b3ClusterPolygon& pIn, const b3Vec3& pNormal, uint32 initialPoint);
 
 #define B3_NULL_CLUSTER (0xFFFFFFFF)
 
@@ -48,9 +48,9 @@ void b3ReducePolygon(b3ClusterPolygon& pOut,
 struct b3Observation
 {
 	b3Vec3 point; 
-	u32 cluster; 
-	u32 manifold;
-	u32 manifoldPoint;
+	uint32 cluster; 
+	uint32 manifold;
+	uint32 manifoldPoint;
 };
 
 // A group of contact normals pointing to a similar direction.
@@ -71,7 +71,7 @@ public:
 	void AddObservation(const b3Observation& observation);
 
 	// Number of k-means iterations.
-	u32 GetIterations() const;
+	uint32 GetIterations() const;
 
 	// Return the observations.
 	const b3Array<b3Observation>& GetObservations() const;
@@ -80,8 +80,8 @@ public:
 	const b3Array<b3Cluster>& GetClusters() const;
 
 	// Perform clustering on a set of manifolds.
-	void Run(b3Manifold mOut[3], u32& numOut,
-	const b3Manifold* mIn, u32 numIn,
+	void Run(b3Manifold mOut[3], uint32& numOut,
+	const b3Manifold* mIn, uint32 numIn,
 		const b3Transform& xfA, scalar radiusA, const b3Transform& xfB, scalar radiusB);
 
 	// Run the cluster algorithm.
@@ -94,10 +94,10 @@ private:
 	void AddCluster(const b3Vec3& centroid);
 
 	// Find the cluster closest to the given point.
-	u32 FindCluster(const b3Vec3& point) const;
+	uint32 FindCluster(const b3Vec3& point) const;
 
 	// Number of k-means iterations.
-	u32 m_iterations;
+	uint32 m_iterations;
 
 	// Observations.
 	b3StackArray<b3Observation, 256> m_observations;
@@ -111,7 +111,7 @@ inline void b3ClusterSolver::AddObservation(const b3Observation& observation)
 	m_observations.PushBack(observation);
 }
 
-inline u32 b3ClusterSolver::GetIterations() const
+inline uint32 b3ClusterSolver::GetIterations() const
 {
 	return m_iterations;
 }

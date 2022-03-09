@@ -52,7 +52,7 @@ public:
 
 		b3TOIOutput::State state = out.state;
 		scalar t = out.t;
-		u32 iterations = out.iterations;
+		uint32 iterations = out.iterations;
 
 		if (state == b3TOIOutput::e_touching)
 		{

@@ -273,7 +273,7 @@ public:
 		return new Tumbler();
 	}
 
-	u32 m_count;
+	uint32 m_count;
 	b3ConeHull m_coneHull;
 	b3CylinderHull m_cylinderHull;
 };

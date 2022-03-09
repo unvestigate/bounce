@@ -42,7 +42,7 @@ struct b3RopeDef
 	}
 
 	// Number of point masses.
-	u32 count;
+	uint32 count;
 
 	// Position of each point mass.
 	b3Vec3* vertices;
@@ -97,10 +97,10 @@ public:
 	b3Vec3 GetAngularVelocity() const;
 
 	// Get the number of links.
-	u32 GetLinkCount() const;
+	uint32 GetLinkCount() const;
 
 	// Get the link transform given the link index.
-	const b3Transform& GetLinkTransform(u32 index) const;
+	const b3Transform& GetLinkTransform(uint32 index) const;
 
 	// Perform a time-step.
 	void Step(scalar dt);
@@ -118,7 +118,7 @@ private:
 	scalar m_angularDamping;
 
 	// Links. There is no separate base link.
-	u32 m_linkCount;
+	uint32 m_linkCount;
 	b3RopeBody* m_links;	
 };
 
@@ -132,7 +132,7 @@ inline const b3Vec3& b3Rope::GetGravity() const
 	return m_gravity;
 }
 
-inline u32 b3Rope::GetLinkCount() const
+inline uint32 b3Rope::GetLinkCount() const
 {
 	return m_linkCount;
 }

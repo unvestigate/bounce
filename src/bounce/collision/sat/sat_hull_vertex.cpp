@@ -32,10 +32,10 @@ b3FaceQuery b3QueryFaceSeparation(const b3Transform& xf1, const b3Hull* hull1,
 	// Perform computations in the local space of the first hull.
 	b3Vec3 support = b3MulT(xf1, b3Mul(xf2, hull2->vertex));
 
-	u32 maxIndex = 0;
+	uint32 maxIndex = 0;
 	scalar maxSeparation = -B3_MAX_SCALAR;
 
-	for (u32 i = 0; i < hull1->faceCount; ++i)
+	for (uint32 i = 0; i < hull1->faceCount; ++i)
 	{
 		b3Plane plane = hull1->GetPlane(i);
 		scalar separation = b3Distance(support, plane);

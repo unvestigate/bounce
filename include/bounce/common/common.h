@@ -125,9 +125,9 @@
 // The current version this software.
 struct b3Version
 {
-	u32 major; //significant changes 
-	u32 minor; //minor features
-	u32 revision; //patches
+	uint32 major; //significant changes 
+	uint32 minor; //minor features
+	uint32 revision; //patches
 };
 
 // The current version of Bounce.

@@ -138,7 +138,7 @@ public:
 	b3ContactEdge* GetContactList();
 
 	// Dump this shape to the log file.
-	void Dump(u32 bodyIndex) const;
+	void Dump(uint32 bodyIndex) const;
 
 	// Draw this shape geometry.
 	void Draw(b3Draw* draw, const b3Color& color);
@@ -174,7 +174,7 @@ protected:
 	scalar m_restitution;
 	scalar m_friction;
 
-	u32 m_proxyId;
+	uint32 m_proxyId;
 
 	bool m_isSensor;
 	void* m_userData;

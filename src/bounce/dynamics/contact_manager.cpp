@@ -207,8 +207,8 @@ void b3ContactManager::UpdateContacts()
 			continue;
 		}
 
-		u32 proxyB = fixtureB->m_proxyId;
-		u32 proxyA = fixtureA->m_proxyId;
+		uint32 proxyB = fixtureB->m_proxyId;
+		uint32 proxyA = fixtureA->m_proxyId;
 		bool overlap = m_broadPhase.TestOverlap(proxyA, proxyB);
 		
 		// Here we destroy contacts that cease to overlap in the broad-phase.

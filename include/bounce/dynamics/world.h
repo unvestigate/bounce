@@ -124,7 +124,7 @@ public:
 	// Simulate a physics step.
 	// The function parameters are the ammount of time to simulate, 
 	// and the number of constraint solver iterations.
-	void Step(scalar dt, u32 velocityIterations, u32 positionIterations);
+	void Step(scalar dt, uint32 velocityIterations, uint32 positionIterations);
 	
 	// Manually clear the force buffer on all bodies. By default, forces are cleared automatically
 	// after each call to Step. The default behavior is modified by calling SetAutoClearForces.
@@ -176,21 +176,21 @@ public:
 	b3Body* GetBodyList();
 
 	// Get the number of bodies in this world.
-	u32 GetBodyCount() const;
+	uint32 GetBodyCount() const;
 
 	// Get the list of joints in this world.
 	const b3Joint* GetJointList() const;
 	b3Joint* GetJointList();
 
 	// Get the number of joints in this world.
-	u32 GetJointCount() const;
+	uint32 GetJointCount() const;
 
 	// Get the list of contacts in this world.
 	const b3Contact* GetContactList() const;
 	b3Contact* GetContactList();
 	
 	// Get the number of contacts in this world.
-	u32 GetContactCount() const;
+	uint32 GetContactCount() const;
 
 	// Draw the physics entities in this world.
 	void DebugDraw() const;
@@ -211,7 +211,7 @@ private:
 	b3JointManager m_jointManager;
 
 	b3Body* m_bodyList;
-	u32 m_bodyCount;
+	uint32 m_bodyCount;
 
 	b3Vec3 m_gravity;
 	bool m_sleeping;
@@ -282,7 +282,7 @@ inline b3Body* b3World::GetBodyList()
 	return m_bodyList;
 }
 
-inline u32 b3World::GetBodyCount() const
+inline uint32 b3World::GetBodyCount() const
 {
 	return m_bodyCount;
 }
@@ -297,7 +297,7 @@ inline b3Joint* b3World::GetJointList()
 	return m_jointManager.m_jointList;
 }
 
-inline u32 b3World::GetJointCount() const
+inline uint32 b3World::GetJointCount() const
 {
 	return m_jointManager.m_jointCount;
 }
@@ -312,7 +312,7 @@ inline b3Contact* b3World::GetContactList()
 	return m_contactManager.m_contactList;
 }
 
-inline u32 b3World::GetContactCount() const
+inline uint32 b3World::GetContactCount() const
 {
 	return m_contactManager.m_contactCount;
 }

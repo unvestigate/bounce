@@ -185,13 +185,13 @@ void b3MeshContact::FindPairs()
 	treeA->QueryAABB(this, m_aabbB);
 }
 
-bool b3MeshContact::Report(u32 proxyId)
+bool b3MeshContact::Report(uint32 proxyId)
 {
 	b3MeshShape* meshShapeA = (b3MeshShape*)m_fixtureA->GetShape();
 	const b3Mesh* meshA = meshShapeA->m_mesh;
 	const b3StaticTree* treeA = &meshA->tree;
 
-	u32 triangleIndex = treeA->GetUserData(proxyId);
+	uint32 triangleIndex = treeA->GetUserData(proxyId);
 
 	// Add the triangle to the overlapping buffer.
 	if (m_triangleCount == m_triangleCapacity)
@@ -227,10 +227,10 @@ bool b3MeshContact::TestOverlap()
 	b3Transform xfB = bodyB->GetTransform();
 
 	// Test if at least one triangle of the shape B overlaps the shape A.
-	for (u32 i = 0; i < m_triangleCount; ++i)
+	for (uint32 i = 0; i < m_triangleCount; ++i)
 	{
 		b3TriangleCache* cache = m_triangles + i;
-		u32 indexA = cache->index;
+		uint32 indexA = cache->index;
 		bool overlap = b3TestOverlap(xfA, indexA, shapeA, xfB, 0, shapeB, &cache->cache);
 		if (overlap == true)
 		{
@@ -255,16 +255,16 @@ void b3MeshContact::Collide()
 
 	// Create one temporary manifold per overlapping triangle.
 	b3Manifold* manifolds = (b3Manifold*)allocator->Allocate(m_triangleCount * sizeof(b3Manifold));
-	u32 manifoldCount = 0;
+	uint32 manifoldCount = 0;
 
-	for (u32 i = 0; i < m_triangleCount; ++i)
+	for (uint32 i = 0; i < m_triangleCount; ++i)
 	{
 		b3Manifold* manifold = manifolds + manifoldCount;
 		manifold->Initialize();
 
 		Evaluate(*manifold, xfA, xfB, i);
 
-		for (u32 j = 0; j < manifold->pointCount; ++j)
+		for (uint32 j = 0; j < manifold->pointCount; ++j)
 		{
 			manifold->points[j].key.triangleKey = m_triangles[i].index;
 		}

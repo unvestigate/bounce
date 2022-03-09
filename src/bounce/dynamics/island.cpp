@@ -25,7 +25,7 @@
 #include <bounce/common/memory/stack_allocator.h>
 #include <bounce/common/profiler.h>
 
-b3Island::b3Island(u32 bodyCapacity, u32 contactCapacity, u32 jointCapacity, b3StackAllocator* allocator, b3ContactListener* listener, b3Profiler* profiler)
+b3Island::b3Island(uint32 bodyCapacity, uint32 contactCapacity, uint32 jointCapacity, b3StackAllocator* allocator, b3ContactListener* listener, b3Profiler* profiler)
 {
 	m_allocator = allocator;
 	m_listener = listener;
@@ -85,7 +85,7 @@ void b3Island::Solve(const b3TimeStep& step, const b3Vec3& gravity, bool allowSl
 	scalar h = step.dt;
 
 	// 1. Integrate velocities
-	for (u32 i = 0; i < m_bodyCount; ++i) 
+	for (uint32 i = 0; i < m_bodyCount; ++i) 
 	{
 		b3Body* b = m_bodies[i];
 
@@ -178,7 +178,7 @@ void b3Island::Solve(const b3TimeStep& step, const b3Vec3& gravity, bool allowSl
 	{
 		B3_PROFILE(m_profiler, "Solve Velocity Constraints");
 
-		for (u32 i = 0; i < step.velocityIterations; ++i)
+		for (uint32 i = 0; i < step.velocityIterations; ++i)
 		{
 			jointSolver.SolveVelocityConstraints();
 			contactSolver.SolveVelocityConstraints();
@@ -191,7 +191,7 @@ void b3Island::Solve(const b3TimeStep& step, const b3Vec3& gravity, bool allowSl
 	}
 
 	// 4. Integrate positions
-	for (u32 i = 0; i < m_bodyCount; ++i) 
+	for (uint32 i = 0; i < m_bodyCount; ++i) 
 	{
 		b3Body* b = m_bodies[i];
 		
@@ -237,7 +237,7 @@ void b3Island::Solve(const b3TimeStep& step, const b3Vec3& gravity, bool allowSl
 	{
 		B3_PROFILE(m_profiler, "Solve Position Constraints");
 		
-		for (u32 i = 0; i < step.positionIterations; ++i) 
+		for (uint32 i = 0; i < step.positionIterations; ++i) 
 		{
 			bool contactsSolved = contactSolver.SolvePositionConstraints();
 			bool jointsSolved = jointSolver.SolvePositionConstraints();
@@ -251,7 +251,7 @@ void b3Island::Solve(const b3TimeStep& step, const b3Vec3& gravity, bool allowSl
 	}
 
 	// 6. Copy state buffers back to the bodies
-	for (u32 i = 0; i < m_bodyCount; ++i) 
+	for (uint32 i = 0; i < m_bodyCount; ++i) 
 	{
 		b3Body* b = m_bodies[i];
 		b->m_sweep.worldCenter = m_positions[i].x;
@@ -271,7 +271,7 @@ void b3Island::Solve(const b3TimeStep& step, const b3Vec3& gravity, bool allowSl
 	{
 		scalar minSleepTime = B3_MAX_SCALAR;
 
-		for (u32 i = 0; i < m_bodyCount; ++i) 
+		for (uint32 i = 0; i < m_bodyCount; ++i) 
 		{
 			b3Body* b = m_bodies[i];
 			if (b->m_type == e_staticBody) 
@@ -301,7 +301,7 @@ void b3Island::Solve(const b3TimeStep& step, const b3Vec3& gravity, bool allowSl
 		// is below the threshold. 
 		if (minSleepTime >= B3_TIME_TO_SLEEP && positionsSolved) 
 		{
-			for (u32 i = 0; i < m_bodyCount; ++i) 
+			for (uint32 i = 0; i < m_bodyCount; ++i) 
 			{
 				m_bodies[i]->SetAwake(false);
 			}
@@ -316,7 +316,7 @@ void b3Island::Report()
 		return;
 	}
 
-	for (u32 i = 0; i < m_contactCount; ++i)
+	for (uint32 i = 0; i < m_contactCount; ++i)
 	{
 		m_listener->PostSolve(m_contacts[i]);
 	}

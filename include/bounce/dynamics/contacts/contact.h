@@ -66,17 +66,17 @@ public:
 	b3Fixture* GetFixtureB();
 
 	// Get the manifold capacity from this contact.
-	u32 GetManifoldCapacity() const;
+	uint32 GetManifoldCapacity() const;
 	
 	// Get a contact manifold from this contact.
-	const b3Manifold* GetManifold(u32 index) const;
-	b3Manifold* GetManifold(u32 index);
+	const b3Manifold* GetManifold(uint32 index) const;
+	b3Manifold* GetManifold(uint32 index);
 
 	// Get the number of manifolds from this contact.
-	u32 GetManifoldCount() const;
+	uint32 GetManifoldCount() const;
 
 	// Get a world contact manifold from this contact.
-	void GetWorldManifold(b3WorldManifold* out, u32 index) const;
+	void GetWorldManifold(b3WorldManifold* out, uint32 index) const;
 	
 	// Is this contact touching?
 	bool IsTouching() const;
@@ -132,7 +132,7 @@ protected:
 	// new internal overlapping pairs.
 	virtual void FindPairs() { }
 
-	u32 m_flags;
+	uint32 m_flags;
 
 	// Nodes for connecting bodies.
 	b3ContactEdge m_nodeA;
@@ -142,9 +142,9 @@ protected:
 	b3Fixture* m_fixtureB;
 
 	// Contact manifolds containing the contact points.
-	u32 m_manifoldCapacity;
+	uint32 m_manifoldCapacity;
 	b3Manifold* m_manifolds;
-	u32 m_manifoldCount;
+	uint32 m_manifoldCount;
 
 	// Links to the world contact list.
 	b3Contact* m_prev;
@@ -171,24 +171,24 @@ inline const b3Fixture* b3Contact::GetFixtureB() const
 	return m_fixtureB;
 }
 
-inline u32 b3Contact::GetManifoldCapacity() const
+inline uint32 b3Contact::GetManifoldCapacity() const
 {
 	return m_manifoldCapacity;
 }
 
-inline const b3Manifold* b3Contact::GetManifold(u32 index) const
+inline const b3Manifold* b3Contact::GetManifold(uint32 index) const
 {
 	B3_ASSERT(index < m_manifoldCount);
 	return m_manifolds + index;
 }
 
-inline b3Manifold* b3Contact::GetManifold(u32 index)
+inline b3Manifold* b3Contact::GetManifold(uint32 index)
 {
 	B3_ASSERT(index < m_manifoldCount);
 	return m_manifolds + index;
 }
 
-inline u32 b3Contact::GetManifoldCount() const
+inline uint32 b3Contact::GetManifoldCount() const
 {
 	return m_manifoldCount;
 }

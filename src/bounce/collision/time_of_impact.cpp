@@ -19,8 +19,8 @@
 #include <bounce/collision/time_of_impact.h>
 #include <bounce/collision/gjk/gjk.h>
 
-u32 b3_toiCalls = 0;
-u32 b3_toiMaxIters = 0;
+uint32 b3_toiCalls = 0;
+uint32 b3_toiMaxIters = 0;
 
 // Compute the closest point on a segment to a point. 
 static b3Vec3 b3ClosestPointOnSegment(const b3Vec3& Q,
@@ -139,7 +139,7 @@ struct b3SeparationFunction
 	{
 		m_proxyA = &proxyA;
 		m_proxyB = &proxyB;
-		u32 count = cache.count;
+		uint32 count = cache.count;
 		B3_ASSERT(count > 0 && count < 4);
 
 		m_sweepA = sweepA;
@@ -151,11 +151,11 @@ struct b3SeparationFunction
 		// Extract the closest features 
 		b3GJKFeaturePair fp = b3GetFeaturePair(cache);
 
-		u32 countA = fp.count1;
-		u32* indexA = fp.index1;
+		uint32 countA = fp.count1;
+		uint32* indexA = fp.index1;
 
-		u32 countB = fp.count2;
-		u32* indexB = fp.index2;
+		uint32 countB = fp.count2;
+		uint32* indexB = fp.index2;
 
 		if (countA == 1 && countB == 1)
 		{
@@ -316,7 +316,7 @@ struct b3SeparationFunction
 		}
 	}
 
-	scalar FindMinSeparation(u32* indexA, u32* indexB, scalar t) const
+	scalar FindMinSeparation(uint32* indexA, uint32* indexB, scalar t) const
 	{
 		b3Transform xfA = m_sweepA.GetTransform(t);
 		b3Transform xfB = m_sweepB.GetTransform(t);
@@ -453,7 +453,7 @@ struct b3SeparationFunction
 		}
 	}
 
-	scalar Evaluate(u32 indexA, u32 indexB, scalar t) const
+	scalar Evaluate(uint32 indexA, uint32 indexB, scalar t) const
 	{
 		b3Transform xfA = m_sweepA.GetTransform(t);
 		b3Transform xfB = m_sweepB.GetTransform(t);
@@ -581,8 +581,8 @@ b3TOIOutput b3TimeOfImpact(const b3TOIInput& input)
 	B3_ASSERT(target > tolerance);
 
 	scalar t1 = scalar(0);
-	const u32 kMaxIterations = 20;
-	u32 iteration = 0;
+	const uint32 kMaxIterations = 20;
+	uint32 iteration = 0;
 
 	b3SimplexCache cache;
 	cache.count = 0;
@@ -624,12 +624,12 @@ b3TOIOutput b3TimeOfImpact(const b3TOIInput& input)
 		// This loop is bounded by the number of vertices.
 		bool done = false;
 		scalar t2 = tMax;
-		u32 pushBackIter = 0;
+		uint32 pushBackIter = 0;
 		for (;;)
 		{
 			// Compute the deepest point at t2. 
 			// Store the closest point indices.
-			u32 indexA, indexB;
+			uint32 indexA, indexB;
 			scalar s2 = fcn.FindMinSeparation(&indexA, &indexB, t2);
 
 			// Is the final configuration separated?
@@ -677,7 +677,7 @@ b3TOIOutput b3TimeOfImpact(const b3TOIInput& input)
 			}
 
 			// Compute 1D root of: f(x) - target = 0
-			u32 rootIteration = 0;
+			uint32 rootIteration = 0;
 			scalar a1 = t1, a2 = t2;
 			for (;;)
 			{
@@ -761,7 +761,7 @@ b3TOIOutput b3TimeOfImpact(const b3TOIInput& input)
 // "Conservative Advancement" 
 b3TOIOutput b3TimeOfImpact(
 	const b3Transform& xf1, const b3GJKProxy& proxy1, const b3Vec3& d1,
-	const b3Transform& xf2, const b3GJKProxy& proxy2, const b3Vec3& d2, u32 maxIterations)
+	const b3Transform& xf2, const b3GJKProxy& proxy2, const b3Vec3& d2, uint32 maxIterations)
 {
 	scalar r1 = proxy1.radius;
 	scalar r2 = proxy2.radius;
@@ -778,7 +778,7 @@ b3TOIOutput b3TimeOfImpact(
 	b3Transform xf1t = xf1;
 	b3Transform xf2t = xf2;
 
-	u32 iteration = 0;
+	uint32 iteration = 0;
 	for (;;)
 	{
 		b3GJKOutput query = b3GJK(xf1t, proxy1, xf2t, proxy2, false, &cache);
@@ -896,7 +896,7 @@ b3TOIOutput b3TimeOfImpact(const b3AABB& aabb1, const b3Vec3& d1, const b3AABB& 
 	b3Vec3 t1(scalar(0), scalar(0), scalar(0));
 	b3Vec3 t2(scalar(1), scalar(1), scalar(1));
 
-	for (u32 i = 0; i < 3; ++i)
+	for (uint32 i = 0; i < 3; ++i)
 	{
 		if (d[i] == scalar(0))
 		{

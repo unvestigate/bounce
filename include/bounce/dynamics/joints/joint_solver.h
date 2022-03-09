@@ -39,7 +39,7 @@ struct b3JointSolverDef
 	b3Velocity* velocities;
 	b3Mat33* invInertias;
 	b3Joint** joints;
-	u32 count;
+	uint32 count;
 };
 
 class b3JointSolver 
@@ -55,7 +55,7 @@ public :
 private :
 	b3SolverData m_solverData;
 	b3Joint** m_joints;
-	u32 m_count;
+	uint32 m_count;
 };
 
 #endif

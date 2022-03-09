@@ -27,7 +27,7 @@ struct b3Hull;
 
 struct b3FaceQuery
 {
-	u32 index;
+	uint32 index;
 	scalar separation;
 };
 
@@ -40,8 +40,8 @@ b3FaceQuery b3QueryFaceSeparation(const b3Transform& xf1, const b3Hull* hull1,
 
 struct b3EdgeQuery
 {
-	u32 index1;
-	u32 index2;
+	uint32 index1;
+	uint32 index2;
 	scalar separation;
 };
 
@@ -75,11 +75,11 @@ struct b3SATFeaturePair
 {
 	b3SATCacheType state; // sat result
 	b3SATFeatureType type; // feature pair type
-	u32 index1; // feature index on hull 1
-	u32 index2; // feature index on hull 2
+	uint32 index1; // feature index on hull 1
+	uint32 index2; // feature index on hull 2
 };
 
-inline b3SATFeaturePair b3MakeFeaturePair(b3SATCacheType state, b3SATFeatureType type, u32 index1, u32 index2)
+inline b3SATFeaturePair b3MakeFeaturePair(b3SATCacheType state, b3SATFeatureType type, uint32 index1, uint32 index2)
 {
 	b3SATFeaturePair pair;
 	pair.state = state;

@@ -29,7 +29,7 @@ public:
 			b3Body* body = m_world.CreateBody(bd);
 
 			// Transform grid into a terrain
-			for (u32 i = 0; i < m_terrain.vertexCount; ++i)
+			for (uint32 i = 0; i < m_terrain.vertexCount; ++i)
 			{
 				m_terrain.vertices[i].y = RandomFloat(0.0f, 1.0f);
 			}

@@ -28,7 +28,7 @@
 #include <bounce/collision/geometry/mesh.h>
 #include <bounce/collision/collision.h>
 
-void b3ShapeGJKProxy::Set(const b3Shape* shape, u32 index)
+void b3ShapeGJKProxy::Set(const b3Shape* shape, uint32 index)
 {
 	switch (shape->GetType())
 	{
@@ -90,8 +90,8 @@ void b3ShapeGJKProxy::Set(const b3Shape* shape, u32 index)
 	}
 }
 
-bool b3TestOverlap(const b3Transform& xfA, u32 indexA, const b3Shape* shapeA,
-	const b3Transform& xfB, u32 indexB, const b3Shape* shapeB,
+bool b3TestOverlap(const b3Transform& xfA, uint32 indexA, const b3Shape* shapeA,
+	const b3Transform& xfB, uint32 indexB, const b3Shape* shapeB,
 	b3ConvexCache* cache)
 {
 	b3ShapeGJKProxy proxyA(shapeA, indexA);

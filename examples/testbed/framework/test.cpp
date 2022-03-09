@@ -23,9 +23,9 @@ extern "C"
 #include <quickhull/quickhull.h>
 }
 
-extern u32 b3_allocCalls, b3_maxAllocCalls;
-extern u32 b3_convexCalls, b3_convexCacheHits;
-extern u32 b3_gjkCalls, b3_gjkIters, b3_gjkMaxIters;
+extern uint32 b3_allocCalls, b3_maxAllocCalls;
+extern uint32 b3_convexCalls, b3_convexCacheHits;
+extern uint32 b3_gjkCalls, b3_gjkIters, b3_gjkMaxIters;
 extern bool b3_convexCache;
 
 float RandomFloat(float a, float b)
@@ -135,7 +135,7 @@ void Test::Step()
 	m_world.Step(g_testSettings->inv_hertz, g_testSettings->velocityIterations, g_testSettings->positionIterations);
 
 	// Draw
-	u32 drawFlags = 0;
+	uint32 drawFlags = 0;
 	drawFlags += g_testSettings->drawBounds * b3Draw::e_aabbsFlag;
 	drawFlags += g_testSettings->drawShapes * b3Draw::e_shapesFlag;
 	drawFlags += g_testSettings->drawCenterOfMasses * b3Draw::e_centerOfMassesFlag;

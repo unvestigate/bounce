@@ -32,11 +32,11 @@
 #include <stdint.h>
 
 // Default allocation functions.
-void* b3Alloc_Default(u32 size);
+void* b3Alloc_Default(uint32 size);
 void b3Free_Default(void* block);
 
 // You should implement this function to use your own memory allocator.
-inline void* b3Alloc(u32 size)
+inline void* b3Alloc(uint32 size)
 {
 	return b3Alloc_Default(size);
 }

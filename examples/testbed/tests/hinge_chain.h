@@ -46,7 +46,7 @@ public:
 		
 		x += 4.25f;
 
-		for (u32 i = 0; i < 20; ++i) 
+		for (uint32 i = 0; i < 20; ++i) 
 		{
 			b3BodyDef bd;
 			bd.type = e_dynamicBody;

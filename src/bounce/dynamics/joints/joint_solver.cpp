@@ -31,7 +31,7 @@ b3JointSolver::b3JointSolver(const b3JointSolverDef* def)
 
 void b3JointSolver::InitializeVelocityConstraints() 
 {
-	for (u32 i = 0; i < m_count; ++i) 
+	for (uint32 i = 0; i < m_count; ++i) 
 	{
 		m_joints[i]->InitializeVelocityConstraints(m_solverData);
 	}
@@ -39,7 +39,7 @@ void b3JointSolver::InitializeVelocityConstraints()
 
 void b3JointSolver::WarmStart() 
 {
-	for (u32 i = 0; i < m_count; ++i) 
+	for (uint32 i = 0; i < m_count; ++i) 
 	{
 		m_joints[i]->WarmStart(m_solverData);
 	}
@@ -47,7 +47,7 @@ void b3JointSolver::WarmStart()
 
 void b3JointSolver::SolveVelocityConstraints() 
 {
-	for (u32 i = 0; i < m_count; ++i) 
+	for (uint32 i = 0; i < m_count; ++i) 
 	{
 		m_joints[i]->SolveVelocityConstraints(m_solverData);
 	}
@@ -56,7 +56,7 @@ void b3JointSolver::SolveVelocityConstraints()
 bool b3JointSolver::SolvePositionConstraints() 
 {
 	bool jointsSolved = true;
-	for (u32 i = 0; i < m_count; ++i) 
+	for (uint32 i = 0; i < m_count; ++i) 
 	{
 		bool jointSolved = m_joints[i]->SolvePositionConstraints(m_solverData);
 		jointsSolved = jointsSolved && jointSolved;

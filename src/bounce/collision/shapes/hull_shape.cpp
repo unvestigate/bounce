@@ -68,7 +68,7 @@ void b3HullShape::ComputeMass(b3MassData* massData, scalar density) const
 	// Put the hull relative to a point that is inside the hull 
 	// to help reducing round-off errors.
 	b3Vec3 s; s.SetZero();
-	for (u32 i = 0; i < m_hull->vertexCount; ++i)
+	for (uint32 i = 0; i < m_hull->vertexCount; ++i)
 	{
 		s += m_hull->vertices[i];
 	}
@@ -85,7 +85,7 @@ void b3HullShape::ComputeMass(b3MassData* massData, scalar density) const
 	scalar zz = scalar(0);
 	scalar yz = scalar(0);
 
-	for (u32 i = 0; i < m_hull->faceCount; ++i)
+	for (uint32 i = 0; i < m_hull->faceCount; ++i)
 	{
 		const b3Face* face = m_hull->GetFace(i);
 		const b3HalfEdge* begin = m_hull->GetEdge(face->edge);
@@ -95,9 +95,9 @@ void b3HullShape::ComputeMass(b3MassData* massData, scalar density) const
 		{
 			const b3HalfEdge* next = m_hull->GetEdge(edge->next);
 			
-			u32 i1 = begin->origin;
-			u32 i2 = edge->origin;
-			u32 i3 = next->origin;
+			uint32 i1 = begin->origin;
+			uint32 i2 = edge->origin;
+			uint32 i3 = next->origin;
 
 			b3Vec3 v1 = m_hull->GetVertex(i1) - s;
 			b3Vec3 v2 = m_hull->GetVertex(i2) - s;
@@ -187,7 +187,7 @@ bool b3HullShape::TestSphere(const b3Sphere& sphere, const b3Transform& xf) cons
 
 bool b3HullShape::RayCast(b3RayCastOutput* output, const b3RayCastInput& input, const b3Transform& xf) const
 {
-	u32 planeCount = m_hull->faceCount;
+	uint32 planeCount = m_hull->faceCount;
 	const b3Plane* planes = m_hull->planes;
 
 	// Put the segment into the poly's frame of reference.
@@ -198,7 +198,7 @@ bool b3HullShape::RayCast(b3RayCastOutput* output, const b3RayCastInput& input, 
 	scalar lower = scalar(0);
 	scalar upper = input.maxFraction;
 
-	u32 index = B3_MAX_U32;
+	uint32 index = B3_MAX_U32;
 
 	// s(lower) = p1 + lower * d, 0 <= lower <= kupper
 	// The segment intersects the plane if a 'lower' exists
@@ -212,7 +212,7 @@ bool b3HullShape::RayCast(b3RayCastOutput* output, const b3RayCastInput& input, 
 	// lower * dot(n, d) = offset - dot(n, p1)
 	// lower = (offset - dot(n, p1)) / dot(n, d)
 
-	for (u32 i = 0; i < planeCount; ++i)
+	for (uint32 i = 0; i < planeCount; ++i)
 	{
 		scalar numerator = planes[i].offset - b3Dot(planes[i].normal, p1);
 		scalar denominator = b3Dot(planes[i].normal, d);

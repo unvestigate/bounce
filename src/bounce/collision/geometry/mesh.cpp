@@ -21,7 +21,7 @@
 void b3Mesh::BuildTree()
 {
 	b3AABB* aabbs = (b3AABB*)b3Alloc(triangleCount * sizeof(b3AABB));
-	for (u32 i = 0; i < triangleCount; ++i)
+	for (uint32 i = 0; i < triangleCount; ++i)
 	{
 		aabbs[i] = GetTriangleAABB(i);
 	}
@@ -34,7 +34,7 @@ void b3Mesh::BuildTree()
 void b3Mesh::BuildAdjacency()
 {
 	// Assume the edges are open edges.
-	for (u32 i = 0; i < triangleCount; ++i)
+	for (uint32 i = 0; i < triangleCount; ++i)
 	{
 		b3MeshTriangle* t = triangles + i;
 		
@@ -44,18 +44,18 @@ void b3Mesh::BuildAdjacency()
 	}
 
 	// Connect the edges.
-	for (u32 i = 0; i < triangleCount; ++i)
+	for (uint32 i = 0; i < triangleCount; ++i)
 	{
 		b3MeshTriangle* t1 = triangles + i;
 		
-		for (u32 j1 = 0; j1 < 3; ++j1)
+		for (uint32 j1 = 0; j1 < 3; ++j1)
 		{
-			u32 k1 = j1 + 1 < 3 ? j1 + 1 : 0;
+			uint32 k1 = j1 + 1 < 3 ? j1 + 1 : 0;
 
-			u32 t1v1 = t1->GetVertex(j1);
-			u32 t1v2 = t1->GetVertex(k1);
+			uint32 t1v1 = t1->GetVertex(j1);
+			uint32 t1v2 = t1->GetVertex(k1);
 
-			u32& u1 = t1->GetWingVertex(j1);
+			uint32& u1 = t1->GetWingVertex(j1);
 
 			if (u1 != B3_NULL_VERTEX)
 			{
@@ -63,18 +63,18 @@ void b3Mesh::BuildAdjacency()
 				continue;
 			}
 
-			for (u32 j = i + 1; j < triangleCount; ++j)
+			for (uint32 j = i + 1; j < triangleCount; ++j)
 			{
 				b3MeshTriangle* t2 = triangles + j;
 				
-				for (u32 j2 = 0; j2 < 3; ++j2)
+				for (uint32 j2 = 0; j2 < 3; ++j2)
 				{
-					u32 k2 = j2 + 1 < 3 ? j2 + 1 : 0;
+					uint32 k2 = j2 + 1 < 3 ? j2 + 1 : 0;
 
-					u32 t2v1 = t2->GetVertex(j2);
-					u32 t2v2 = t2->GetVertex(k2);
+					uint32 t2v1 = t2->GetVertex(j2);
+					uint32 t2v2 = t2->GetVertex(k2);
 
-					u32& u2 = t2->GetWingVertex(j2);
+					uint32& u2 = t2->GetWingVertex(j2);
 
 					if (t1v1 == t2v2 && t1v2 == t2v1)
 					{
@@ -83,11 +83,11 @@ void b3Mesh::BuildAdjacency()
 						// The triangles are adjacent.
 						
 						// Non-shared vertex on triangle 1. 
-						u32 k3 = k1 + 1 < 3 ? k1 + 1 : 0;
+						uint32 k3 = k1 + 1 < 3 ? k1 + 1 : 0;
 						u2 = t1->GetVertex(k3);
 
 						// Non-shared vertex on triangle 2. 
-						u32 k4 = k2 + 1 < 3 ? k2 + 1 : 0;
+						uint32 k4 = k2 + 1 < 3 ? k2 + 1 : 0;
 						u1 = t2->GetVertex(k4);
 
 						break;
@@ -100,11 +100,11 @@ void b3Mesh::BuildAdjacency()
 						// The triangles are adjacent.
 
 						// Non-shared vertex on triangle 1. 
-						u32 k3 = k1 + 1 < 3 ? k1 + 1 : 0;
+						uint32 k3 = k1 + 1 < 3 ? k1 + 1 : 0;
 						u2 = t1->GetVertex(k3);
 
 						// Non-shared vertex on triangle 2. 
-						u32 k4 = k2 + 1 < 3 ? k2 + 1 : 0;
+						uint32 k4 = k2 + 1 < 3 ? k2 + 1 : 0;
 						u1 = t2->GetVertex(k4);
 
 						break;
@@ -123,7 +123,7 @@ void b3Mesh::BuildAdjacency()
 
 void b3Mesh::Scale(const b3Vec3& scale)
 {
-	for (u32 i = 0; i < vertexCount; ++i)
+	for (uint32 i = 0; i < vertexCount; ++i)
 	{
 		vertices[i] = b3Mul(scale, vertices[i]);
 	}
@@ -131,7 +131,7 @@ void b3Mesh::Scale(const b3Vec3& scale)
 
 void b3Mesh::Rotate(const b3Quat& rotation)
 {
-	for (u32 i = 0; i < vertexCount; ++i)
+	for (uint32 i = 0; i < vertexCount; ++i)
 	{
 		vertices[i] = b3Mul(rotation, vertices[i]);
 	}
@@ -139,7 +139,7 @@ void b3Mesh::Rotate(const b3Quat& rotation)
 
 void b3Mesh::Translate(const b3Vec3& translation)
 {
-	for (u32 i = 0; i < vertexCount; ++i)
+	for (uint32 i = 0; i < vertexCount; ++i)
 	{
 		vertices[i] += translation;
 	}
@@ -147,7 +147,7 @@ void b3Mesh::Translate(const b3Vec3& translation)
 
 void b3Mesh::Transform(const b3Transform& xf, const b3Vec3& scale)
 {
-	for (u32 i = 0; i < vertexCount; ++i)
+	for (uint32 i = 0; i < vertexCount; ++i)
 	{
 		vertices[i] = b3Mul(xf, b3Mul(scale, vertices[i]));
 	}

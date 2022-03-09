@@ -36,15 +36,15 @@ public:
 
 	void ComputeAABB(b3AABB* aabb, const b3Transform& xf) const;
 
-	void ComputeAABB(b3AABB* aabb, const b3Transform& xf, u32 childIndex) const;
+	void ComputeAABB(b3AABB* aabb, const b3Transform& xf, uint32 childIndex) const;
 
 	bool TestSphere(const b3Sphere& sphere, const b3Transform& xf) const;
 
 	bool RayCast(b3RayCastOutput* output, const b3RayCastInput& input, const b3Transform& xf) const;
 
-	bool RayCast(b3RayCastOutput* output, const b3RayCastInput& input, const b3Transform& xf, u32 childIndex) const;
+	bool RayCast(b3RayCastOutput* output, const b3RayCastInput& input, const b3Transform& xf, uint32 childIndex) const;
 
-	void GetChildTriangle(b3TriangleShape* triangle, u32 childIndex) const;
+	void GetChildTriangle(b3TriangleShape* triangle, uint32 childIndex) const;
 	
 	const b3Mesh* m_mesh;
 

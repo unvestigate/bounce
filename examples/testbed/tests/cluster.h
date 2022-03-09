@@ -36,7 +36,7 @@ public:
 
 	void Generate()
 	{
-		for (u32 i = 0; i < e_count; ++i)
+		for (uint32 i = 0; i < e_count; ++i)
 		{
 			scalar x = 3.0f * RandomFloat(-1.0f, 1.0f);
 			scalar y = 3.0f * RandomFloat(-1.0f, 1.0f);
@@ -46,7 +46,7 @@ public:
 			m_points[i] = p;
 		}
 
-		for (u32 i = 0; i < B3_MAX_MANIFOLDS; ++i)
+		for (uint32 i = 0; i < B3_MAX_MANIFOLDS; ++i)
 		{
 			scalar r = RandomFloat(0.0f, 1.0f);
 			scalar g = RandomFloat(0.0f, 1.0f);
@@ -70,7 +70,7 @@ public:
 		b3ClusterSolver cluster;
 
 		// Initialize observations
-		for (u32 i = 0; i < e_count; ++i)
+		for (uint32 i = 0; i < e_count; ++i)
 		{
 			b3Observation obs;
 			obs.point = m_points[i];
@@ -89,14 +89,14 @@ public:
 		const b3Array<b3Cluster>& clusters = cluster.GetClusters();
 		B3_ASSERT(clusters.Count() <= B3_MAX_MANIFOLDS);
 
-		for (u32 i = 0; i < clusters.Count(); ++i)
+		for (uint32 i = 0; i < clusters.Count(); ++i)
 		{
 			b3Vec3 centroid = clusters[i].centroid;
 
 			b3DrawSegment(g_debugDrawData, b3Vec3_zero, centroid, b3Color_white);
 			b3DrawPoint(g_debugDrawData, centroid, 4.0f, m_colors[i]);
 
-			for (u32 j = 0; j < observations.Count(); ++j)
+			for (uint32 j = 0; j < observations.Count(); ++j)
 			{
 				b3Observation obs = observations[j];
 				if (obs.cluster == i)

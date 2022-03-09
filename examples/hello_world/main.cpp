@@ -36,10 +36,10 @@ int main(int argc, char** argv)
 	const scalar timeStep = 1.0f / 60.0f;
 	
 	// Number of iterations for the velocity constraint solver.
-	const u32 velocityIterations = 8;
+	const uint32 velocityIterations = 8;
 
 	// Number of iterations for the position constraint solver.
-	const u32 positionIterations = 2;
+	const uint32 positionIterations = 2;
 
 	// Create a static ground body at the world origin.
 	b3BodyDef groundDef;
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
 	body->CreateFixture(bodyBoxDef);
 
 	// Run a small game loop of 60 frames length.
-	for (u32 i = 0; i < 60; ++i)
+	for (uint32 i = 0; i < 60; ++i)
 	{
 		// Perform a time step of the world in this frame.
 		world->Step(timeStep, velocityIterations, positionIterations);

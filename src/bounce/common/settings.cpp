@@ -23,12 +23,12 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-u32 b3_allocCalls = 0;
-u32 b3_maxAllocCalls = 0;
+uint32 b3_allocCalls = 0;
+uint32 b3_maxAllocCalls = 0;
 
 b3Version b3_version = { 0, 0, 0 };
 
-void* b3Alloc_Default(u32 size) 
+void* b3Alloc_Default(uint32 size) 
 {
 	++b3_allocCalls;
 	b3_maxAllocCalls = b3Max(b3_maxAllocCalls, b3_allocCalls);

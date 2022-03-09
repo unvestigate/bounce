@@ -55,7 +55,7 @@ void b3MeshShape::ComputeAABB(b3AABB* output, const b3Transform& xf) const
 	*output = aabb;
 }
 
-void b3MeshShape::ComputeAABB(b3AABB* output, const b3Transform& xf, u32 index) const
+void b3MeshShape::ComputeAABB(b3AABB* output, const b3Transform& xf, uint32 index) const
 {
 	B3_ASSERT(index < m_mesh->triangleCount);
 	const b3MeshTriangle* triangle = m_mesh->triangles + index;
@@ -79,7 +79,7 @@ bool b3MeshShape::TestSphere(const b3Sphere& sphere, const b3Transform& xf) cons
 	return false;
 }
 
-bool b3MeshShape::RayCast(b3RayCastOutput* output, const b3RayCastInput& input, const b3Transform& xf, u32 index) const
+bool b3MeshShape::RayCast(b3RayCastOutput* output, const b3RayCastInput& input, const b3Transform& xf, uint32 index) const
 {
 	b3TriangleShape triangle;
 	GetChildTriangle(&triangle, index);
@@ -88,11 +88,11 @@ bool b3MeshShape::RayCast(b3RayCastOutput* output, const b3RayCastInput& input, 
 
 struct b3MeshShapeRayCastCallback
 {
-	scalar Report(const b3RayCastInput& subInput, u32 proxyId)
+	scalar Report(const b3RayCastInput& subInput, uint32 proxyId)
 	{
 		B3_NOT_USED(subInput);
 
-		u32 childIndex = mesh->m_mesh->tree.GetUserData(proxyId);
+		uint32 childIndex = mesh->m_mesh->tree.GetUserData(proxyId);
 		
 		b3RayCastOutput childOutput;
 		if (mesh->RayCast(&childOutput, input, xf, childIndex))
@@ -146,14 +146,14 @@ bool b3MeshShape::RayCast(b3RayCastOutput* output, const b3RayCastInput& input, 
 	return callback.hit;
 }
 
-void b3MeshShape::GetChildTriangle(b3TriangleShape* triangleShape, u32 index) const
+void b3MeshShape::GetChildTriangle(b3TriangleShape* triangleShape, uint32 index) const
 {
 	B3_ASSERT(index < m_mesh->triangleCount);
 	b3MeshTriangle* triangle = m_mesh->triangles + index;
 	
-	u32 u1 = triangle->u1;
-	u32 u2 = triangle->u2;
-	u32 u3 = triangle->u3;
+	uint32 u1 = triangle->u1;
+	uint32 u2 = triangle->u2;
+	uint32 u3 = triangle->u3;
 
 	b3Vec3 v1 = b3Mul(m_scale, m_mesh->vertices[triangle->v1]);
 	b3Vec3 v2 = b3Mul(m_scale, m_mesh->vertices[triangle->v2]);

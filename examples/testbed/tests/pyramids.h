@@ -52,15 +52,15 @@ public:
 		translation.y = 1.5f * boxSize.y;
 		translation.z = -0.5f * scalar(e_depthCount) * boxSize.z;
 		
-		for (u32 i = 0; i < e_count; ++i)
+		for (uint32 i = 0; i < e_count; ++i)
 		{
 			// reset 
 			translation.y = 1.5f * boxSize.y;
 			translation.z = -0.5f * scalar(e_depthCount) * boxSize.z;
 
-			for (u32 j = 0; j < e_depthCount; ++j)
+			for (uint32 j = 0; j < e_depthCount; ++j)
 			{
-				for (u32 k = j; k < e_depthCount; ++k)
+				for (uint32 k = j; k < e_depthCount; ++k)
 				{
 					b3BodyDef bd;
 					bd.type = e_dynamicBody;

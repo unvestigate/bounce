@@ -148,7 +148,7 @@ void View::BeginInterface()
 	ImGui::NewFrame();
 }
 
-static void TreeNode(const b3ProfilerNode* node, u32& index)
+static void TreeNode(const b3ProfilerNode* node, uint32& index)
 {
 	ImGui::PushID(index);
 	++index;
@@ -156,7 +156,7 @@ static void TreeNode(const b3ProfilerNode* node, u32& index)
 	if (ImGui::TreeNode(node->GetName()))
 	{
 		double elapsed = node->GetElapsedTime();
-		u32 callCount = node->GetCallCount();
+		uint32 callCount = node->GetCallCount();
 		const b3ProfilerStatistic* stats = node->GetStatistic();
 
 		ImGui::Text("(elapsed = %.4f) (min = %.4f) (max = %.4f) (calls = %d) [ms]", elapsed, stats->GetMinElapsed(), stats->GetMaxElapsed(), callCount);
@@ -397,7 +397,7 @@ void View::Interface()
 		const b3ProfilerNode* root = g_profiler->GetRoot();
 		if (root)
 		{
-			u32 index = 0;
+			uint32 index = 0;
 			TreeNode(root, index);
 		}
 

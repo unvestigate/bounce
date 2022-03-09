@@ -40,11 +40,11 @@ void b3SortPolygon(b3ClusterPolygon& pOut,
 	pOut = pIn;
 
 	b3Vec3 A = pOut[0].position;
-	for (u32 i = 1; i < pOut.Count(); ++i)
+	for (uint32 i = 1; i < pOut.Count(); ++i)
 	{
 		b3ClusterPolygonVertex& vi = pOut[i];
 		b3Vec3 B = vi.position;
-		for (u32 j = i + 1; j < pOut.Count(); ++j)
+		for (uint32 j = i + 1; j < pOut.Count(); ++j)
 		{
 			b3ClusterPolygonVertex& vj = pOut[j];
 			b3Vec3 C = vj.position;
@@ -57,7 +57,7 @@ void b3SortPolygon(b3ClusterPolygon& pOut,
 }
 
 void b3ReducePolygon(b3ClusterPolygon& pOut, 
-	const b3ClusterPolygon& pIn, const b3Vec3& pNormal, u32 initialPoint)
+	const b3ClusterPolygon& pIn, const b3Vec3& pNormal, uint32 initialPoint)
 {
 	B3_ASSERT(pIn.Count() > 0);
 	B3_ASSERT(pOut.Count() == 0);
@@ -73,13 +73,13 @@ void b3ReducePolygon(b3ClusterPolygon& pOut,
 
 	b3StackArray<bool, 256> chosens;
 	chosens.Resize(pIn.Count());
-	for (u32 i = 0; i < chosens.Count(); ++i)
+	for (uint32 i = 0; i < chosens.Count(); ++i)
 	{
 		chosens[i] = false;
 	}
 
 	{
-		u32 index = initialPoint;
+		uint32 index = initialPoint;
 		pOut.PushBack(pIn[index]);
 		chosens[index] = true;
 	}
@@ -87,9 +87,9 @@ void b3ReducePolygon(b3ClusterPolygon& pOut,
 	{
 		b3Vec3 A = pOut[0].position;
 
-		u32 index = 0;
+		uint32 index = 0;
 		scalar max = -B3_MAX_SCALAR;
-		for (u32 i = 0; i < pIn.Count(); ++i)
+		for (uint32 i = 0; i < pIn.Count(); ++i)
 		{
 			if (chosens[i]) { continue; }
 
@@ -117,9 +117,9 @@ void b3ReducePolygon(b3ClusterPolygon& pOut,
 		b3Vec3 A = pOut[0].position;
 		b3Vec3 B = pOut[1].position;
 
-		u32 index = 0;
+		uint32 index = 0;
 		scalar max = -B3_MAX_SCALAR;
-		for (u32 i = 0; i < pIn.Count(); ++i)
+		for (uint32 i = 0; i < pIn.Count(); ++i)
 		{
 			if (chosens[i]) { continue; }
 
@@ -161,9 +161,9 @@ void b3ReducePolygon(b3ClusterPolygon& pOut,
 
 		B3_ASSERT(b3IsCCW(A, B, C, pNormal));
 
-		u32 index = 0;
+		uint32 index = 0;
 		scalar min = B3_MAX_SCALAR;
-		for (u32 i = 0; i < pIn.Count(); ++i)
+		for (uint32 i = 0; i < pIn.Count(); ++i)
 		{
 			if (chosens[i]) { continue; }
 
@@ -208,11 +208,11 @@ void b3ClusterSolver::InitializeClusters()
 {
 	B3_ASSERT(m_clusters.IsEmpty());
 	
-	const u32 kMaxClusters = 3;
+	const uint32 kMaxClusters = 3;
 
 	if (m_observations.Count() <= kMaxClusters)
 	{
-		for (u32 i = 0; i < m_observations.Count(); ++i)
+		for (uint32 i = 0; i < m_observations.Count(); ++i)
 		{
 			AddCluster(m_observations[i].point);
 		}
@@ -225,14 +225,14 @@ void b3ClusterSolver::InitializeClusters()
 	// used to initialize a cluster centroid.
 	b3StackArray<bool, 256> chosens;
 	chosens.Resize(m_observations.Count());
-	for (u32 i = 0; i < m_observations.Count(); ++i)
+	for (uint32 i = 0; i < m_observations.Count(); ++i)
 	{
 		chosens[i] = false;
 	}
 	
 	// Choose the most opposing faces.
 	{
-		u32 index = 0;
+		uint32 index = 0;
 		const b3Observation& o = m_observations[index];
 		b3Vec3 A = o.point;
 		AddCluster(A);
@@ -242,9 +242,9 @@ void b3ClusterSolver::InitializeClusters()
 	{
 		b3Vec3 A = m_clusters[0].centroid;
 
-		u32 index = 0;
+		uint32 index = 0;
 		scalar max = -B3_MAX_SCALAR;
-		for (u32 i = 0; i < m_observations.Count(); ++i)
+		for (uint32 i = 0; i < m_observations.Count(); ++i)
 		{
 			if (chosens[i])	{ continue;	}
 
@@ -271,9 +271,9 @@ void b3ClusterSolver::InitializeClusters()
 	{
 		b3Vec3 A = m_clusters[0].centroid;
 
-		u32 index = 0;
+		uint32 index = 0;
 		scalar max = -B3_MAX_SCALAR;
-		for (u32 i = 0; i < m_observations.Count(); ++i)
+		for (uint32 i = 0; i < m_observations.Count(); ++i)
 		{
 			if (chosens[i])	{ continue; }
 
@@ -302,9 +302,9 @@ void b3ClusterSolver::InitializeClusters()
 		b3Vec3 A = m_clusters[0].centroid;
 		b3Vec3 B = m_clusters[1].centroid;
 
-		u32 index = 0;
+		uint32 index = 0;
 		scalar max = -B3_MAX_SCALAR;
-		for (u32 i = 0; i < m_observations.Count(); ++i)
+		for (uint32 i = 0; i < m_observations.Count(); ++i)
 		{
 			if (chosens[i]) { continue; }
 
@@ -339,7 +339,7 @@ void b3ClusterSolver::AddCluster(const b3Vec3& centroid)
 		return;
 	}
 
-	u32 bestIndex = FindCluster(centroid);
+	uint32 bestIndex = FindCluster(centroid);
 	b3Cluster& bestCluster = m_clusters[bestIndex];
 
 	// Should we merge the cluster?
@@ -359,11 +359,11 @@ void b3ClusterSolver::AddCluster(const b3Vec3& centroid)
 	m_clusters.PushBack(c);
 }
 
-u32 b3ClusterSolver::FindCluster(const b3Vec3& point) const
+uint32 b3ClusterSolver::FindCluster(const b3Vec3& point) const
 {
-	u32 bestIndex = 0;
+	uint32 bestIndex = 0;
 	scalar bestValue = B3_MAX_SCALAR;
-	for (u32 i = 0; i < m_clusters.Count(); ++i)
+	for (uint32 i = 0; i < m_clusters.Count(); ++i)
 	{
 		b3Vec3 centroid = m_clusters[i].centroid;
 		scalar metric = b3DistanceSquared(point, centroid);
@@ -376,9 +376,9 @@ u32 b3ClusterSolver::FindCluster(const b3Vec3& point) const
 	return bestIndex;
 }
 
-static void b3MoveObservationsToCluster(b3Array<b3Observation>& observations, u32 fromCluster, u32 toCluster)
+static void b3MoveObservationsToCluster(b3Array<b3Observation>& observations, uint32 fromCluster, uint32 toCluster)
 {
-	for (u32 i = 0; i < observations.Count(); ++i)
+	for (uint32 i = 0; i < observations.Count(); ++i)
 	{
 		b3Observation& obs = observations[i];
 		if (obs.cluster == fromCluster)
@@ -396,20 +396,20 @@ void b3ClusterSolver::Solve()
 	// Run k-means
 
 	// Termination criteria 
-	const u32 kMaxIters = 10;
+	const uint32 kMaxIters = 10;
 
-	u32 iter = 0;
+	uint32 iter = 0;
 	while (iter < kMaxIters)
 	{
 		// Assign each observation to the closest cluster centroid.
-		for (u32 i = 0; i < m_observations.Count(); ++i)
+		for (uint32 i = 0; i < m_observations.Count(); ++i)
 		{
 			b3Observation& obs = m_observations[i];
 			obs.cluster = FindCluster(obs.point);
 		}
 
 		// Compute the new cluster centroids.
-		for (u32 i = 0; i < m_clusters.Count(); ++i)
+		for (uint32 i = 0; i < m_clusters.Count(); ++i)
 		{
 			b3Cluster& cluster = m_clusters[i];
 
@@ -417,8 +417,8 @@ void b3ClusterSolver::Solve()
 			b3Vec3 centroid;
 			centroid.SetZero();
 
-			u32 pointCount = 0;
-			for (u32 j = 0; j < m_observations.Count(); ++j)
+			uint32 pointCount = 0;
+			for (uint32 j = 0; j < m_observations.Count(); ++j)
 			{
 				const b3Observation& obs = m_observations[j];
 				if (obs.cluster == i)
@@ -443,11 +443,11 @@ void b3ClusterSolver::Solve()
 	// Remove empty clusters
 	b3StackArray<b3Cluster, 256> usedClusters;
 
-	for (u32 i = 0; i < m_clusters.Count(); ++i)
+	for (uint32 i = 0; i < m_clusters.Count(); ++i)
 	{
 		// Count the observations in the ith cluster
-		u32 obsCount = 0;
-		for (u32 j = 0; j < m_observations.Count(); ++j)
+		uint32 obsCount = 0;
+		for (uint32 j = 0; j < m_observations.Count(); ++j)
 		{
 			const b3Observation& obs = m_observations[j];
 			if (obs.cluster == i)
@@ -467,17 +467,17 @@ void b3ClusterSolver::Solve()
 	m_clusters = usedClusters;
 }
 
-void b3ClusterSolver::Run(b3Manifold outManifolds[3], u32& numOut, 
-	const b3Manifold* inManifolds, u32 numIn,
+void b3ClusterSolver::Run(b3Manifold outManifolds[3], uint32& numOut, 
+	const b3Manifold* inManifolds, uint32 numIn,
 	const b3Transform& xfA, scalar radiusA, const b3Transform& xfB, scalar radiusB)
 {
 	// Initialize observations
-	for (u32 i = 0; i < numIn; ++i)
+	for (uint32 i = 0; i < numIn; ++i)
 	{
 		b3WorldManifold wm;
 		wm.Initialize(inManifolds + i, radiusA, xfA, radiusB, xfB);
 
-		for (u32 j = 0; j < wm.pointCount; ++j)
+		for (uint32 j = 0; j < wm.pointCount; ++j)
 		{
 			b3Observation o;
 			o.point = wm.points[j].normal;
@@ -496,7 +496,7 @@ void b3ClusterSolver::Run(b3Manifold outManifolds[3], u32& numOut,
 
 	B3_ASSERT(m_clusters.Count() <= B3_MAX_MANIFOLDS);
 
-	for (u32 i = 0; i < m_clusters.Count(); ++i)
+	for (uint32 i = 0; i < m_clusters.Count(); ++i)
 	{		
 		// Gather manifold points.
 		b3Vec3 center;
@@ -506,7 +506,7 @@ void b3ClusterSolver::Run(b3Manifold outManifolds[3], u32& numOut,
 		normal.SetZero();
 
 		b3StackArray<b3ClusterPolygonVertex, 256> polygonB;
-		for (u32 j = 0; j < m_observations.Count(); ++j)
+		for (uint32 j = 0; j < m_observations.Count(); ++j)
 		{
 			b3Observation& o = m_observations[j];
 			if (o.cluster != i)
@@ -543,9 +543,9 @@ void b3ClusterSolver::Run(b3Manifold outManifolds[3], u32& numOut,
 
 		// Reduce.
 		// Ensure deepest point is contained.
-		u32 minIndex = 0;
+		uint32 minIndex = 0;
 		scalar minSeparation = B3_MAX_SCALAR;
-		for (u32 j = 0; j < polygonB.Count(); ++j)
+		for (uint32 j = 0; j < polygonB.Count(); ++j)
 		{
 			const b3Observation* o = m_observations.Get(polygonB[j].clipIndex);
 			const b3Manifold* inManifold = inManifolds + o->manifold;
@@ -566,10 +566,10 @@ void b3ClusterSolver::Run(b3Manifold outManifolds[3], u32& numOut,
 		
 		b3StackArray<b3ClusterPolygonVertex, B3_MAX_MANIFOLD_POINTS> quadB;
 		b3ReducePolygon(quadB, polygonB, normal, minIndex);
-		for (u32 j = 0; j < quadB.Count(); ++j)
+		for (uint32 j = 0; j < quadB.Count(); ++j)
 		{
 			b3ClusterPolygonVertex v = quadB[j];
-			u32 inIndex = v.clipIndex;
+			uint32 inIndex = v.clipIndex;
 
 			const b3Observation* o = m_observations.Get(inIndex);
 			const b3Manifold* inManifold = inManifolds + o->manifold;

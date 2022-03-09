@@ -58,7 +58,7 @@ public:
 
 		// Boxes
 		m_boxHull.SetExtents(0.5f, 0.5f, 0.5f);
-		for (u32 i = 0; i < 5; ++i)
+		for (uint32 i = 0; i < 5; ++i)
 		{
 			b3BodyDef bd;
 			bd.type = e_dynamicBody;
@@ -85,7 +85,7 @@ public:
 
 		if (fixtureA == m_platform)
 		{
-			for (u32 i = 0; i < contact->GetManifoldCount(); ++i)
+			for (uint32 i = 0; i < contact->GetManifoldCount(); ++i)
 			{
 				b3Manifold* manifold = contact->GetManifold(i);
 
@@ -96,7 +96,7 @@ public:
 
 		if (fixtureB == m_platform)
 		{
-			for (u32 i = 0; i < contact->GetManifoldCount(); ++i)
+			for (uint32 i = 0; i < contact->GetManifoldCount(); ++i)
 			{
 				b3Manifold* manifold = contact->GetManifold(i);
 

@@ -112,7 +112,7 @@ void b3Contact::Destroy(b3Contact* contact, b3BlockAllocator* allocator)
 	b3Fixture* fixtureA = contact->m_fixtureA;
 	b3Fixture* fixtureB = contact->m_fixtureB;
 
-	for (u32 i = 0; i < contact->m_manifoldCount; ++i)
+	for (uint32 i = 0; i < contact->m_manifoldCount; ++i)
 	{
 		if (contact->m_manifolds[i].pointCount > 0)
 		{
@@ -159,7 +159,7 @@ b3Contact::b3Contact(b3Fixture* fixtureA, b3Fixture* fixtureB)
 	m_manifoldCount = 0;
 }
 
-void b3Contact::GetWorldManifold(b3WorldManifold* out, u32 index) const
+void b3Contact::GetWorldManifold(b3WorldManifold* out, uint32 index) const
 {
 	B3_ASSERT(index < m_manifoldCount);
 	b3Manifold* m = m_manifolds + index;
@@ -202,13 +202,13 @@ void b3Contact::Update(b3ContactListener* listener)
 	else
 	{
 		// Copy the old contact points.
-		u32 oldManifoldCount = m_manifoldCount;
+		uint32 oldManifoldCount = m_manifoldCount;
 		b3Manifold* oldManifolds = (b3Manifold*)stack->Allocate(oldManifoldCount * sizeof(b3Manifold));
 		memcpy(oldManifolds, m_manifolds, oldManifoldCount * sizeof(b3Manifold));
 
 		// Clear all contact points.
 		m_manifoldCount = 0;
-		for (u32 i = 0; i < m_manifoldCapacity; ++i)
+		for (uint32 i = 0; i < m_manifoldCapacity; ++i)
 		{
 			m_manifolds[i].Initialize();
 		}
@@ -219,10 +219,10 @@ void b3Contact::Update(b3ContactListener* listener)
 		// Initialize the new built contact points for warm starting the solver.
 		if (world->m_warmStarting == true)
 		{
-			for (u32 i = 0; i < m_manifoldCount; ++i)
+			for (uint32 i = 0; i < m_manifoldCount; ++i)
 			{
 				b3Manifold* m2 = m_manifolds + i;
-				for (u32 j = 0; j < oldManifoldCount; ++j)
+				for (uint32 j = 0; j < oldManifoldCount; ++j)
 				{
 					const b3Manifold* m1 = oldManifolds + j;
 					m2->Initialize(*m1);
@@ -234,7 +234,7 @@ void b3Contact::Update(b3ContactListener* listener)
 
 		// The shapes are overlapping if at least one contact 
 		// point was built.
-		for (u32 i = 0; i < m_manifoldCount; ++i)
+		for (uint32 i = 0; i < m_manifoldCount; ++i)
 		{
 			if (m_manifolds[i].pointCount > 0)
 			{

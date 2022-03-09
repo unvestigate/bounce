@@ -27,13 +27,13 @@
 // A combination of features used to uniquely identify a vertex on a feature.
 struct b3FeaturePair
 {
-	u32 inEdge1; // incoming side plane edge on hull 1
-	u32 outEdge1; // outgoing side plane edge on hull 1
-	u32 inEdge2; // incoming edge on hull 2 
-	u32 outEdge2; // outgoing edge on hull 2
+	uint32 inEdge1; // incoming side plane edge on hull 1
+	uint32 outEdge1; // outgoing side plane edge on hull 1
+	uint32 inEdge2; // incoming edge on hull 2 
+	uint32 outEdge2; // outgoing edge on hull 2
 };
 
-inline b3FeaturePair b3MakePair(u32 inEdge1, u32 outEdge1, u32 inEdge2, u32 outEdge2)
+inline b3FeaturePair b3MakePair(uint32 inEdge1, uint32 outEdge1, uint32 inEdge2, uint32 outEdge2)
 {
 	b3FeaturePair out;
 	out.inEdge1 = inEdge1;
@@ -57,7 +57,7 @@ typedef b3Array<b3ClipVertex> b3ClipPolygon;
 struct b3ClipPlane
 {
 	b3Plane plane;
-	u32 edge;
+	uint32 edge;
 };
 
 struct b3Hull;
@@ -69,12 +69,12 @@ void b3BuildEdge(b3ClipVertex vOut[2],
 
 // Build a clip polygon given an index to the polygon face.
 void b3BuildPolygon(b3ClipPolygon& pOut,
-	const b3Transform& xf, u32 index, const b3Hull* hull);
+	const b3Transform& xf, uint32 index, const b3Hull* hull);
 
 // Clip a segment by a plane. 
 // Output a segment whose points are behind or on the input plane.
 // Return the number of output points.
-u32 b3ClipEdgeToPlane(b3ClipVertex vOut[2],
+uint32 b3ClipEdgeToPlane(b3ClipVertex vOut[2],
 	const b3ClipVertex vIn[2], const b3ClipPlane& plane);
 
 // Clip a polygon by a plane.  
@@ -84,16 +84,16 @@ void b3ClipPolygonToPlane(b3ClipPolygon& pOut,
 
 // Clip a segment by a hull face (side planes).
 // Return the number of output points.
-u32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
+uint32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
 	const b3ClipVertex vIn[2], const b3Capsule* hull);
 
 // Clip a segment by a hull face (side planes).
 // Return the number of output points.
-u32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
-	const b3ClipVertex vIn[2], const b3Transform& xf, scalar r, u32 index, const b3Hull* hull);
+uint32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
+	const b3ClipVertex vIn[2], const b3Transform& xf, scalar r, uint32 index, const b3Hull* hull);
 
 // Clip a polygon by a hull face (side planes).
 void b3ClipPolygonToFace(b3ClipPolygon& pOut,
-	const b3ClipPolygon& pIn, const b3Transform& xf, scalar r, u32 index, const b3Hull* hull);
+	const b3ClipPolygon& pIn, const b3Transform& xf, scalar r, uint32 index, const b3Hull* hull);
 
 #endif

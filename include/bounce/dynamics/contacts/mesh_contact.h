@@ -29,7 +29,7 @@
 // by the cluster algorithm.
 struct b3TriangleCache
 {
-	u32 index; // triangle index
+	uint32 index; // triangle index
 	b3ConvexCache cache;
 };
 
@@ -47,12 +47,12 @@ public:
 
 	void Collide() override;
 
-	virtual void Evaluate(b3Manifold& manifold, const b3Transform& xfA, const b3Transform& xfB, u32 cacheIndex) = 0;
+	virtual void Evaluate(b3Manifold& manifold, const b3Transform& xfA, const b3Transform& xfB, uint32 cacheIndex) = 0;
 
 	bool MoveAABB(const b3AABB& aabb, const b3Vec3& displacement);
 
 	// Static tree callback. There is no midphase. 
-	bool Report(u32 proxyId);
+	bool Report(uint32 proxyId);
 
 	// Did the AABB move significantly?
 	bool m_aabbBMoved;
@@ -61,9 +61,9 @@ public:
 	b3AABB m_aabbB; 
 	
 	// Triangles potentially overlapping with the first shape.
-	u32 m_triangleCapacity;
+	uint32 m_triangleCapacity;
 	b3TriangleCache* m_triangles;
-	u32 m_triangleCount;
+	uint32 m_triangleCount;
 
 	// Contact manifolds.
 	b3Manifold m_clusterManifolds[B3_MAX_MANIFOLDS];

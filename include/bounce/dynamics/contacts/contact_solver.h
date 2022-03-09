@@ -38,23 +38,23 @@ struct b3PositionConstraintPoint
 struct b3PositionConstraintManifold
 {
 	b3PositionConstraintPoint* points;
-	u32 pointCount;
+	uint32 pointCount;
 };
 
 struct b3ContactPositionConstraint 
 {
-	u32 indexA;
+	uint32 indexA;
 	scalar invMassA;
 	b3Mat33 localInvIA;
 	scalar radiusA;
 	b3Vec3 localCenterA;
-	u32 indexB;
+	uint32 indexB;
 	b3Vec3 localCenterB;
 	scalar invMassB;
 	b3Mat33 localInvIB;
 	scalar radiusB;
 	b3PositionConstraintManifold* manifolds;
-	u32 manifoldCount;
+	uint32 manifoldCount;
 };
 
 struct b3VelocityConstraintPoint 
@@ -87,28 +87,28 @@ struct b3VelocityConstraintManifold
 	scalar motorSpeed;
 
 	b3VelocityConstraintPoint* points;
-	u32 pointCount;
+	uint32 pointCount;
 };
 
 struct b3ContactVelocityConstraint 
 {
-	u32 indexA;
+	uint32 indexA;
 	scalar invMassA;
 	b3Mat33 invIA;
 	scalar invMassB;
-	u32 indexB;
+	uint32 indexB;
 	b3Mat33 invIB;
 	scalar friction;
 	scalar restitution;
 	b3VelocityConstraintManifold* manifolds;
-	u32 manifoldCount;
+	uint32 manifoldCount;
 };
 
 struct b3ContactSolverDef 
 {
 	b3TimeStep step;
 	b3Contact** contacts;
-	u32 count;
+	uint32 count;
 	b3Position* positions;
 	b3Velocity* velocities;
 	b3Mat33* invInertias;
@@ -146,7 +146,7 @@ public:
 	b3Velocity* m_velocities;
 	b3Mat33* m_invInertias;
 	b3Contact** m_contacts;
-	u32 m_count;
+	uint32 m_count;
 	b3StackAllocator* m_allocator;
 	b3ContactPositionConstraint* m_positionConstraints;
 	b3ContactVelocityConstraint* m_velocityConstraints;

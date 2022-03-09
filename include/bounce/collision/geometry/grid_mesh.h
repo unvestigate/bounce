@@ -23,7 +23,7 @@
 
 // A (H + 1) x (W + 1) grid mesh stored in row-major order.
 // v(i, j) = i * (W + 1) + j
-template<u32 H = 1, u32 W = 1>
+template<uint32 H = 1, uint32 W = 1>
 struct b3GridMesh : public b3Mesh
 {
 	b3Vec3 gridVertices[(H + 1) * (W + 1)];
@@ -34,11 +34,11 @@ struct b3GridMesh : public b3Mesh
 	b3GridMesh()
 	{
 		vertexCount = 0;
-		for (u32 j = 0; j <= W; ++j)
+		for (uint32 j = 0; j <= W; ++j)
 		{
-			for (u32 i = 0; i <= H; ++i)
+			for (uint32 i = 0; i <= H; ++i)
 			{
-				u32 vertex = GetVertex(i, j);
+				uint32 vertex = GetVertex(i, j);
 				gridVertices[vertex].Set(scalar(j), 0, scalar(i));
 				++vertexCount;
 			}
@@ -51,23 +51,23 @@ struct b3GridMesh : public b3Mesh
 		translation.y = 0;
 		translation.z = scalar(-0.5) * scalar(H);
 
-		for (u32 i = 0; i < vertexCount; ++i)
+		for (uint32 i = 0; i < vertexCount; ++i)
 		{
 			gridVertices[i] += translation;
 		}
 
 		triangleCount = 0;
-		for (u32 i = 0; i < H; ++i)
+		for (uint32 i = 0; i < H; ++i)
 		{
-			for (u32 j = 0; j < W; ++j)
+			for (uint32 j = 0; j < W; ++j)
 			{
 				// 1*|----|*4
 				//   |----|
 				// 2*|----|*3
-				u32 v1 = GetVertex(i, j);
-				u32 v2 = GetVertex(i + 1, j);
-				u32 v3 = GetVertex(i + 1, j + 1);
-				u32 v4 = GetVertex(i, j + 1);
+				uint32 v1 = GetVertex(i, j);
+				uint32 v2 = GetVertex(i + 1, j);
+				uint32 v3 = GetVertex(i + 1, j + 1);
+				uint32 v4 = GetVertex(i, j + 1);
 
 				b3MeshTriangle* t1 = gridTriangles + triangleCount++;
 				t1->v1 = v1;
@@ -87,7 +87,7 @@ struct b3GridMesh : public b3Mesh
 		triangles = gridTriangles;
 	}
 
-	u32 GetVertex(u32 i, u32 j)
+	uint32 GetVertex(uint32 i, uint32 j)
 	{
 		B3_ASSERT(i < H + 1);
 		B3_ASSERT(j < W + 1);

@@ -46,15 +46,15 @@ public:
 		{
 			b3GJKFeaturePair featurePair = b3GetFeaturePair(m_cache);
 
-			for (u32 i = 0; i < featurePair.count1; ++i)
+			for (uint32 i = 0; i < featurePair.count1; ++i)
 			{
-				u32 index = featurePair.index1[i];
+				uint32 index = featurePair.index1[i];
 				b3DrawPoint(g_debugDrawData, m_xfA * m_proxyA.GetVertex(index), 4.0f, b3Color(1.0f, 1.0f, 0.0f));
 			}
 
-			for (u32 i = 0; i < featurePair.count2; ++i)
+			for (uint32 i = 0; i < featurePair.count2; ++i)
 			{
-				u32 index = featurePair.index2[i];
+				uint32 index = featurePair.index2[i];
 				b3DrawPoint(g_debugDrawData, m_xfB * m_proxyB.GetVertex(index), 4.0f, b3Color(1.0f, 1.0f, 0.0f));
 			}
 		}

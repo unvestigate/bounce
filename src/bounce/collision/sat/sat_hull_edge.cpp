@@ -37,10 +37,10 @@ b3FaceQuery b3QueryFaceSeparation(const b3Transform& xf1, const b3Hull* hull1,
 	localHull2.vertex2 = xf * hull2->vertex2;
 
 	// Here greater means less than since is a signed distance.
-	u32 maxIndex = 0;
+	uint32 maxIndex = 0;
 	scalar maxSeparation = -B3_MAX_SCALAR;
 
-	for (u32 i = 0; i < hull1->faceCount; ++i)
+	for (uint32 i = 0; i < hull1->faceCount; ++i)
 	{
 		b3Plane plane = hull1->GetPlane(i);
 		scalar separation = b3ProjectEdge(&localHull2, plane);
@@ -102,7 +102,7 @@ scalar b3ProjectEdge(const b3Vec3& P1, const b3Vec3& E1, const b3Vec3& C1,
 b3EdgeQuery b3QueryEdgeSeparation(const b3Transform& xf1, const b3Hull* hull1, const b3Transform& xf2, const b3Capsule* hull2)
 {
 	// Query minimum edge separation.
-	u32 maxIndex = 0;
+	uint32 maxIndex = 0;
 	scalar maxSeparation = -B3_MAX_SCALAR;
 
 	// Perform computations in the local space of the first hull.
@@ -113,7 +113,7 @@ b3EdgeQuery b3QueryEdgeSeparation(const b3Transform& xf1, const b3Hull* hull1, c
 	b3Vec3 Q2 = xf * hull2->vertex2;
 	b3Vec3 E2 = Q2 - P2;
 
-	for (u32 i = 0; i < hull1->edgeCount; i += 2)
+	for (uint32 i = 0; i < hull1->edgeCount; i += 2)
 	{
 		const b3HalfEdge* edge1 = hull1->GetEdge(i);
 		const b3HalfEdge* twin1 = hull1->GetEdge(i + 1);

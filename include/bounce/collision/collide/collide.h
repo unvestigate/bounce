@@ -47,17 +47,17 @@ struct b3ShapeGJKProxy : public b3GJKProxy
 {
 	b3ShapeGJKProxy() { }
 
-	b3ShapeGJKProxy(const b3Shape* shape, u32 index)
+	b3ShapeGJKProxy(const b3Shape* shape, uint32 index)
 	{
 		Set(shape, index);
 	}
 
-	void Set(const b3Shape* shape, u32 index);
+	void Set(const b3Shape* shape, uint32 index);
 };
 
 // Test if two generic shapes are overlapping.
-bool b3TestOverlap(const b3Transform& xf1, u32 index1, const b3Shape* shape1,
-	const b3Transform& xf2, u32 index2, const b3Shape* shape2,
+bool b3TestOverlap(const b3Transform& xf1, uint32 index1, const b3Shape* shape1,
+	const b3Transform& xf2, uint32 index2, const b3Shape* shape2,
 	b3ConvexCache* cache);
 
 // Compute a manifold for two spheres.

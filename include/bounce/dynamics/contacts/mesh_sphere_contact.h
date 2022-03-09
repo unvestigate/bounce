@@ -30,7 +30,7 @@ public:
 	b3MeshAndSphereContact(b3Fixture* fixtureA, b3Fixture* fixtureB);
 	~b3MeshAndSphereContact() { }
 
-	void Evaluate(b3Manifold& manifold, const b3Transform& xfA, const b3Transform& xfB, u32 cacheIndex) override;
+	void Evaluate(b3Manifold& manifold, const b3Transform& xfA, const b3Transform& xfB, uint32 cacheIndex) override;
 };
 
 #endif

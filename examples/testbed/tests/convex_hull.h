@@ -76,7 +76,7 @@ public:
 			m_hull = nullptr;
 		}
 
-		for (u32 i = 0; i < e_count; ++i)
+		for (uint32 i = 0; i < e_count; ++i)
 		{
 			float x = 3.0f * RandomFloat(-1.0f, 1.0f);
 			float y = 3.0f * RandomFloat(-1.0f, 1.0f);
@@ -112,12 +112,12 @@ public:
 			return;
 		}
 
-		for (u32 i = 0; i < m_hull->vertexCount; ++i)
+		for (uint32 i = 0; i < m_hull->vertexCount; ++i)
 		{
 			b3DrawPoint(g_debugDrawData, m_hull->vertices[i], 4.0f, b3Color_green, false);
 		}
 
-		for (u32 i = 0; i < e_count; ++i)
+		for (uint32 i = 0; i < e_count; ++i)
 		{
 			b3DrawPoint(g_debugDrawData, m_points[i], 4.0f, b3Color_black);
 		}
@@ -129,17 +129,17 @@ public:
 			b3Vec3 c; 
 			c.SetZero();
 			
-			u32 vn = 0;
+			uint32 vn = 0;
 			
 			const b3HalfEdge* begin = m_hull->GetEdge(face->edge);
 			const b3HalfEdge* edge = begin;
 			do
 			{
-				u32 i1 = edge->origin;
+				uint32 i1 = edge->origin;
 				b3Vec3 v1 = m_hull->GetVertex(i1);
 				
 				const b3HalfEdge* twin = m_hull->GetEdge(edge->twin);
-				u32 i2 = twin->origin;
+				uint32 i2 = twin->origin;
 				b3Vec3 v2 = m_hull->GetVertex(i2);
 
 				c += v1;
@@ -156,7 +156,7 @@ public:
 			b3DrawSegment(g_debugDrawData, c, c + n, b3Color_white, false);
 		}
 
-		for (u32 i = 0; i < m_hull->faceCount; ++i)
+		for (uint32 i = 0; i < m_hull->faceCount; ++i)
 		{
 			const b3Face* face = m_hull->GetFace(i);
 
@@ -166,10 +166,10 @@ public:
 			const b3HalfEdge* edge = begin;
 			do
 			{
-				u32 i1 = begin->origin;
-				u32 i2 = edge->origin;
+				uint32 i1 = begin->origin;
+				uint32 i2 = edge->origin;
 				const b3HalfEdge* next = m_hull->GetEdge(edge->next);
-				u32 i3 = next->origin;
+				uint32 i3 = next->origin;
 
 				b3Vec3 v1 = m_hull->GetVertex(i1);
 				b3Vec3 v2 = m_hull->GetVertex(i2);
@@ -196,7 +196,7 @@ public:
 	}
 
 	b3Hull* m_hull;
-	u32 m_selection;
+	uint32 m_selection;
 	b3Vec3 m_points[e_count];
 };
 

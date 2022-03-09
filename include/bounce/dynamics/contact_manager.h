@@ -51,7 +51,7 @@ public:
 
 	b3BroadPhase m_broadPhase;	
 	b3Contact* m_contactList;
-	u32 m_contactCount;
+	uint32 m_contactCount;
 	b3ContactFilter* m_contactFilter;
 	b3ContactListener* m_contactListener;
 	b3BlockAllocator* m_allocator;

@@ -24,11 +24,11 @@
 #include <bounce/collision/geometry/hull.h>
 
 bool b3_convexCache = true;
-u32 b3_convexCalls = 0, b3_convexCacheHits = 0;
+uint32 b3_convexCalls = 0, b3_convexCacheHits = 0;
 
 static void b3BuildEdgeContact(b3Manifold& manifold,
-	const b3Transform& xf1, u32 index1, const b3HullShape* s1,
-	const b3Transform& xf2, u32 index2, const b3HullShape* s2)
+	const b3Transform& xf1, uint32 index1, const b3HullShape* s1,
+	const b3Transform& xf2, uint32 index2, const b3HullShape* s2)
 {
 	const b3Hull* hull1 = s1->m_hull;
 	const b3HalfEdge* edge1 = hull1->GetEdge(index1);
@@ -96,7 +96,7 @@ static void b3BuildEdgeContact(b3Manifold& manifold,
 }
 
 static void b3BuildFaceContact(b3Manifold& manifold,
-	const b3Transform& xf1, u32 index1, const b3HullShape* s1,
+	const b3Transform& xf1, uint32 index1, const b3HullShape* s1,
 	const b3Transform& xf2, const b3HullShape* s2,
 	bool flipNormal)
 {
@@ -123,7 +123,7 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 
 	// Find the support face polygon in the *negated* direction.
 	b3StackArray<b3ClipVertex, 32> polygon2;
-	u32 index2 = hull2->GetSupportFace(-normal1);
+	uint32 index2 = hull2->GetSupportFace(-normal1);
 	b3BuildPolygon(polygon2, xf2, index2, hull2);
 
 	// 3. Clip incident face polygon (2) against the reference face (1) side planes.
@@ -138,10 +138,10 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 	// Ensure the deepest point is contained in the reduced polygon.
 	b3StackArray<b3ClusterPolygonVertex, 32> polygon1;
 
-	u32 minIndex = 0;
+	uint32 minIndex = 0;
 	scalar minSeparation = B3_MAX_SCALAR;
 
-	for (u32 i = 0; i < clipPolygon2.Count(); ++i)
+	for (uint32 i = 0; i < clipPolygon2.Count(); ++i)
 	{
 		b3ClipVertex v2 = clipPolygon2[i];
 		scalar separation = b3Distance(v2.position, plane1);
@@ -177,10 +177,10 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 	B3_ASSERT(!reducedPolygon1.IsEmpty());
 
 	// 6. Build face contact.
-	u32 pointCount = reducedPolygon1.Count();
-	for (u32 i = 0; i < pointCount; ++i)
+	uint32 pointCount = reducedPolygon1.Count();
+	for (uint32 i = 0; i < pointCount; ++i)
 	{
-		u32 clipIndex = reducedPolygon1[i].clipIndex;
+		uint32 clipIndex = reducedPolygon1[i].clipIndex;
 		b3ClipVertex v2 = clipPolygon2[clipIndex];
 		b3Vec3 v1 = b3ClosestPointOnPlane(v2.position, plane1);
 
@@ -292,8 +292,8 @@ static void b3CollideHulls(b3Manifold& manifold,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static void b3RebuildEdgeContact(b3Manifold& manifold,
-	const b3Transform& xf1, u32 index1, const b3HullShape* s1,
-	const b3Transform& xf2, u32 index2, const b3HullShape* s2)
+	const b3Transform& xf1, uint32 index1, const b3HullShape* s1,
+	const b3Transform& xf2, uint32 index2, const b3HullShape* s2)
 {
 	const b3Hull* hull1 = s1->m_hull;
 	const b3HalfEdge* edge1 = hull1->GetEdge(index1);
@@ -372,7 +372,7 @@ static void b3RebuildEdgeContact(b3Manifold& manifold,
 }
 
 static void b3RebuildFaceContact(b3Manifold& manifold,
-	const b3Transform& xf1, u32 index1, const b3HullShape* s1,
+	const b3Transform& xf1, uint32 index1, const b3HullShape* s1,
 	const b3Transform& xf2, const b3HullShape* s2, bool flipNormal, 
 	const b3Transform& xf01, const b3Transform& xf02)
 {

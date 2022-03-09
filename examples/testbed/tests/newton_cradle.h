@@ -77,8 +77,8 @@ public:
 		vertex.m_center.SetZero();
 		vertex.m_radius = 1.0f;
 
-		u32 count = 6;
-		for (u32 i = 0; i < count; ++i)
+		uint32 count = 6;
+		for (uint32 i = 0; i < count; ++i)
 		{
 			b3BodyDef bd;
 			bd.type = e_dynamicBody;

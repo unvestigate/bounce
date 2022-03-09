@@ -164,7 +164,7 @@ public:
 	b3Fixture* GetFixtureList();
 
 	// Get the number of fixtures in this body.
-	u32 GetFixtureCount() const;
+	uint32 GetFixtureCount() const;
 
 	// Get the list of all joints connected to this body.
 	const b3JointEdge* GetJointList() const;
@@ -401,8 +401,8 @@ private:
 	bool ShouldCollide(const b3Body* other) const;
 
 	b3BodyType m_type;
-	u32 m_islandIndex;
-	u32 m_flags;
+	uint32 m_islandIndex;
+	uint32 m_flags;
 	
 	// Body sleeping
 	scalar m_linearSleepTolerance;
@@ -411,7 +411,7 @@ private:
 
 	// The fixtures attached to this body.
 	b3Fixture* m_fixtureList;
-	u32 m_fixtureCount;
+	uint32 m_fixtureCount;
 
 	// Joint edges for this body joint graph.
 	b3JointEdge* m_jointList;
@@ -502,7 +502,7 @@ inline b3Fixture* b3Body::GetFixtureList()
 	return m_fixtureList;
 }
 
-inline u32 b3Body::GetFixtureCount() const
+inline uint32 b3Body::GetFixtureCount() const
 {
 	return m_fixtureCount;
 }

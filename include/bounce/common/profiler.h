@@ -58,7 +58,7 @@ public:
 	double GetElapsedTime() const { return m_elapsed; }
 
 	// Get the total number of calls in this node.
-	u32 GetCallCount() const { return m_callCount; }
+	uint32 GetCallCount() const { return m_callCount; }
 
 	// Get the parent node of this node.
 	const b3ProfilerNode* GetParent() const { return m_parent; }
@@ -67,7 +67,7 @@ public:
 	const b3ProfilerNode* GetChildList() const { return m_childList; }
 
 	// Get the number of child nodes.
-	u32 GetChildCount() const { return m_childCount; }
+	uint32 GetChildCount() const { return m_childCount; }
 
 	// Get the next child node in this node's list of child nodes.
 	const b3ProfilerNode* GetNextChild() const { return m_childNext; }
@@ -81,13 +81,13 @@ private:
 
 	const char* m_name;
 	double m_elapsed;
-	u32 m_callCount;
-	u32 m_recursionCount;
+	uint32 m_callCount;
+	uint32 m_recursionCount;
 	double m_t1;
 	double m_t2;
 	b3ProfilerNode* m_parent;
 	b3ProfilerNode* m_childList;
-	u32 m_childCount;
+	uint32 m_childCount;
 	b3ProfilerNode* m_childNext;
 	b3ProfilerStatistic* m_statistic;
 };
@@ -117,7 +117,7 @@ public:
 	const b3ProfilerStatistic* GetStatisticList() const { return m_statisticList; }
 	
 	// Get the number of statistics.
-	u32 GetStatisticCount() const { return m_statisticCount; }
+	uint32 GetStatisticCount() const { return m_statisticCount; }
 private:
 	b3ProfilerStatistic* FindStatistic(const char* name);
 	void DestroyNodeRecursively(b3ProfilerNode* node);
@@ -128,7 +128,7 @@ private:
 	b3ProfilerNode* m_root; 
 	b3ProfilerNode* m_top; 
 	b3ProfilerStatistic* m_statisticList;
-	u32 m_statisticCount;
+	uint32 m_statisticCount;
 };
 
 // A profiler scope. 

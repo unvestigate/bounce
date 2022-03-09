@@ -19,13 +19,13 @@
 #ifndef B3_TYPES_H
 #define B3_TYPES_H
 
-typedef signed int i32;
-typedef signed short i16;
-typedef signed char	i8;
-typedef unsigned int u32;
-typedef unsigned short u16;
-typedef unsigned char u8;
-typedef unsigned long long u64;
+typedef signed int int32;
+typedef signed short int16;
+typedef signed char	int8;
+typedef unsigned int uint32;
+typedef unsigned short uint16;
+typedef unsigned char uint8;
+typedef unsigned long long uint64;
 
 #ifdef B3_USE_DOUBLE
 typedef double scalar;

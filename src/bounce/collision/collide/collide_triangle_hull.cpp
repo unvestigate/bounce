@@ -36,25 +36,25 @@ struct b3EdgeMap
 		m_halfEdgeEdges[5] = 2;
 	}
 
-	bool IsEdgeCoplanar(u32 index) const;
+	bool IsEdgeCoplanar(uint32 index) const;
 	
 	const b3TriangleHull* m_triangleHull;
 	bool m_hasWing[3];
 	b3Vec3 m_edgeWings[3];
-	u32 m_halfEdgeEdges[6];
+	uint32 m_halfEdgeEdges[6];
 };
 
-bool b3EdgeMap::IsEdgeCoplanar(u32 halfEdgeIndex) const
+bool b3EdgeMap::IsEdgeCoplanar(uint32 halfEdgeIndex) const
 {
-	u32 edgeIndex = m_halfEdgeEdges[halfEdgeIndex];
+	uint32 edgeIndex = m_halfEdgeEdges[halfEdgeIndex];
 
 	if (m_hasWing[edgeIndex] == false)
 	{
 		return false;
 	}
 	
-	u32 ev1 = edgeIndex;
-	u32 ev2 = edgeIndex + 1 < 3 ? edgeIndex + 1 : 0;
+	uint32 ev1 = edgeIndex;
+	uint32 ev2 = edgeIndex + 1 < 3 ? edgeIndex + 1 : 0;
 
 	// Adjacent triangle
 	b3Vec3 A = m_edgeWings[edgeIndex];
@@ -109,13 +109,13 @@ void b3CollideTriangleAndHull(b3Manifold& manifold,
 	
 	b3Vec3 centroid2 = xf2 * hull2->centroid;
 
-	for (u32 i = 0; i < manifold.pointCount; ++i)
+	for (uint32 i = 0; i < manifold.pointCount; ++i)
 	{
 		b3ManifoldPoint* mp = manifold.points + i;
 
 		b3FeaturePair pair = mp->featurePair;
 
-		u32 e1;
+		uint32 e1;
 		if (mp->edgeContact)
 		{
 			e1 = pair.inEdge1;

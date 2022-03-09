@@ -20,12 +20,12 @@
 
 void b3Hull::Validate() const 
 {
-	for (u32 i = 0; i < faceCount; ++i) 
+	for (uint32 i = 0; i < faceCount; ++i) 
 	{
 		Validate(faces + i);
 	}
 
-	for (u32 i = 0; i < edgeCount; i += 2)
+	for (uint32 i = 0; i < edgeCount; i += 2)
 	{
 		const b3HalfEdge* edge = edges + i;
 		const b3HalfEdge* twin = edges + i + 1;
@@ -40,7 +40,7 @@ void b3Hull::Validate() const
 
 void b3Hull::Validate(const b3Face* face) const 
 {
-	u32 n = 0;
+	uint32 n = 0;
 	const b3HalfEdge* begin = GetEdge(face->edge);
 	const b3HalfEdge* edge = begin;
 	do
@@ -56,7 +56,7 @@ void b3Hull::Validate(const b3Face* face) const
 
 void b3Hull::Validate(const b3HalfEdge* e) const 
 {
-	u32 edgeIndex = (u32)(e - edges);
+	uint32 edgeIndex = (uint32)(e - edges);
 	
 	const b3HalfEdge* twin = edges + e->twin;
 
@@ -64,7 +64,7 @@ void b3Hull::Validate(const b3HalfEdge* e) const
 	B3_ASSERT(b3Abs(twin - e) == 1);
 	B3_ASSERT(twin->twin == edgeIndex);
 
-	u32 count = 0;
+	uint32 count = 0;
 	
 	const b3HalfEdge* begin = e;
 	do 
@@ -84,7 +84,7 @@ void b3Hull::Scale(const b3Vec3& scale)
 	B3_ASSERT(scale.y > scalar(0));
 	B3_ASSERT(scale.z > scalar(0));
 
-	for (u32 i = 0; i < vertexCount; ++i)
+	for (uint32 i = 0; i < vertexCount; ++i)
 	{
 		vertices[i] = b3Mul(scale, vertices[i]);
 	}
@@ -97,7 +97,7 @@ void b3Hull::Scale(const b3Vec3& scale)
 	inv_scale.y = scalar(1) / scale.y;
 	inv_scale.z = scalar(1) / scale.z;
 
-	for (u32 i = 0; i < faceCount; ++i)
+	for (uint32 i = 0; i < faceCount; ++i)
 	{
 		b3Plane oldPlane = planes[i];
 
@@ -117,12 +117,12 @@ void b3Hull::Scale(const b3Vec3& scale)
 
 void b3Hull::Rotate(const b3Quat& rotation)
 {
-	for (u32 i = 0; i < vertexCount; ++i)
+	for (uint32 i = 0; i < vertexCount; ++i)
 	{
 		vertices[i] = b3Mul(rotation, vertices[i]);
 	}
 
-	for (u32 i = 0; i < faceCount; ++i)
+	for (uint32 i = 0; i < faceCount; ++i)
 	{
 		planes[i].normal = b3Mul(rotation, planes[i].normal);
 	}
@@ -130,12 +130,12 @@ void b3Hull::Rotate(const b3Quat& rotation)
 
 void b3Hull::Translate(const b3Vec3& translation)
 {
-	for (u32 i = 0; i < vertexCount; ++i)
+	for (uint32 i = 0; i < vertexCount; ++i)
 	{
 		vertices[i] += translation;
 	}
 
-	for (u32 i = 0; i < faceCount; ++i)
+	for (uint32 i = 0; i < faceCount; ++i)
 	{
 		planes[i].offset += b3Dot(planes[i].normal, translation);
 	}
@@ -148,7 +148,7 @@ void b3Hull::Transform(const b3Transform& xf, const b3Vec3& scale)
 	B3_ASSERT(scale.y > scalar(0));
 	B3_ASSERT(scale.z > scalar(0));
 
-	for (u32 i = 0; i < vertexCount; ++i)
+	for (uint32 i = 0; i < vertexCount; ++i)
 	{
 		vertices[i] = b3Mul(xf.rotation, b3Mul(scale, vertices[i])) + xf.translation;
 	}
@@ -161,7 +161,7 @@ void b3Hull::Transform(const b3Transform& xf, const b3Vec3& scale)
 	inv_scale.y = scalar(1) / scale.y;
 	inv_scale.z = scalar(1) / scale.z;
 
-	for (u32 i = 0; i < faceCount; ++i)
+	for (uint32 i = 0; i < faceCount; ++i)
 	{
 		b3Plane oldPlane = planes[i];
 
@@ -186,7 +186,7 @@ void b3Hull::Dump() const
 	b3Log("b3Face faces[%d]\n", faceCount);
 	b3Log("b3Plane planes[%d]\n", faceCount);
 
-	for (u32 i = 0; i < vertexCount; ++i)
+	for (uint32 i = 0; i < vertexCount; ++i)
 	{
 		b3Vec3 v = vertices[i];
 
@@ -195,7 +195,7 @@ void b3Hull::Dump() const
 
 	b3Log("\n");
 
-	for (u32 i = 0; i < edgeCount; ++i)
+	for (uint32 i = 0; i < edgeCount; ++i)
 	{
 		b3HalfEdge* he = edges + i;
 
@@ -204,14 +204,14 @@ void b3Hull::Dump() const
 
 	b3Log("\n");
 
-	for (u32 i = 0; i < faceCount; ++i)
+	for (uint32 i = 0; i < faceCount; ++i)
 	{
 		b3Log("faces[%d].edge = %d;\n", i, faces[i].edge);
 	}
 
 	b3Log("\n");
 
-	for (u32 i = 0; i < faceCount; ++i)
+	for (uint32 i = 0; i < faceCount; ++i)
 	{
 		b3Plane plane = planes[i];
 

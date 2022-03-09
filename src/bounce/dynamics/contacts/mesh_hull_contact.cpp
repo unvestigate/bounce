@@ -40,7 +40,7 @@ b3MeshAndHullContact::b3MeshAndHullContact(b3Fixture* fixtureA, b3Fixture* fixtu
 	B3_ASSERT(fixtureB->GetType() == b3Shape::e_hull);
 }
 
-void b3MeshAndHullContact::Evaluate(b3Manifold& manifold, const b3Transform& xfA, const b3Transform& xfB, u32 cacheIndex)
+void b3MeshAndHullContact::Evaluate(b3Manifold& manifold, const b3Transform& xfA, const b3Transform& xfB, uint32 cacheIndex)
 {
 	B3_ASSERT(cacheIndex < m_triangleCount);
 	

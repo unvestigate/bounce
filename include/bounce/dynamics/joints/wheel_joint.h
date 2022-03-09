@@ -177,8 +177,8 @@ protected:
 	bool m_enableMotor;
 
 	// Solver temp
-	u32 m_indexA;
-	u32 m_indexB;
+	uint32 m_indexA;
+	uint32 m_indexB;
 	b3Vec3 m_localCenterA;
 	b3Vec3 m_localCenterB;
 	scalar m_mA;

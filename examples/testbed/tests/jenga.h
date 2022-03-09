@@ -49,9 +49,9 @@ public:
 
 		scalar y = 2.0f;
 
-		for (u32 i = 0; i < e_layerCount / 2; ++i)
+		for (uint32 i = 0; i < e_layerCount / 2; ++i)
 		{
-			for (u32 j = 0; j < e_depthCount; ++j)
+			for (uint32 j = 0; j < e_depthCount; ++j)
 			{
 				b3BodyDef bd;
 				bd.type = b3BodyType::e_dynamicBody;
@@ -75,7 +75,7 @@ public:
 
 			y += 2.05f * boxScale.y;
 
-			for (u32 j = 0; j < e_depthCount; ++j)
+			for (uint32 j = 0; j < e_depthCount; ++j)
 			{
 				b3BodyDef bd;
 				bd.type = b3BodyType::e_dynamicBody;

@@ -48,7 +48,7 @@ struct b3TOIOutput
 
 	State state;
 	scalar t;
-	u32 iterations;
+	uint32 iterations;
 };
 
 // Compute the time of impact between two shapes.
@@ -62,7 +62,7 @@ b3TOIOutput b3TimeOfImpact(const b3TOIInput& input);
 // Use b3GJK to compute the contact point and normal at the time of impact.
 b3TOIOutput b3TimeOfImpact(const b3Transform& xf1, const b3GJKProxy& proxy1, const b3Vec3& d1,
 	const b3Transform& xf2, const b3GJKProxy& proxy2, const b3Vec3& d2, 
-	u32 maxIterations = 20);
+	uint32 maxIterations = 20);
 
 // Compute the time of impact between two AABBs.
 // This is represented as a fraction between [0, 1].

@@ -116,7 +116,7 @@ public:
 		}
 
 		b3Vec3 points1[e_count];
-		for (u32 i = 0; i < e_count; ++i)
+		for (uint32 i = 0; i < e_count; ++i)
 		{
 			float x = 3.0f * RandomFloat(-1.0f, 1.0f);
 			float y = 3.0f * RandomFloat(-1.0f, 1.0f);
@@ -134,7 +134,7 @@ public:
 		m_hullA = CreateHull(points1, e_count);
 		
 		b3Vec3 points2[e_count];
-		for (u32 i = 0; i < e_count; ++i)
+		for (uint32 i = 0; i < e_count; ++i)
 		{
 			float x = 3.0f * RandomFloat(-1.0f, 1.0f);
 			float y = 3.0f * RandomFloat(-1.0f, 1.0f);
@@ -176,7 +176,7 @@ public:
 
 		b3CollideHullAndHull(manifold, m_xfA, &sA, m_xfB, &sB, &cache, m_xfA, m_xfB);
 
-		for (u32 i = 0; i < manifold.pointCount; ++i)
+		for (uint32 i = 0; i < manifold.pointCount; ++i)
 		{
 			b3WorldManifold wm;
 			wm.Initialize(&manifold, sA.m_radius, m_xfA, sB.m_radius, m_xfB);

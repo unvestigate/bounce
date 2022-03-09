@@ -37,10 +37,10 @@ b3FaceQuery b3QueryFaceSeparation(const b3Transform& xf1, const b3Hull* hull1,
 	b3Transform xf = b3MulT(xf2, xf1);
 
 	// Here greater means less than since is a signed distance.
-	u32 maxIndex = 0;
+	uint32 maxIndex = 0;
 	scalar maxSeparation = -B3_MAX_SCALAR;
 
-	for (u32 i = 0; i < hull1->faceCount; ++i)
+	for (uint32 i = 0; i < hull1->faceCount; ++i)
 	{
 		b3Plane plane = xf * hull1->GetPlane(i);
 		scalar separation = b3Project(hull2, plane);
@@ -117,12 +117,12 @@ b3EdgeQuery b3QueryEdgeSeparation(const b3Transform& xf1, const b3Hull* hull1,
 	b3Transform xf = b3MulT(xf2, xf1);
 	b3Vec3 C1 = xf * hull1->centroid;
 
-	u32 maxIndex1 = 0;
-	u32 maxIndex2 = 0;
+	uint32 maxIndex1 = 0;
+	uint32 maxIndex2 = 0;
 	scalar maxSeparation = -B3_MAX_SCALAR;
 
 	// Loop through the first hull's unique edges.
-	for (u32 i = 0; i < hull1->edgeCount; i += 2)
+	for (uint32 i = 0; i < hull1->edgeCount; i += 2)
 	{
 		const b3HalfEdge* edge1 = hull1->GetEdge(i);
 		const b3HalfEdge* twin1 = hull1->GetEdge(i + 1);
@@ -138,7 +138,7 @@ b3EdgeQuery b3QueryEdgeSeparation(const b3Transform& xf1, const b3Hull* hull1,
 		b3Vec3 V1 = b3Mul(xf.rotation, hull1->GetPlane(twin1->face).normal);
 
 		// Loop through the second hull's unique edges.
-		for (u32 j = 0; j < hull2->edgeCount; j += 2)
+		for (uint32 j = 0; j < hull2->edgeCount; j += 2)
 		{
 			const b3HalfEdge* edge2 = hull2->GetEdge(j);
 			const b3HalfEdge* twin2 = hull2->GetEdge(j + 1);
@@ -226,8 +226,8 @@ b3SATCacheType b3FeatureCache::ReadEdge(
 	const b3Transform& xf1, const b3Hull* hull1,
 	const b3Transform& xf2, const b3Hull* hull2, scalar totalRadius)
 {
-	u32 i = featurePair.index1;
-	u32 j = featurePair.index2;
+	uint32 i = featurePair.index1;
+	uint32 j = featurePair.index2;
 
 	// Query minimum separation distance and axis of the first hull planes.
 	// Perform computations in the local space of the second hull.

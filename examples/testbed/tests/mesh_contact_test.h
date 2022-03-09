@@ -28,7 +28,7 @@ public:
 		m_gridMesh.BuildAdjacency();
 
 		// Transform grid into a terrain
-		for (u32 i = 0; i < m_terrainMesh.vertexCount; ++i)
+		for (uint32 i = 0; i < m_terrainMesh.vertexCount; ++i)
 		{
 			m_terrainMesh.vertices[i].y = RandomFloat(0.0f, 1.0f);
 		}

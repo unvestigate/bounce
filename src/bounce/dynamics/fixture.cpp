@@ -136,7 +136,7 @@ const b3AABB& b3Fixture::GetFatAABB() const
 	return m_body->m_world->m_contactManager.m_broadPhase.GetFatAABB(m_proxyId);
 }
 
-void b3Fixture::Dump(u32 bodyIndex) const
+void b3Fixture::Dump(uint32 bodyIndex) const
 {
 	switch (GetType())
 	{
@@ -172,7 +172,7 @@ void b3Fixture::Dump(u32 bodyIndex) const
 		b3HullShape* s = (b3HullShape*)m_shape;
 		const b3Hull* h = s->m_hull;
 		
-		b3Log("		u8* marker = (u8*) b3Alloc(%d);\n", h->GetSize());
+		b3Log("		uint8* marker = (uint8*) b3Alloc(%d);\n", h->GetSize());
 		b3Log("		\n");
 		b3Log("		b3Hull* h = (b3Hull*)marker;\n");
 		b3Log("		marker += 1 * sizeof(b3Hull);\n");
@@ -188,14 +188,14 @@ void b3Fixture::Dump(u32 bodyIndex) const
 		b3Log("		h->centroid.Set(%f, %f, %f);\n", h->centroid.x, h->centroid.y, h->centroid.z);
 		b3Log("		\n");
 		b3Log("		h->vertexCount = %d;\n", h->vertexCount);
-		for (u32 i = 0; i < h->vertexCount; ++i)
+		for (uint32 i = 0; i < h->vertexCount; ++i)
 		{
 			const b3Vec3* v = h->vertices + i;
 			b3Log("		h->vertices[%d].Set(%f, %f, %f);\n", i, v->x, v->y, v->z);
 		}
 		b3Log("		\n");
 		b3Log("		h->edgeCount = %d;\n", h->edgeCount);
-		for (u32 i = 0; i < h->edgeCount; ++i)
+		for (uint32 i = 0; i < h->edgeCount; ++i)
 		{
 			const b3HalfEdge* e = h->edges + i;
 			b3Log("		h->edges[%d].origin = %d;\n", i, e->origin);
@@ -206,13 +206,13 @@ void b3Fixture::Dump(u32 bodyIndex) const
 		}
 		b3Log("		\n");
 		b3Log("		h->faceCount = %d;\n", h->faceCount);
-		for (u32 i = 0; i < h->faceCount; ++i)
+		for (uint32 i = 0; i < h->faceCount; ++i)
 		{
 			const b3Face* f = h->faces + i;
 			b3Log("		h->faces[%d].edge = %d;\n", i, f->edge);
 		}
 		b3Log("		\n");
-		for (u32 i = 0; i < h->faceCount; ++i)
+		for (uint32 i = 0; i < h->faceCount; ++i)
 		{
 			const b3Plane* p = h->planes + i;
 			b3Log("		h->planes[%d].normal.Set(%f, %f, %f);\n", i, p->normal.x, p->normal.y, p->normal.z);
@@ -231,7 +231,7 @@ void b3Fixture::Dump(u32 bodyIndex) const
 		b3MeshShape* s = (b3MeshShape*)m_shape;
 		const b3Mesh* m = s->m_mesh;
 		
-		b3Log("		u8* marker = (u8*) b3Alloc(%d);\n", m->GetSize());
+		b3Log("		uint8* marker = (uint8*) b3Alloc(%d);\n", m->GetSize());
 		b3Log("		\n");
 		b3Log("		b3Mesh* m = (b3Hull*)marker;\n");
 		b3Log("		marker += 1 * sizeof(b3Mesh);\n");
@@ -242,13 +242,13 @@ void b3Fixture::Dump(u32 bodyIndex) const
 		b3Log("		m->planes = (b3Plane*)marker;\n");
 		b3Log("		marker += %d * sizeof(b3Plane);\n", 2 * m->triangleCount);
 		b3Log("		\n");
-		for (u32 i = 0; i < m->vertexCount; ++i)
+		for (uint32 i = 0; i < m->vertexCount; ++i)
 		{
 			const b3Vec3* v = m->vertices + i;
 			b3Log("		m->vertices[%d].Set(%f, %f, %f);\n", i, v->x, v->y, v->z);
 		}
 		b3Log("		\n");
-		for (u32 i = 0; i < m->triangleCount; ++i)
+		for (uint32 i = 0; i < m->triangleCount; ++i)
 		{
 			const b3MeshTriangle* t = m->triangles + i;
 			b3Log("		m->triangles[%d].v1 = %d;\n", i, t->v1);

@@ -33,17 +33,17 @@ struct b3ManifoldPointKey
 			key1 == other.key1 && key2 == other.key2;
 	}
 
-	u32 triangleKey; 
-	u64 key1; 
-	u64 key2; 
+	uint32 triangleKey; 
+	uint64 key1; 
+	uint64 key2; 
 };
 
 inline b3ManifoldPointKey b3MakeKey(const b3FeaturePair& featurePair)
 {
 	struct b3Key128
 	{
-		u64 key1;
-		u64 key2;
+		uint64 key1;
+		uint64 key2;
 	};
 
 	union b3FeaturePairKey
@@ -72,7 +72,7 @@ struct b3ManifoldPoint
 	b3ManifoldPointKey key; // point identifier
 
 	scalar normalImpulse; // normal impulse
-	u64 persistCount; // number of time steps this point is persisting
+	uint64 persistCount; // number of time steps this point is persisting
 
 	b3FeaturePair featurePair; // internal use
 	bool edgeContact; // internal use
@@ -89,7 +89,7 @@ struct b3Manifold
 	void Initialize(const b3Manifold& old);
 	
 	b3ManifoldPoint points[B3_MAX_MANIFOLD_POINTS]; // manifold points
-	u32 pointCount; // number of manifold points
+	uint32 pointCount; // number of manifold points
 
 	b3Vec2 tangentImpulse;
 	scalar motorImpulse;
@@ -112,7 +112,7 @@ struct b3WorldManifold
 {
 	void Initialize(const b3Manifold* m, scalar rA, const b3Transform& xfA, scalar rB, const b3Transform& xfB);
 
-	u32 pointCount; 
+	uint32 pointCount; 
 	b3WorldManifoldPoint points[B3_MAX_MANIFOLD_POINTS]; 
 
 	b3Vec3 center;

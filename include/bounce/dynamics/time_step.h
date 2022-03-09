@@ -29,8 +29,8 @@ struct b3TimeStep
 	scalar dt; // time step
 	scalar inv_dt; // inverse time step (0 if dt == 0).
 	scalar dtRatio; // dt * inv_dt0
-	u32 velocityIterations;
-	u32 positionIterations;
+	uint32 velocityIterations;
+	uint32 positionIterations;
 	bool warmStarting;
 };
 

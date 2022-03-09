@@ -24,7 +24,7 @@
 // Implementation of the GJK (Gilbert-Johnson-Keerthi) algorithm 
 // using Voronoi regions and Barycentric coordinates.
 
-u32 b3_gjkCalls = 0, b3_gjkIters = 0, b3_gjkMaxIters = 0;
+uint32 b3_gjkCalls = 0, b3_gjkIters = 0, b3_gjkMaxIters = 0;
 
 // Convert a point Q from Cartesian coordinates to Barycentric coordinates (u, v) 
 // with respect to a segment AB.
@@ -591,8 +591,8 @@ b3GJKOutput b3GJK(const b3Transform& xf1, const b3GJKProxy& proxy1,
 
 	// These store the vertices of the last simplex so that we
 	// can check for duplicates and prevent cycling.
-	u32 save1[4], save2[4];
-	u32 saveCount = 0;
+	uint32 save1[4], save2[4];
+	uint32 saveCount = 0;
 
 	// Last iteration squared distance for checking if we're getting close
 	// to the origin and prevent cycling.
@@ -601,15 +601,15 @@ b3GJKOutput b3GJK(const b3Transform& xf1, const b3GJKProxy& proxy1,
 	const b3Vec3 kOrigin(scalar(0), scalar(0), scalar(0));
 
 	// Limit number of iterations to prevent cycling.
-	const u32 kMaxIters = 20;
+	const uint32 kMaxIters = 20;
 
 	// Main iteration loop.
-	u32 iter = 0;
+	uint32 iter = 0;
 	while (iter < kMaxIters)
 	{
 		// Copy simplex so we can identify duplicates.
 		saveCount = simplex.m_count;
-		for (u32 i = 0; i < saveCount; ++i)
+		for (uint32 i = 0; i < saveCount; ++i)
 		{
 			save1[i] = vertices[i].index1;
 			save2[i] = vertices[i].index2;
@@ -675,7 +675,7 @@ b3GJKOutput b3GJK(const b3Transform& xf1, const b3GJKProxy& proxy1,
 		// Check for duplicate support points. 
 		// This is the main termination criteria.
 		bool duplicate = false;
-		for (u32 i = 0; i < saveCount; ++i)
+		for (uint32 i = 0; i < saveCount; ++i)
 		{
 			if (vertex->index1 == save1[i] && vertex->index2 == save2[i])
 			{
@@ -737,7 +737,7 @@ b3GJKOutput b3GJK(const b3Transform& xf1, const b3GJKProxy& proxy1,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-u32 b3_gjkCacheHits = 0;
+uint32 b3_gjkCacheHits = 0;
 
 // Implements b3Simplex routines for a cached simplex.
 void b3Simplex::ReadCache(const b3SimplexCache* cache,
@@ -745,8 +745,8 @@ void b3Simplex::ReadCache(const b3SimplexCache* cache,
 	const b3Transform& xf2, const b3GJKProxy& proxy2)
 {
 	B3_ASSERT(cache->count <= 4);
-	m_count = (u8)cache->count;
-	for (u32 i = 0; i < m_count; ++i)
+	m_count = (uint8)cache->count;
+	for (uint32 i = 0; i < m_count; ++i)
 	{
 		b3SimplexVertex* v = m_vertices + i;
 		v->index1 = cache->index1[i];
@@ -796,11 +796,11 @@ void b3Simplex::ReadCache(const b3SimplexCache* cache,
 void b3Simplex::WriteCache(b3SimplexCache* cache) const
 {
 	cache->metric = GetMetric();
-	cache->count = u16(m_count);
-	for (u32 i = 0; i < m_count; ++i)
+	cache->count = uint16(m_count);
+	for (uint32 i = 0; i < m_count; ++i)
 	{
-		cache->index1[i] = u8(m_vertices[i].index1);
-		cache->index2[i] = u8(m_vertices[i].index2);
+		cache->index1[i] = uint8(m_vertices[i].index1);
+		cache->index2[i] = uint8(m_vertices[i].index2);
 	}
 }
 
@@ -858,7 +858,7 @@ struct b3ShapeCastOutput
 	scalar t; // time of impact
 	b3Vec3 point; // contact point at t
 	b3Vec3 normal; // contact normal at t
-	u32 iterations; // number of iterations 
+	uint32 iterations; // number of iterations 
 };
 
 // Gino van der Bergen
@@ -877,8 +877,8 @@ bool b3ShapeCast(b3ShapeCastOutput* output,
 	scalar t = scalar(0);
 	b3Vec3 n = b3Vec3_zero;
 
-	u32 index1 = proxy1.GetSupportIndex(b3MulC(xf1.rotation, -r));
-	u32 index2 = proxy2.GetSupportIndex(b3MulC(xf2.rotation, r));
+	uint32 index1 = proxy1.GetSupportIndex(b3MulC(xf1.rotation, -r));
+	uint32 index2 = proxy2.GetSupportIndex(b3MulC(xf2.rotation, r));
 	b3Vec3 w1 = xf1 * proxy1.GetVertex(index1);
 	b3Vec3 w2 = xf2 * proxy2.GetVertex(index2);
 	b3Vec3 v = w1 - w2;
@@ -888,15 +888,15 @@ bool b3ShapeCast(b3ShapeCastOutput* output,
 
 	b3SimplexVertex* vertices = simplex.m_vertices;
 
-	u32 save1[4], save2[4];
-	u32 saveCount = 0;
+	uint32 save1[4], save2[4];
+	uint32 saveCount = 0;
 
-	const u32 kMaxIters = 20;
+	const uint32 kMaxIters = 20;
 	const scalar kTolerance = scalar(10) * B3_EPSILON;
 
 	scalar maxTolerance = scalar(1);
 
-	u32 iter = 0;
+	uint32 iter = 0;
 	while (iter < kMaxIters && b3Abs(b3LengthSquared(v) - radius * radius) > kTolerance * maxTolerance)
 	{
 		// Support in direction -v
@@ -948,7 +948,7 @@ bool b3ShapeCast(b3ShapeCastOutput* output,
 
 		// If we found a duplicate support point we must exit to avoid cycling.
 		bool duplicate = false;
-		for (u32 i = 0; i < saveCount; ++i)
+		for (uint32 i = 0; i < saveCount; ++i)
 		{
 			if (vertex->index1 == save1[i] && vertex->index2 == save2[i])
 			{
@@ -966,14 +966,14 @@ bool b3ShapeCast(b3ShapeCastOutput* output,
 
 		// Compute tolerance
 		maxTolerance = -B3_EPSILON;
-		for (u32 i = 0; i < simplex.m_count; ++i)
+		for (uint32 i = 0; i < simplex.m_count; ++i)
 		{
 			maxTolerance = b3Max(maxTolerance, b3LengthSquared(vertices[i].point));
 		}
 
 		// Copy simplex so we can identify duplicates.
 		saveCount = simplex.m_count;
-		for (u32 i = 0; i < saveCount; ++i)
+		for (uint32 i = 0; i < saveCount; ++i)
 		{
 			save1[i] = vertices[i].index1;
 			save2[i] = vertices[i].index2;

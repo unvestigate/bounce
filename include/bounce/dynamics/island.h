@@ -34,7 +34,7 @@ struct b3ContactVelocityConstraint;
 class b3Island 
 {
 public:
-	b3Island(u32 bodyCapacity, u32 contactCapacity, u32 jointCapacity, b3StackAllocator* allocator, b3ContactListener* listener, b3Profiler* profiler);
+	b3Island(uint32 bodyCapacity, uint32 contactCapacity, uint32 jointCapacity, b3StackAllocator* allocator, b3ContactListener* listener, b3Profiler* profiler);
 	~b3Island();
 
 	void Clear()
@@ -75,16 +75,16 @@ public:
 	b3Profiler* m_profiler;
 
 	b3Body** m_bodies;
-	u32 m_bodyCapacity;
-	u32 m_bodyCount;
+	uint32 m_bodyCapacity;
+	uint32 m_bodyCount;
 
 	b3Contact** m_contacts;
-	u32 m_contactCapacity;
-	u32 m_contactCount;
+	uint32 m_contactCapacity;
+	uint32 m_contactCount;
 
 	b3Joint** m_joints;
-	u32 m_jointCapacity;
-	u32 m_jointCount;
+	uint32 m_jointCapacity;
+	uint32 m_jointCount;
 	
 	b3Position* m_positions;
 	b3Velocity* m_velocities;

@@ -23,41 +23,41 @@
 
 struct b3Face
 {
-	u32 edge;
+	uint32 edge;
 };
 
 struct b3HalfEdge
 {
-	u32 origin;
-	u32 twin;
-	u32 face;
-	u32 prev;
-	u32 next;
+	uint32 origin;
+	uint32 twin;
+	uint32 face;
+	uint32 prev;
+	uint32 next;
 };
 
 struct b3Hull
 {
 	b3Vec3 centroid;
-	u32 vertexCount;
+	uint32 vertexCount;
 	b3Vec3* vertices;
-	u32 edgeCount;
+	uint32 edgeCount;
 	b3HalfEdge* edges;
-	u32 faceCount;
+	uint32 faceCount;
 	b3Face* faces;
 	b3Plane* planes;
 	
-	const b3Vec3& GetVertex(u32 index) const;
-	const b3HalfEdge* GetEdge(u32 index) const;
-	const b3Face* GetFace(u32 index) const;
-	const b3Plane& GetPlane(u32 index) const;
+	const b3Vec3& GetVertex(uint32 index) const;
+	const b3HalfEdge* GetEdge(uint32 index) const;
+	const b3Face* GetFace(uint32 index) const;
+	const b3Plane& GetPlane(uint32 index) const;
 
-	u32 GetSupportVertex(const b3Vec3& direction) const;
-	//u32 GetSupportEdge(const b3Vec3& direction) const;
-	u32 GetSupportFace(const b3Vec3& direction) const;
+	uint32 GetSupportVertex(const b3Vec3& direction) const;
+	//uint32 GetSupportEdge(const b3Vec3& direction) const;
+	uint32 GetSupportFace(const b3Vec3& direction) const;
 	
-	b3Plane GetEdgeSidePlane(u32 index) const;
+	b3Plane GetEdgeSidePlane(uint32 index) const;
 	
-	u32 GetSize() const;
+	uint32 GetSize() const;
 
 	void Validate() const;
 	void Validate(const b3Face* face) const;
@@ -73,7 +73,7 @@ struct b3Hull
 	void Transform(const b3Transform& xf, const b3Vec3& scale);
 };
 
-inline b3HalfEdge b3MakeEdge(u32 origin, u32 twin, u32 face, u32 prev, u32 next)
+inline b3HalfEdge b3MakeEdge(uint32 origin, uint32 twin, uint32 face, uint32 prev, uint32 next)
 {
 	b3HalfEdge edge;
 	edge.origin = origin;
@@ -84,31 +84,31 @@ inline b3HalfEdge b3MakeEdge(u32 origin, u32 twin, u32 face, u32 prev, u32 next)
 	return edge;
 }
 
-inline const b3Vec3& b3Hull::GetVertex(u32 index) const
+inline const b3Vec3& b3Hull::GetVertex(uint32 index) const
 {
 	return vertices[index];
 }
 
-inline const b3HalfEdge* b3Hull::GetEdge(u32 index) const
+inline const b3HalfEdge* b3Hull::GetEdge(uint32 index) const
 {
 	return edges + index;
 }
 
-inline const b3Face* b3Hull::GetFace(u32 index) const
+inline const b3Face* b3Hull::GetFace(uint32 index) const
 {
 	return faces + index;
 }
 
-inline const b3Plane& b3Hull::GetPlane(u32 index) const
+inline const b3Plane& b3Hull::GetPlane(uint32 index) const
 {
 	return planes[index];
 }
 
-inline u32 b3Hull::GetSupportVertex(const b3Vec3& direction) const
+inline uint32 b3Hull::GetSupportVertex(const b3Vec3& direction) const
 {
-	u32 maxIndex = 0;
+	uint32 maxIndex = 0;
 	scalar maxProjection = b3Dot(direction, vertices[maxIndex]);
-	for (u32 i = 1; i < vertexCount; ++i)
+	for (uint32 i = 1; i < vertexCount; ++i)
 	{
 		scalar projection = b3Dot(direction, vertices[i]);
 		if (projection > maxProjection)
@@ -120,11 +120,11 @@ inline u32 b3Hull::GetSupportVertex(const b3Vec3& direction) const
 	return maxIndex;
 }
 
-inline u32 b3Hull::GetSupportFace(const b3Vec3& direction) const
+inline uint32 b3Hull::GetSupportFace(const b3Vec3& direction) const
 {
-	u32 maxIndex = 0;
+	uint32 maxIndex = 0;
 	scalar maxProjection = b3Dot(direction, planes[maxIndex].normal);
-	for (u32 i = 1; i < faceCount; ++i)
+	for (uint32 i = 1; i < faceCount; ++i)
 	{
 		scalar projection = b3Dot(direction, planes[i].normal);
 		if (projection > maxProjection)
@@ -136,7 +136,7 @@ inline u32 b3Hull::GetSupportFace(const b3Vec3& direction) const
 	return maxIndex;
 }
 
-inline b3Plane b3Hull::GetEdgeSidePlane(u32 index) const
+inline b3Plane b3Hull::GetEdgeSidePlane(uint32 index) const
 {
 	const b3HalfEdge* edge = edges + index;
 	const b3HalfEdge* twin = edges + edge->twin;
@@ -153,9 +153,9 @@ inline b3Plane b3Hull::GetEdgeSidePlane(u32 index) const
 	return plane;
 }
 
-inline u32 b3Hull::GetSize() const
+inline uint32 b3Hull::GetSize() const
 {
-	u32 size = 0;
+	uint32 size = 0;
 	size += sizeof(b3Hull);
 	size += vertexCount * sizeof(b3Vec3);
 	size += edgeCount * sizeof(b3HalfEdge);
