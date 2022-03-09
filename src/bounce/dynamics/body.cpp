@@ -496,13 +496,14 @@ void b3Body::SetType(b3BodyType type)
 	for (b3Fixture* f = m_fixtureList; f; f = f->m_next)
 	{
 		// Delete the attached contacts.
-		for (b3ContactEdge* ce = f->m_contactList; ce; ce = ce->next)
+		b3ContactEdge* edge = f->m_contactList;
+		while (edge)
 		{
-			b3ContactEdge* ce0 = ce;
-			ce = ce->next;
-			m_world->m_contactManager.Destroy(ce0->contact);
+			b3Contact* c = edge->contact;
+			edge = edge->next;
+			m_world->m_contactManager.Destroy(c);
 		}
-		
+
 		// Touch the proxies so that new contacts will be created (when appropriate)
 		broadPhase->TouchProxy(f->m_proxyId);
 	}
