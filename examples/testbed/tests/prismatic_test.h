@@ -90,6 +90,7 @@ public:
 			jd.lowerTranslation = 0.0f;
 			jd.upperTranslation = 10.0f;
 			jd.enableLimit = true;
+			jd.collideConnected = true;
 
 			m_joint = (b3PrismaticJoint*)m_world.CreateJoint(jd);
 		}
