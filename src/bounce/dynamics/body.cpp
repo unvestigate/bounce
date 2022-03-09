@@ -405,9 +405,9 @@ void b3Body::SetMassData(const b3MassData* massData)
 		m_invMass = scalar(1) / m_mass;
 		m_I = massData->I - m_mass * b3Steiner(massData->center);
 		
-		//B3_ASSERT(m_I.x.x > scalar(0));
-		//B3_ASSERT(m_I.y.y > scalar(0));
-		//B3_ASSERT(m_I.z.z > scalar(0));
+		B3_ASSERT(m_I.x.x > scalar(0));
+		B3_ASSERT(m_I.y.y > scalar(0));
+		B3_ASSERT(m_I.z.z > scalar(0));
 
 		m_invI = b3Inverse(m_I);
 		m_worldInvI = b3RotateToFrame(m_invI, m_xf.rotation);
