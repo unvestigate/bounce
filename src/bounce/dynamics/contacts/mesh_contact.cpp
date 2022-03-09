@@ -79,21 +79,19 @@ void b3MeshContact::SynchronizeFixture()
 	b3Shape* shapeB = m_fixtureB->GetShape();
 	b3Body* bodyB = m_fixtureB->GetBody();
 	b3Transform xfB = bodyB->GetTransform();
-
-	b3Sweep* sweepB = &bodyB->m_sweep;
+	b3Sweep sweepB = bodyB->m_sweep;
+	
 	b3Transform xfB0;
-	xfB0.translation = sweepB->worldCenter0;
-	xfB0.rotation = sweepB->orientation0;
+	xfB0.rotation = sweepB.orientation0;
+	xfB0.translation = sweepB.worldCenter0 - b3Mul(xfB0.rotation, sweepB.localCenter);
 
-	// Calculate the displacement of body B using its position at the last 
-	// time step and the current position.
-	b3Vec3 displacement = xfB.translation - xfB0.translation;
+	b3Transform xf1 = b3MulT(xfA, xfB0);
+	b3Transform xf2 = b3MulT(xfA, xfB);
 
-	// Compute the AABB B in the reference frame of the mesh.
-	b3Transform xf = b3MulT(xfA, xfB);
-
-	b3AABB aabbB;
-	shapeB->ComputeAABB(&aabbB, xf);
+	// Compute the AABBs B in the reference frame of the mesh.
+	b3AABB aabb1, aabb2;
+	shapeB->ComputeAABB(&aabb1, xf1);
+	shapeB->ComputeAABB(&aabb2, xf2);
 
 	b3MeshShape* meshShapeA = (b3MeshShape*)shapeA;
 
@@ -106,10 +104,16 @@ void b3MeshContact::SynchronizeFixture()
 	inv_scale.y = scalar(1) / meshShapeA->m_scale.y;
 	inv_scale.z = scalar(1) / meshShapeA->m_scale.z;
 
-	aabbB.Scale(inv_scale);
+	aabb1.Scale(inv_scale);
+	aabb2.Scale(inv_scale);
+
+	// Compute an AABB that covers the swept shape (may miss some rotation effect).
+	b3AABB aabb = b3Combine(aabb1, aabb2);
+	
+	b3Vec3 displacement = aabb2.GetCenter() - aabb1.GetCenter();
 
 	// Update the AABB with the new (transformed) AABB and buffer move.
-	m_aabbBMoved = MoveAABB(aabbB, displacement);
+	m_aabbBMoved = MoveAABB(aabb, displacement);
 }
 
 bool b3MeshContact::MoveAABB(const b3AABB& aabb, const b3Vec3& displacement)
