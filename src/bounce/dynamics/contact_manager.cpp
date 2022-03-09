@@ -17,6 +17,7 @@
 */
 
 #include <bounce/dynamics/contact_manager.h>
+#include <bounce/dynamics/contacts/contact.h>
 #include <bounce/dynamics/body.h>
 #include <bounce/dynamics/fixture.h>
 #include <bounce/dynamics/world_callbacks.h>
@@ -24,8 +25,13 @@
 
 b3ContactManager::b3ContactManager()
 {
+	m_contactList = nullptr;
+	m_contactCount = 0;
+	
 	m_contactListener = nullptr;
 	m_contactFilter = nullptr;
+	
+	m_allocator = nullptr;
 	m_profiler = nullptr;
 }
 
@@ -45,11 +51,11 @@ void b3ContactManager::AddPair(void* dataA, void* dataB)
 
 	// Check if there is a contact between the two fixtures.
 	// Search the list A or B. The shorter if possible.
-	for (b3ContactEdge* ce = fixtureB->m_contactList.m_head; ce; ce = ce->m_next)
+	for (b3ContactEdge* ce = fixtureB->m_contactList; ce; ce = ce->next)
 	{
-		if (ce->m_other == fixtureA)
+		if (ce->other == fixtureA)
 		{
-			b3Contact* c = ce->m_contact;
+			b3Contact* c = ce->contact;
 
 			b3Fixture* fA = c->GetFixtureA();
 			b3Fixture* fB = c->GetFixtureB();
@@ -60,7 +66,7 @@ void b3ContactManager::AddPair(void* dataA, void* dataB)
 				return;
 			}
 
-			if (fB == fixtureA && fA == fixtureB)
+			if (fA == fixtureB && fB == fixtureA)
 			{
 				// A contact already exists.
 				return;
@@ -68,7 +74,7 @@ void b3ContactManager::AddPair(void* dataA, void* dataB)
 		}
 	}
 
-	// Is at least one of the bodies kinematic or dynamic? 
+	// Is at least one of the bodies dynamic? 
 	// Does a joint prevent the collision?
 	if (bodyA->ShouldCollide(bodyB) == false)
 	{
@@ -85,7 +91,7 @@ void b3ContactManager::AddPair(void* dataA, void* dataB)
 		}
 	}
 
-	// Create contact.
+	// Call the factory.
 	b3Contact* c = b3Contact::Create(fixtureA, fixtureB, m_allocator);
 	if (c == nullptr)
 	{
@@ -95,39 +101,48 @@ void b3ContactManager::AddPair(void* dataA, void* dataB)
 	// Get the fixtures from the contact again because contact creation can swap the fixtures.
 	fixtureA = c->GetFixtureA();
 	fixtureB = c->GetFixtureB();
-	bodyA = fixtureA->GetBody();
-	bodyB = fixtureB->GetBody();
 
-	c->m_flags = 0;
-	
-	// Initialize edge A
-	c->m_nodeA.m_contact = c;
-	c->m_nodeA.m_other = fixtureB;
-
-	// Add edge A to fixture A's contact list.
-	fixtureA->m_contactList.PushFront(&c->m_nodeA);
-
-	// Initialize edge B
-	c->m_nodeB.m_contact = c;
-	c->m_nodeB.m_other = fixtureA;
-
-	// Add edge B to fixture B's contact list.
-	fixtureB->m_contactList.PushFront(&c->m_nodeB);
-
-	// Awake the bodies if both are not sensors.
-	if (!fixtureA->IsSensor() && !fixtureB->IsSensor())
+	// Insert into the world.
+	c->m_prev = nullptr;
+	c->m_next = m_contactList;
+	if (m_contactList != nullptr)
 	{
-		bodyA->SetAwake(true);
-		bodyB->SetAwake(true);
+		m_contactList->m_prev = c;
 	}
+	m_contactList = c;
 
-	// Add the contact to the world contact list.
-	m_contactList.PushFront(c);
+	// Connect to island graph.
+
+	// Connect to fixture 1
+	c->m_nodeA.contact = c;
+	c->m_nodeA.other = fixtureB;
+
+	c->m_nodeA.prev = nullptr;
+	c->m_nodeA.next = fixtureA->m_contactList;
+	if (fixtureA->m_contactList != nullptr)
+	{
+		fixtureA->m_contactList->prev = &c->m_nodeA;
+	}
+	fixtureA->m_contactList = &c->m_nodeA;
+
+	// Connect to fixture 2
+	c->m_nodeB.contact = c;
+	c->m_nodeB.other = fixtureA;
+
+	c->m_nodeB.prev = nullptr;
+	c->m_nodeB.next = fixtureB->m_contactList;
+	if (fixtureB->m_contactList != nullptr)
+	{
+		fixtureB->m_contactList->prev = &c->m_nodeB;
+	}
+	fixtureB->m_contactList = &c->m_nodeB;
+
+	++m_contactCount;
 }
 
 void b3ContactManager::SynchronizeFixtures()
 {
-	b3Contact* c = m_contactList.m_head;
+	b3Contact* c = m_contactList;
 	while (c)
 	{
 		c->SynchronizeFixture();
@@ -139,7 +154,7 @@ void b3ContactManager::FindNewContacts()
 {
 	m_broadPhase.FindPairs(this);
 
-	b3Contact* c = m_contactList.m_head;
+	b3Contact* c = m_contactList;
 	while (c)
 	{
 		c->FindPairs();
@@ -152,17 +167,15 @@ void b3ContactManager::UpdateContacts()
 	B3_PROFILE(m_profiler, "Update Contacts");
 
 	// Update the state of all contacts.
-	b3Contact* c = m_contactList.m_head;
+	b3Contact* c = m_contactList;
 	while (c)
 	{
 		b3Fixture* fixtureA = c->m_fixtureA;
-		u32 proxyA = fixtureA->m_proxyId;
 		b3Body* bodyA = fixtureA->m_body;
 
 		b3Fixture* fixtureB = c->m_fixtureB;
-		u32 proxyB = fixtureB->m_proxyId;
 		b3Body* bodyB = fixtureB->m_body;
-
+		
 		// Check if the bodies must not collide with each other.
 		if (bodyA->ShouldCollide(bodyB) == false)
 		{
@@ -190,47 +203,88 @@ void b3ContactManager::UpdateContacts()
 		bool activeB = bodyB->IsAwake() && bodyB->m_type != e_staticBody;
 		if (activeA == false && activeB == false)
 		{
-			c = c->m_next;
+			c = c->GetNext();
 			continue;
 		}
 
-		// Destroy the contact if the shape AABBs are not overlapping.
+		u32 proxyB = fixtureB->m_proxyId;
+		u32 proxyA = fixtureA->m_proxyId;
 		bool overlap = m_broadPhase.TestOverlap(proxyA, proxyB);
+		
+		// Here we destroy contacts that cease to overlap in the broad-phase.
 		if (overlap == false)
 		{
 			b3Contact* quack = c;
-			c = c->m_next;
+			c = c->GetNext();
 			Destroy(quack);
 			continue;
 		}
 
 		// The contact persists.
 		c->Update(m_contactListener);
-
-		c = c->m_next;
+		c = c->GetNext();
 	}
 }
 
 void b3ContactManager::Destroy(b3Contact* c)
 {
-	// Report to the contact listener the contact will be destroyed.
-	if (m_contactListener)
-	{
-		if (c->IsTouching())
-		{
-			m_contactListener->EndContact(c);
-		}
-	}
-
 	b3Fixture* fixtureA = c->GetFixtureA();
 	b3Fixture* fixtureB = c->GetFixtureB();
 
-	fixtureA->m_contactList.Remove(&c->m_nodeA);
-	fixtureB->m_contactList.Remove(&c->m_nodeB);
+	if (m_contactListener && c->IsTouching())
+	{
+		m_contactListener->EndContact(c);
+	}
 
-	// Remove the contact from the world contact list.
-	m_contactList.Remove(c);
+	// Remove from the world.
+	if (c->m_prev)
+	{
+		c->m_prev->m_next = c->m_next;
+	}
 
-	// Free the contact.
+	if (c->m_next)
+	{
+		c->m_next->m_prev = c->m_prev;
+	}
+
+	if (c == m_contactList)
+	{
+		m_contactList = c->m_next;
+	}
+
+	// Remove from fixture 1
+	if (c->m_nodeA.prev)
+	{
+		c->m_nodeA.prev->next = c->m_nodeA.next;
+	}
+
+	if (c->m_nodeA.next)
+	{
+		c->m_nodeA.next->prev = c->m_nodeA.prev;
+	}
+
+	if (&c->m_nodeA == fixtureA->m_contactList)
+	{
+		fixtureA->m_contactList = c->m_nodeA.next;
+	}
+
+	// Remove from fixture 2
+	if (c->m_nodeB.prev)
+	{
+		c->m_nodeB.prev->next = c->m_nodeB.next;
+	}
+
+	if (c->m_nodeB.next)
+	{
+		c->m_nodeB.next->prev = c->m_nodeB.prev;
+	}
+
+	if (&c->m_nodeB == fixtureB->m_contactList)
+	{
+		fixtureB->m_contactList = c->m_nodeB.next;
+	}
+
+	// Call the factory.
 	b3Contact::Destroy(c, m_allocator);
+	--m_contactCount;
 }

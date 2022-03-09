@@ -24,7 +24,6 @@
 #include <bounce/common/math/quat.h>
 #include <bounce/common/math/transform.h>
 #include <bounce/common/math/sweep.h>
-#include <bounce/common/template/list.h>
 #include <bounce/dynamics/time_step.h>
 
 class b3World;
@@ -151,22 +150,25 @@ public:
 	const b3World* GetWorld() const;
 	b3World* GetWorld();
 
-	// Get the fixtures associated with the body.
-	const b3List<b3Fixture>& GetFixtureList() const;
-	b3List<b3Fixture>& GetFixtureList();
-
 	// Create a new fixture for the body given the shape definition and return a pointer to it.
 	// The shape passed to the definition it will be cloned and is not recommended modifying 
 	// it inside simulation callbacks. 
 	// Therefore you can create shapes on the stack memory.
 	b3Fixture* CreateFixture(const b3FixtureDef& def);
-	
-	// Get the list of all joints connected to this body.
-	const b3List<b3JointEdge>& GetJointList() const;
-	b3List<b3JointEdge>& GetJointList();
 
 	// Destroy a given fixture from the body.
 	void DestroyFixture(b3Fixture* fixture);
+
+	// Get the fixtures associated with the body.
+	const b3Fixture* GetFixtureList() const;
+	b3Fixture* GetFixtureList();
+
+	// Get the number of fixtures in this body.
+	u32 GetFixtureCount() const;
+
+	// Get the list of all joints connected to this body.
+	const b3JointEdge* GetJointList() const;
+	b3JointEdge* GetJointList();
 
 	// Get the body sweep.
 	const b3Sweep& GetSweep() const;
@@ -356,6 +358,8 @@ private:
 	friend class b3World;
 	friend class b3Island;
 
+	friend class b3Fixture;
+
 	friend class b3Contact;
 	friend class b3ConvexContact;
 	friend class b3MeshContact;
@@ -376,9 +380,6 @@ private:
 	friend class b3PrismaticJoint;
 	friend class b3WheelJoint;
 
-	friend class b3Fixture;
-	friend class b3List<b3Body>;
-
 	// Flags
 	enum 
 	{
@@ -392,15 +393,6 @@ private:
 
 	b3Body(const b3BodyDef& def, b3World* world);
 	~b3Body() { }
-
-	// Destroy all fixtures associated with the body.
-	void DestroyFixtures();
-
-	// Destroy all contacts associated with the body.
-	void DestroyContacts();
-
-	// Destroy all joints connected to the body.
-	void DestroyJoints();
 
 	void SynchronizeTransform();
 	void SynchronizeFixtures();
@@ -418,10 +410,11 @@ private:
 	scalar m_sleepTime;
 
 	// The fixtures attached to this body.
-	b3List<b3Fixture> m_fixtureList;
-	
+	b3Fixture* m_fixtureList;
+	u32 m_fixtureCount;
+
 	// Joint edges for this body joint graph.
-	b3List<b3JointEdge> m_jointList;
+	b3JointEdge* m_jointList;
 
 	// User associated data (usually an entity).
 	void* m_userData;
@@ -499,22 +492,27 @@ inline void b3Body::SetUserData(void* userData)
 	m_userData = userData; 
 }
 
-inline const b3List<b3Fixture>& b3Body::GetFixtureList() const
+inline const b3Fixture* b3Body::GetFixtureList() const
 {
 	return m_fixtureList;
 }
 
-inline b3List<b3Fixture>& b3Body::GetFixtureList()
+inline b3Fixture* b3Body::GetFixtureList()
 {
 	return m_fixtureList;
 }
 
-inline const b3List<b3JointEdge>& b3Body::GetJointList() const
+inline u32 b3Body::GetFixtureCount() const
+{
+	return m_fixtureCount;
+}
+
+inline const b3JointEdge* b3Body::GetJointList() const
 {
 	return m_jointList;
 }
 
-inline b3List<b3JointEdge>& b3Body::GetJointList()
+inline b3JointEdge* b3Body::GetJointList()
 {
 	return m_jointList;
 }

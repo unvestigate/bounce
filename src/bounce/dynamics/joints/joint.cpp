@@ -178,13 +178,13 @@ b3Joint::b3Joint(const b3JointDef* def)
 	m_islandFlag = false;
 	m_userData = def->userData;
 
-	m_edgeA.m_joint = nullptr;
-	m_edgeA.m_other = nullptr;
-	m_edgeA.m_prev = nullptr;
-	m_edgeA.m_next = nullptr;
+	m_edgeA.joint = nullptr;
+	m_edgeA.other = nullptr;
+	m_edgeA.prev = nullptr;
+	m_edgeA.next = nullptr;
 
-	m_edgeB.m_joint = nullptr;
-	m_edgeB.m_other = nullptr;
-	m_edgeB.m_prev = nullptr;
-	m_edgeB.m_next = nullptr;
+	m_edgeB.joint = nullptr;
+	m_edgeB.other = nullptr;
+	m_edgeB.prev = nullptr;
+	m_edgeB.next = nullptr;
 }

@@ -32,7 +32,6 @@ ${BOUNCE_INCLUDE_DIR}/bounce/common/memory/stack_allocator.h
 ${BOUNCE_INCLUDE_DIR}/bounce/common/memory/block_allocator.h
 
 ${BOUNCE_INCLUDE_DIR}/bounce/common/template/array.h
-${BOUNCE_INCLUDE_DIR}/bounce/common/template/list.h
 ${BOUNCE_INCLUDE_DIR}/bounce/common/template/queue.h
 ${BOUNCE_INCLUDE_DIR}/bounce/common/template/stack.h
 

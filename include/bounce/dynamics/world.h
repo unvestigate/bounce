@@ -19,16 +19,17 @@
 #ifndef B3_WORLD_H
 #define B3_WORLD_H
 
-#include <bounce/common/memory/stack_allocator.h>
 #include <bounce/common/memory/block_allocator.h>
-#include <bounce/common/template/list.h>
-#include <bounce/dynamics/time_step.h>
+#include <bounce/common/memory/stack_allocator.h>
 #include <bounce/dynamics/joint_manager.h>
 #include <bounce/dynamics/contact_manager.h>
+#include <bounce/dynamics/time_step.h>
 
 struct b3BodyDef;
-
 class b3Body;
+
+class b3Fixture;
+class b3Shape;
 
 class b3QueryListener;
 class b3QueryFilter;
@@ -170,18 +171,27 @@ public:
 	// Otherwise, it continues searching for new overlapping shape AABBs.
 	void QueryAABB(b3QueryListener* listener, b3QueryFilter* filter, const b3AABB& aabb) const;
 
-	// Get the list of bodies in this world.
-	const b3List<b3Body>& GetBodyList() const;
-	b3List<b3Body>& GetBodyList();
+	// Get the head of the list of bodies in this world.
+	const b3Body* GetBodyList() const;
+	b3Body* GetBodyList();
+
+	// Get the number of bodies in this world.
+	u32 GetBodyCount() const;
 
 	// Get the list of joints in this world.
-	const b3List<b3Joint>& GetJointList() const;
-	b3List<b3Joint>& GetJointList();
+	const b3Joint* GetJointList() const;
+	b3Joint* GetJointList();
+
+	// Get the number of joints in this world.
+	u32 GetJointCount() const;
 
 	// Get the list of contacts in this world.
-	const b3List<b3Contact>& GetContactList() const;
-	b3List<b3Contact>& GetContactList();
+	const b3Contact* GetContactList() const;
+	b3Contact* GetContactList();
 	
+	// Get the number of contacts in this world.
+	u32 GetContactCount() const;
+
 	// Draw the physics entities in this world.
 	void DebugDraw() const;
 private:
@@ -200,8 +210,9 @@ private:
 	b3ContactManager m_contactManager;
 	b3JointManager m_jointManager;
 
-	b3List<b3Body> m_bodyList;
-	
+	b3Body* m_bodyList;
+	u32 m_bodyCount;
+
 	b3Vec3 m_gravity;
 	bool m_sleeping;
 	
@@ -261,34 +272,49 @@ inline bool b3World::GetAutoClearForces() const
 	return m_clearForces;
 }
 
-inline const b3List<b3Body>& b3World::GetBodyList() const
+inline const b3Body* b3World::GetBodyList() const
 {
 	return m_bodyList;
 }
 
-inline b3List<b3Body>& b3World::GetBodyList()
+inline b3Body* b3World::GetBodyList()
 {
 	return m_bodyList;
 }
 
-inline const b3List<b3Joint>& b3World::GetJointList() const
+inline u32 b3World::GetBodyCount() const
+{
+	return m_bodyCount;
+}
+
+inline const b3Joint* b3World::GetJointList() const
 {
 	return m_jointManager.m_jointList;
 }
 
-inline b3List<b3Joint>& b3World::GetJointList()
+inline b3Joint* b3World::GetJointList()
 {
 	return m_jointManager.m_jointList;
 }
 
-inline const b3List<b3Contact>& b3World::GetContactList() const
+inline u32 b3World::GetJointCount() const
+{
+	return m_jointManager.m_jointCount;
+}
+
+inline const b3Contact* b3World::GetContactList() const
 {
 	return m_contactManager.m_contactList;
 }
 
-inline b3List<b3Contact>& b3World::GetContactList()
+inline b3Contact* b3World::GetContactList()
 {
 	return m_contactManager.m_contactList;
+}
+
+inline u32 b3World::GetContactCount() const
+{
+	return m_contactManager.m_contactCount;
 }
 
 #endif

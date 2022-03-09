@@ -19,7 +19,7 @@
 #ifndef B3_JOINT_MANAGER_H
 #define B3_JOINT_MANAGER_H
 
-#include <bounce/common/template/list.h>
+#include <bounce/common/settings.h>
 
 struct b3JointDef;
 class b3Joint;
@@ -29,10 +29,13 @@ class b3BlockAllocator;
 class b3JointManager
 {
 public:
-	b3Joint* Create(const b3JointDef* def);
-	void Destroy(b3Joint* joint);
+	b3JointManager();
 
-	b3List<b3Joint> m_jointList;
+	b3Joint* Create(const b3JointDef* def);
+	void Destroy(b3Joint* j);
+
+	b3Joint* m_jointList;
+	u32 m_jointCount;
 	b3BlockAllocator* m_allocator;
 };
 

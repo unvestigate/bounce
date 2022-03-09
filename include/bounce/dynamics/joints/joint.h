@@ -19,7 +19,6 @@
 #ifndef B3_JOINT_H
 #define B3_JOINT_H
 
-#include <bounce/common/template/list.h>
 #include <bounce/common/math/transform.h>
 #include <bounce/common/math/mat22.h>
 #include <bounce/common/math/mat33.h>
@@ -79,10 +78,10 @@ struct b3JointDef
 // Each joint has two joint nodes, one for each attached body.
 struct b3JointEdge
 {
-	b3Body* m_other; // the other body attached
-	b3Joint* m_joint; // the joint
-	b3JointEdge* m_prev; // previous joint edge in the body joint list
-	b3JointEdge* m_next; // the next joint edge in the body joint list
+	b3Body* other; // the other body attached
+	b3Joint* joint; // the joint
+	b3JointEdge* prev; // previous joint edge in the body joint list
+	b3JointEdge* next; // the next joint edge in the body joint list
 };
 
 // Base joint class. 
@@ -128,7 +127,6 @@ protected:
 	friend class b3Island;
 	friend class b3JointManager;
 	friend class b3JointSolver;
-	friend class b3List<b3Joint>;
 	
 	// Joint factory create/destroy functions.
 	static b3Joint* Create(const b3JointDef* def, b3BlockAllocator* allocator);

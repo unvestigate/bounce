@@ -19,13 +19,12 @@
 #ifndef B3_CONTACT_MANAGER_H
 #define B3_CONTACT_MANAGER_H
 
-#include <bounce/common/template/list.h>
 #include <bounce/collision/broad_phase.h>
-#include <bounce/dynamics/contacts/contact.h>
 
-class b3Shape;
+class b3Contact;
 class b3ContactFilter;
 class b3ContactListener;
+
 class b3BlockAllocator;
 class b3Profiler;
 
@@ -51,7 +50,8 @@ public:
 	void Destroy(b3Contact* c);
 
 	b3BroadPhase m_broadPhase;	
-	b3List<b3Contact> m_contactList;
+	b3Contact* m_contactList;
+	u32 m_contactCount;
 	b3ContactFilter* m_contactFilter;
 	b3ContactListener* m_contactListener;
 	b3BlockAllocator* m_allocator;

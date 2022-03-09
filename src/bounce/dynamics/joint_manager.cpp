@@ -20,35 +20,52 @@
 #include <bounce/dynamics/joints/joint.h>
 #include <bounce/dynamics/body.h>
 
+b3JointManager::b3JointManager()
+{
+	m_jointList = nullptr;
+	m_jointCount = 0;
+	m_allocator = nullptr;
+}
+
 b3Joint* b3JointManager::Create(const b3JointDef* def)
 {
 	b3Body* bodyA = def->bodyA;
 	b3Body* bodyB = def->bodyB;
 
-	// There must not be one joint connecting the same bodies.
-	B3_ASSERT(bodyA != bodyB);
-	if (bodyA == bodyB)
-	{
-		return nullptr;
-	}
-
 	// Call the factory to create the new joint.
 	b3Joint* j = b3Joint::Create(def, m_allocator);
+	
+	// Connect to the world list.
+	j->m_prev = nullptr;
+	j->m_next = m_jointList;
+	if (m_jointList)
+	{
+		m_jointList->m_prev = j;
+	}
+	m_jointList = j;
+	++m_jointCount;
 
-	// Add the joint to body A's joint edge list
-	j->m_bodyA = bodyA;
-	j->m_edgeA.m_other = bodyB;
-	j->m_edgeA.m_joint = j;
-	bodyA->m_jointList.PushFront(&j->m_edgeA);
+	// Connect to body 1 doubly linked list
+	j->m_edgeA.joint = j;
+	j->m_edgeA.other = j->m_bodyB;
+	j->m_edgeA.prev = nullptr;
+	j->m_edgeA.next = j->m_bodyA->m_jointList;
+	if (j->m_bodyA->m_jointList)
+	{
+		j->m_bodyA->m_jointList->prev = &j->m_edgeA;
+	}
+	j->m_bodyA->m_jointList = &j->m_edgeA;
 
-	// Add the joint to body B's joint edge list
-	j->m_bodyB = bodyB;
-	j->m_edgeB.m_other = bodyA;
-	j->m_edgeB.m_joint = j;
-	bodyB->m_jointList.PushFront(&j->m_edgeB);
-
-	// Connect the joint to the world joint list
-	m_jointList.PushFront(j);
+	// Connect to body 2 doubly linked list
+	j->m_edgeB.joint = j;
+	j->m_edgeB.other = j->m_bodyA;
+	j->m_edgeB.prev = nullptr;
+	j->m_edgeB.next = j->m_bodyB->m_jointList;
+	if (j->m_bodyB->m_jointList) 
+	{
+		j->m_bodyB->m_jointList->prev = &j->m_edgeB;
+	}
+	j->m_bodyB->m_jointList = &j->m_edgeB;
 
 	// Note: creating a joint doesn't awake the bodies.
 	
@@ -57,22 +74,70 @@ b3Joint* b3JointManager::Create(const b3JointDef* def)
 
 void b3JointManager::Destroy(b3Joint* j)
 {
-	b3Body* bodyA = j->GetBodyA();
-	b3Body* bodyB = j->GetBodyB();
+	// Remove from the doubly linked list.
+	if (j->m_prev)
+	{
+		j->m_prev->m_next = j->m_next;
+	}
+
+	if (j->m_next)
+	{
+		j->m_next->m_prev = j->m_prev;
+	}
+
+	if (j == m_jointList)
+	{
+		m_jointList = j->m_next;
+	}
+
+	// Disconnect from island graph.
+	b3Body* bodyA = j->m_bodyA;
+	b3Body* bodyB = j->m_bodyB;
 
 	// Wake up connected bodies.
 	bodyA->SetAwake(true);
 	bodyB->SetAwake(true);
 
-	// Remove the joint from body A's joint list.
-	bodyA->m_jointList.Remove(&j->m_edgeA);
+	// Remove from body 1.
+	if (j->m_edgeA.prev)
+	{
+		j->m_edgeA.prev->next = j->m_edgeA.next;
+	}
 
-	// Remove the joint from body B's joint list.
-	bodyB->m_jointList.Remove(&j->m_edgeB);
+	if (j->m_edgeA.next)
+	{
+		j->m_edgeA.next->prev = j->m_edgeA.prev;
+	}
 
-	// Remove the joint from the world joint list.
-	m_jointList.Remove(j);
+	if (&j->m_edgeA == bodyA->m_jointList)
+	{
+		bodyA->m_jointList = j->m_edgeA.next;
+	}
 
-	// Destroy the joint.
+	j->m_edgeA.prev = nullptr;
+	j->m_edgeA.next = nullptr;
+
+	// Remove from body 2
+	if (j->m_edgeB.prev)
+	{
+		j->m_edgeB.prev->next = j->m_edgeB.next;
+	}
+
+	if (j->m_edgeB.next)
+	{
+		j->m_edgeB.next->prev = j->m_edgeB.prev;
+	}
+
+	if (&j->m_edgeB == bodyB->m_jointList)
+	{
+		bodyB->m_jointList = j->m_edgeB.next;
+	}
+
+	j->m_edgeB.prev = nullptr;
+	j->m_edgeB.next = nullptr;
+
 	b3Joint::Destroy(j, m_allocator);
+
+	B3_ASSERT(m_jointCount > 0);
+	--m_jointCount;
 }

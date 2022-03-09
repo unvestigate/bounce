@@ -34,7 +34,7 @@
 b3Fixture::b3Fixture()
 {
 	m_body = nullptr;
-	m_prev = nullptr;
+	m_contactList = nullptr;
 	m_next = nullptr;
 	m_shape = nullptr;
 	m_density = scalar(0);
@@ -114,17 +114,6 @@ void b3Fixture::SetSensor(bool flag)
 			m_body->SetAwake(true);
 		}
 		m_isSensor = flag;
-	}
-}
-
-void b3Fixture::DestroyContacts()
-{
-	b3ContactEdge* ce = m_contactList.m_head;
-	while (ce)
-	{
-		b3ContactEdge* boom = ce;
-		ce = ce->m_next;
-		m_body->m_world->m_contactManager.Destroy(boom->m_contact);
 	}
 }
 

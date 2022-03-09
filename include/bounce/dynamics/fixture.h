@@ -19,7 +19,6 @@
 #ifndef B3_FIXTURE_H
 #define B3_FIXTURE_H
 
-#include <bounce/common/template/list.h>
 #include <bounce/common/graphics/color.h>
 #include <bounce/collision/shapes/shape.h>
 #include <bounce/dynamics/body.h>
@@ -135,8 +134,8 @@ public:
 	const b3AABB& GetFatAABB() const;
 
 	// Get the list of contacts that contains this body.
-	const b3List<b3ContactEdge>& GetContactList() const;
-	b3List<b3ContactEdge>& GetContactList();
+	const b3ContactEdge* GetContactList() const;
+	b3ContactEdge* GetContactList();
 
 	// Dump this shape to the log file.
 	void Dump(u32 bodyIndex) const;
@@ -157,7 +156,6 @@ protected:
 	friend class b3ContactManager;
 	friend class b3MeshContact;
 	friend class b3ContactSolver;
-	friend class b3List<b3Fixture>;
 	
 	b3Fixture();
 
@@ -166,10 +164,6 @@ protected:
 	void Create(b3BlockAllocator* allocator, b3Body* body, const b3FixtureDef* def);
 	void Destroy(b3BlockAllocator* allocator);
 
-	// Convenience function.
-	// Destroy the contacts associated with this fixture.
-	void DestroyContacts();
-	
 	// Synchronize proxy AABB.
 	void Synchronize(b3BroadPhase* broadPhase, const b3Transform& transform1, const b3Transform& transform2);
 
@@ -186,13 +180,12 @@ protected:
 	void* m_userData;
 
 	// Contact edges for this fixture contact graph.
-	b3List<b3ContactEdge> m_contactList;
+	b3ContactEdge* m_contactList;
 	
 	// The parent body of this fixture.
 	b3Body* m_body;
 	
 	// Links to the body fixture list.
-	b3Fixture* m_prev;
 	b3Fixture* m_next;
 };
 
@@ -266,12 +259,12 @@ inline b3Body* b3Fixture::GetBody()
 	return m_body;
 }
 
-inline const b3List<b3ContactEdge>& b3Fixture::GetContactList() const
+inline const b3ContactEdge* b3Fixture::GetContactList() const
 {
 	return m_contactList;
 }
 
-inline b3List<b3ContactEdge>& b3Fixture::GetContactList()
+inline b3ContactEdge* b3Fixture::GetContactList()
 {
 	return m_contactList;
 }

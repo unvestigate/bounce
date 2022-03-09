@@ -40,6 +40,9 @@ extern bool b3_convexCache;
 
 b3World::b3World()
 {
+	m_bodyList = nullptr;
+	m_bodyCount = 0;
+
 	m_sleeping = false;
 	m_warmStarting = true;
 
@@ -81,7 +84,7 @@ void b3World::SetSleeping(bool flag)
 	m_sleeping = flag;
 	if (m_sleeping == false)
 	{
-		for (b3Body* b = m_bodyList.m_head; b; b = b->m_next)
+		for (b3Body* b = m_bodyList; b; b = b->m_next)
 		{
 			b->SetAwake(true);
 		}
@@ -92,16 +95,81 @@ b3Body* b3World::CreateBody(const b3BodyDef& def)
 {
 	void* mem = m_blockAllocator.Allocate(sizeof(b3Body));
 	b3Body* b = new(mem) b3Body(def, this);
-	m_bodyList.PushFront(b);
+	
+	// Add to body doubly linked list.
+	b->m_prev = nullptr;
+	b->m_next = m_bodyList;
+	if (m_bodyList)
+	{
+		m_bodyList->m_prev = b;
+	}
+	m_bodyList = b;
+	++m_bodyCount;
+
 	return b;
 }
 
 void b3World::DestroyBody(b3Body* b)
 {
-	b->DestroyFixtures();
-	b->DestroyJoints();
+	// Delete the attached joints.
+	b3JointEdge* je = b->m_jointList;
+	while (je)
+	{
+		b3JointEdge* je0 = je;
+		je = je->next;
+
+		DestroyJoint(je0->joint);
+
+		b->m_jointList = je;
+	}
+	b->m_jointList = nullptr;
+
+	// Delete the attached fixtures.
+	b3Fixture* f = b->m_fixtureList;
+	while (f)
+	{
+		b3Fixture* f0 = f;
+		f = f->m_next;
+
+		// Destroy the attached contacts.
+		b3ContactEdge* ce = f0->m_contactList;
+		while (ce)
+		{
+			b3ContactEdge* ce0 = ce;
+			ce = ce->next;
+			m_contactManager.Destroy(ce0->contact);
+		}
+
+		// Destroy broad-phase proxy.
+		m_contactManager.m_broadPhase.DestroyProxy(f0->m_proxyId);
+
+		f0->Destroy(&m_blockAllocator);
+		f0->~b3Fixture();
+		m_blockAllocator.Free(f0, sizeof(b3Fixture));
+
+		b->m_fixtureList = f;
+		b->m_fixtureCount -= 1;
+	}
+	b->m_fixtureList = nullptr;
+	b->m_fixtureCount = 0;
+
+	// Remove from body list
+	if (b->m_prev)
+	{
+		b->m_prev->m_next = b->m_next;
+	}
 	
-	m_bodyList.Remove(b);
+	if (b->m_next)
+	{
+		b->m_next->m_prev = b->m_prev;
+	}
+
+	if (b == m_bodyList)
+	{
+		m_bodyList = b->m_next;
+	}
+
+	--m_bodyCount;
 	b->~b3Body();
 	m_blockAllocator.Free(b, sizeof(b3Body));
 }
@@ -175,7 +243,7 @@ void b3World::Step(scalar dt, u32 velocityIterations, u32 positionIterations)
 
 void b3World::ClearForces()
 {
-	for (b3Body* body = m_bodyList.m_head; body; body = body->GetNext())
+	for (b3Body* body = m_bodyList; body; body = body->GetNext())
 	{
 		body->m_force.SetZero();
 		body->m_torque.SetZero();
@@ -187,33 +255,33 @@ void b3World::Solve(const b3TimeStep& step)
 	B3_PROFILE(m_profiler, "Solve");
 
 	// Create a worst case island.
-	b3Island island(m_bodyList.m_count,
-		m_contactManager.m_contactList.m_count,
-		m_jointManager.m_jointList.m_count,
+	b3Island island(m_bodyCount,
+		m_contactManager.m_contactCount,
+		m_jointManager.m_jointCount,
 		&m_stackAllocator,
 		m_contactManager.m_contactListener,
 		m_profiler);
 
 	// Clear all visited flags for the depth first search.
-	for (b3Body* b = m_bodyList.m_head; b; b = b->m_next)
+	for (b3Body* b = m_bodyList; b; b = b->m_next)
 	{
 		b->m_flags &= ~b3Body::e_islandFlag;
 	}
 
-	for (b3Contact* c = m_contactManager.m_contactList.m_head; c; c = c->m_next)
+	for (b3Contact* c = m_contactManager.m_contactList; c; c = c->m_next)
 	{
 		c->m_flags &= ~b3Contact::e_islandFlag;
 	}
 
-	for (b3Joint* j = m_jointManager.m_jointList.m_head; j; j = j->m_next)
+	for (b3Joint* j = m_jointManager.m_jointList; j; j = j->m_next)
 	{
 		j->m_islandFlag = false;
 	}
 
 	// Build and simulate awake islands.
-	u32 stackSize = m_bodyList.m_count;
+	u32 stackSize = m_bodyCount;
 	b3Body** stack = (b3Body * *)m_stackAllocator.Allocate(stackSize * sizeof(b3Body*));
-	for (b3Body* seed = m_bodyList.m_head; seed; seed = seed->m_next)
+	for (b3Body* seed = m_bodyList; seed; seed = seed->m_next)
 	{
 		// The seed must not be on an island.
 		if (seed->m_flags & b3Body::e_islandFlag)
@@ -255,11 +323,11 @@ void b3World::Solve(const b3TimeStep& step)
 			}
 
 			// Search all contacts connected to this body.
-			for (b3Fixture* f = b->m_fixtureList.m_head; f; f = f->m_next)
+			for (b3Fixture* f = b->m_fixtureList; f; f = f->m_next)
 			{
-				for (b3ContactEdge* ce = f->m_contactList.m_head; ce; ce = ce->m_next)
+				for (b3ContactEdge* ce = f->m_contactList; ce; ce = ce->next)
 				{
-					b3Contact* contact = ce->m_contact;
+					b3Contact* contact = ce->contact;
 
 					// The contact must not be on an island.
 					if (contact->m_flags & b3Contact::e_islandFlag)
@@ -294,7 +362,7 @@ void b3World::Solve(const b3TimeStep& step)
 					island.Add(contact);
 					contact->m_flags |= b3Contact::e_islandFlag;
 
-					b3Body* other = ce->m_other->GetBody();
+					b3Body* other = ce->other->GetBody();
 
 					// Skip adjacent vertex if it was visited.
 					if (other->m_flags & b3Body::e_islandFlag)
@@ -310,9 +378,9 @@ void b3World::Solve(const b3TimeStep& step)
 			}
 
 			// Search all joints connected to this body.
-			for (b3JointEdge* je = b->m_jointList.m_head; je; je = je->m_next)
+			for (b3JointEdge* je = b->m_jointList; je; je = je->next)
 			{
-				b3Joint* joint = je->m_joint;
+				b3Joint* joint = je->joint;
 
 				// The joint must not be on an island.
 				if (joint->m_islandFlag == true)
@@ -320,7 +388,7 @@ void b3World::Solve(const b3TimeStep& step)
 					continue;
 				}
 
-				b3Body* other = je->m_other;
+				b3Body* other = je->other;
 
 				// Add joint to the island and mark it.
 				island.Add(joint);
@@ -358,7 +426,7 @@ void b3World::Solve(const b3TimeStep& step)
 	{
 		B3_PROFILE(m_profiler, "Find New Pairs");
 
-		for (b3Body* b = m_bodyList.m_head; b; b = b->m_next)
+		for (b3Body* b = m_bodyList; b; b = b->m_next)
 		{
 			// If a body didn't participate on a island then it didn't move.
 			if ((b->m_flags & b3Body::e_islandFlag) == 0)
@@ -885,7 +953,7 @@ void b3World::DebugDraw() const
 
 	if (flags & b3Draw::e_centerOfMassesFlag)
 	{
-		for (b3Body* b = m_bodyList.m_head; b; b = b->m_next)
+		for (b3Body* b = m_bodyList; b; b = b->m_next)
 		{
 			b3Transform xf;
 			xf.rotation = b->m_sweep.orientation;
@@ -896,7 +964,7 @@ void b3World::DebugDraw() const
 
 	if (flags & b3Draw::e_shapesFlag)
 	{
-		for (b3Body* b = m_bodyList.m_head; b; b = b->m_next)
+		for (b3Body* b = m_bodyList; b; b = b->m_next)
 		{
 			b3Color color;
 			if (b->IsAwake() == false)
@@ -916,7 +984,7 @@ void b3World::DebugDraw() const
 				color = b3Color(scalar(0.5), scalar(0.5), scalar(1), scalar(1));
 			}
 
-			for (b3Fixture* f = b->m_fixtureList.m_head; f; f = f->m_next)
+			for (b3Fixture* f = b->m_fixtureList; f; f = f->m_next)
 			{
 				f->Draw(m_debugDraw, b3Color_black);
 				f->DrawSolid(m_debugDraw, color);
@@ -926,9 +994,9 @@ void b3World::DebugDraw() const
 
 	if (flags & b3Draw::e_aabbsFlag)
 	{
-		for (b3Body* b = m_bodyList.m_head; b; b = b->m_next)
+		for (b3Body* b = m_bodyList; b; b = b->m_next)
 		{
-			for (b3Fixture* f = b->m_fixtureList.m_head; f; f = f->m_next)
+			for (b3Fixture* f = b->m_fixtureList; f; f = f->m_next)
 			{
 				const b3AABB& aabb = m_contactManager.m_broadPhase.GetFatAABB(f->m_proxyId);
 				m_debugDraw->DrawAABB(aabb, b3Color_pink);
@@ -938,13 +1006,13 @@ void b3World::DebugDraw() const
 
 	if (flags & b3Draw::e_jointsFlag)
 	{
-		for (b3Joint* j = m_jointManager.m_jointList.m_head; j; j = j->m_next)
+		for (b3Joint* j = m_jointManager.m_jointList; j; j = j->m_next)
 		{
 			j->Draw(m_debugDraw);
 		}
 	}
 
-	for (b3Contact* c = m_contactManager.m_contactList.m_head; c; c = c->m_next)
+	for (b3Contact* c = m_contactManager.m_contactList; c; c = c->m_next)
 	{
 		u32 manifoldCount = c->m_manifoldCount;
 		const b3Manifold* manifolds = c->m_manifolds;

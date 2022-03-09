@@ -160,9 +160,9 @@ void Test::Step()
 
 	if (g_settings->drawStats)
 	{
-		DrawString(b3Color_white, "Bodies %d", m_world.GetBodyList().m_count);
-		DrawString(b3Color_white, "Joints %d", m_world.GetJointList().m_count);
-		DrawString(b3Color_white, "Contacts %d", m_world.GetContactList().m_count);
+		DrawString(b3Color_white, "Bodies %d", m_world.GetBodyCount());
+		DrawString(b3Color_white, "Joints %d", m_world.GetJointCount());
+		DrawString(b3Color_white, "Contacts %d", m_world.GetContactCount());
 
 		scalar avgGjkIters = 0.0f;
 		if (b3_gjkCalls > 0)

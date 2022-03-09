@@ -27,6 +27,12 @@ b3Body::b3Body(const b3BodyDef& def, b3World* world)
 	m_world = world;
 	m_prev = nullptr;
 	m_next = nullptr;
+
+	m_fixtureList = nullptr;
+	m_fixtureCount = 0;
+
+	m_jointList = nullptr;
+
 	m_type = def.type;
 	m_flags = 0;
 	
@@ -98,49 +104,35 @@ b3Body::b3Body(const b3BodyDef& def, b3World* world)
 
 b3Fixture* b3Body::CreateFixture(const b3FixtureDef& def) 
 {
-	// Create the fixture with the definition.
-	void* mem = m_world->m_blockAllocator.Allocate(sizeof(b3Fixture));
-	b3Fixture* fixture = new (mem) b3Fixture();
-	fixture->Create(&m_world->m_blockAllocator, this, &def);
-
-	// Add the fixture to this body fixture list.
-	m_fixtureList.PushFront(fixture);
+	b3BlockAllocator* allocator = &m_world->m_blockAllocator;
 	
-	// Since a new fixture was added the new mass properties of 
-	// this body need to be recomputed.
-	if (fixture->m_density > scalar(0)) 
+	void* memory = allocator->Allocate(sizeof(b3Fixture));
+	b3Fixture* fixture = new (memory) b3Fixture();
+	fixture->Create(allocator, this, &def);
+
+	b3BroadPhase* broadPhase = &m_world->m_contactManager.m_broadPhase;
+	
+	b3AABB aabb;
+	fixture->ComputeAABB(&aabb);
+	fixture->m_proxyId = broadPhase->CreateProxy(aabb, fixture);
+
+	fixture->m_next = m_fixtureList;
+	m_fixtureList = fixture;
+	++m_fixtureCount;
+
+	fixture->m_body = this;
+
+	// Adjust mass properties if needed.
+	if (fixture->m_density > scalar(0))
 	{
 		ResetMass();
 	}
 
-	// Compute the world AABB of the new fixture and assign a broad-phase proxy to it.
-	b3AABB aabb;
-	fixture->ComputeAABB(&aabb);
-	fixture->m_proxyId = m_world->m_contactManager.m_broadPhase.CreateProxy(aabb, fixture);
-
-	// Tell the world that a new shape was added so new contacts can be created.
+	// Let the world know we have a new fixture. This will cause new contacts
+	// to be created at the beginning of the next time step.
 	m_world->m_newContacts = true;
 
 	return fixture;
-}
-
-void b3Body::DestroyContacts() 
-{
-	for (b3Fixture* f = m_fixtureList.m_head; f; f = f->m_next)
-	{
-		f->DestroyContacts();
-	}
-}
-
-void b3Body::DestroyJoints() 
-{
-	b3JointEdge* je = m_jointList.m_head;
-	while (je)
-	{
-		b3JointEdge* boom = je;
-		je = je->m_next;
-		m_world->m_jointManager.Destroy(boom->m_joint);
-	}
 }
 
 void b3Body::DestroyFixture(b3Fixture* fixture) 
@@ -150,40 +142,53 @@ void b3Body::DestroyFixture(b3Fixture* fixture)
 		return;
 	}
 
-	// Remove the fixture from this body fixture list.
 	B3_ASSERT(fixture->m_body == this);
-	m_fixtureList.Remove(fixture);
+	
+	// Remove the fixture from this body's singly linked list.
+	B3_ASSERT(m_fixtureCount > 0);
+	b3Fixture** node = &m_fixtureList;
+	bool found = false;
+	while (*node != nullptr)
+	{
+		if (*node == fixture)
+		{
+			*node = fixture->m_next;
+			found = true;
+			break;
+		}
+
+		node = &(*node)->m_next;
+	}
+
+	// You tried to remove a shape that is not attached to this body.
+	B3_ASSERT(found);
 
 	// Destroy any contacts associated with the fixture.
-	fixture->DestroyContacts();
-	
-	// Destroy the broad-phase proxy associated with the fixture.
-	m_world->m_contactManager.m_broadPhase.DestroyProxy(fixture->m_proxyId);
-	
+	b3ContactEdge* edge = fixture->m_contactList;
+	while (edge)
+	{
+		b3Contact* c = edge->contact;
+		edge = edge->next;
+		m_world->m_contactManager.Destroy(c);
+	}
+
 	b3BlockAllocator* allocator = &m_world->m_blockAllocator;
 
+	// Destroy the broad-phase proxy associated with the fixture.
+	b3BroadPhase* broadPhase = &m_world->m_contactManager.m_broadPhase;
+	broadPhase->DestroyProxy(fixture->m_proxyId);
+	
 	// Destroy the fixture.
 	fixture->m_body = nullptr;
-	fixture->m_prev = nullptr;
 	fixture->m_next = nullptr;
 	fixture->Destroy(allocator);
 	fixture->~b3Fixture();
 	allocator->Free(fixture, sizeof(b3Fixture));
 
+	--m_fixtureCount;
+
 	// Recalculate the new inertial properties of this body.
 	ResetMass();
-}
-
-void b3Body::DestroyFixtures() 
-{
-	// Destroy all fixtures that belong to this body.
-	b3Fixture* f = m_fixtureList.m_head;
-	while (f) 
-	{
-		b3Fixture* boom = f;
-		f = f->m_next;
-		DestroyFixture(boom);
-	}
 }
 
 void b3Body::SetTransform(const b3Vec3& position, const b3Quat& orientation)
@@ -200,7 +205,7 @@ void b3Body::SetTransform(const b3Vec3& position, const b3Quat& orientation)
 	m_worldInvI = b3RotateToFrame(m_invI, m_xf.rotation);
 
 	b3BroadPhase* broadPhase = &m_world->m_contactManager.m_broadPhase;
-	for (b3Fixture* f = m_fixtureList.m_head; f; f = f->m_next)
+	for (b3Fixture* f = m_fixtureList; f; f = f->m_next)
 	{
 		f->Synchronize(broadPhase, m_xf, m_xf);
 	}
@@ -223,14 +228,14 @@ void b3Body::SynchronizeFixtures()
 		xf1.rotation = m_sweep.orientation0;
 		xf1.translation = m_sweep.worldCenter0 - b3Mul(xf1.rotation, m_sweep.localCenter);
 
-		for (b3Fixture* f = m_fixtureList.m_head; f; f = f->m_next)
+		for (b3Fixture* f = m_fixtureList; f; f = f->m_next)
 		{
 			f->Synchronize(broadPhase, xf1, m_xf);
 		}
 	}
 	else
 	{
-		for (b3Fixture* f = m_fixtureList.m_head; f; f = f->m_next)
+		for (b3Fixture* f = m_fixtureList; f; f = f->m_next)
 		{
 			f->Synchronize(broadPhase, m_xf, m_xf);
 		}
@@ -239,18 +244,18 @@ void b3Body::SynchronizeFixtures()
 
 bool b3Body::ShouldCollide(const b3Body* other) const
 {
-	// At least one body must be kinematic or dynamic.
-	if (m_type == e_staticBody && other->m_type == e_staticBody)
+	// At least one body must be dynamic.
+	if (m_type != e_dynamicBody && other->m_type != e_dynamicBody)
 	{
 		return false;
 	}
 
 	// Check if there are joints that connects this body with the other body 
 	// and if the joint was configured to let not their collision occur.
-	for (b3JointEdge* je = m_jointList.m_head; je; je = je->m_next)
+	for (b3JointEdge* je = m_jointList; je; je = je->next)
 	{
-		b3Joint* j = je->m_joint;
-		if (je->m_other == other)
+		b3Joint* j = je->joint;
+		if (je->other == other)
 		{
 			if (j->m_collideConnected == false)
 			{
@@ -283,7 +288,7 @@ void b3Body::ResetMass()
 	// Accumulate the mass about the body origin of all fixtures.
 	b3Vec3 localCenter;
 	localCenter.SetZero();
-	for (b3Fixture* f = m_fixtureList.m_head; f; f = f->m_next)
+	for (b3Fixture* f = m_fixtureList; f; f = f->m_next)
 	{
 		if (f->m_density == scalar(0)) 
 		{
@@ -473,9 +478,6 @@ void b3Body::SetType(b3BodyType type)
 
 	ResetMass();
 
-	m_force.SetZero();
-	m_torque.SetZero();
-
 	if (m_type == e_staticBody)
 	{
 		m_linearVelocity.SetZero();
@@ -487,13 +489,22 @@ void b3Body::SetType(b3BodyType type)
 
 	SetAwake(true);
 
-	DestroyContacts();
+	m_force.SetZero();
+	m_torque.SetZero();
 
-	// Move the fixture proxies so new contacts can be created.
-	b3BroadPhase* phase = &m_world->m_contactManager.m_broadPhase;
-	for (b3Fixture* f = m_fixtureList.m_head; f; f = f->m_next)
+	b3BroadPhase* broadPhase = &m_world->m_contactManager.m_broadPhase;
+	for (b3Fixture* f = m_fixtureList; f; f = f->m_next)
 	{
-		phase->TouchProxy(f->m_proxyId);
+		// Delete the attached contacts.
+		for (b3ContactEdge* ce = f->m_contactList; ce; ce = ce->next)
+		{
+			b3ContactEdge* ce0 = ce;
+			ce = ce->next;
+			m_world->m_contactManager.Destroy(ce0->contact);
+		}
+		
+		// Touch the proxies so that new contacts will be created (when appropriate)
+		broadPhase->TouchProxy(f->m_proxyId);
 	}
 }
 
@@ -576,7 +587,7 @@ void b3Body::Dump() const
 	b3Log("		\n");
 	b3Log("		bodies[%d] = world.CreateBody(bd);\n");
 	b3Log("		\n");
-	for (b3Fixture* f = m_fixtureList.m_head; f; f = f->m_next)
+	for (b3Fixture* f = m_fixtureList; f; f = f->m_next)
 	{
 		b3Log("		{\n");
 		f->Dump(bodyIndex);

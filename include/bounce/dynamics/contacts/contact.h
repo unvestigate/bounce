@@ -20,13 +20,11 @@
 #define B3_CONTACT_H
 
 #include <bounce/common/math/math.h>
-#include <bounce/common/template/list.h>
 #include <bounce/dynamics/fixture.h>
 #include <bounce/collision/collide/manifold.h>
 
 class b3BlockPool;
 
-class b3Shape;
 class b3Body;
 class b3Contact;
 class b3ContactListener;
@@ -37,10 +35,10 @@ class b3BlockAllocator;
 // Each joint has two contact nodes, one for each attached fixture.
 struct b3ContactEdge
 {
-	b3Fixture* m_other; // the other fixture attached
-	b3Contact* m_contact; // the contact
-	b3ContactEdge* m_prev; // previous contact edge in the fixture contact list
-	b3ContactEdge* m_next; // next contact edge in the fixture contact list
+	b3Fixture* other; // the other fixture attached
+	b3Contact* contact; // the contact
+	b3ContactEdge* prev; // previous contact edge in the fixture contact list
+	b3ContactEdge* next; // next contact edge in the fixture contact list
 };
 
 typedef b3Contact* b3ContactCreateFcn(b3Fixture* shapeA, b3Fixture* shapeB, b3BlockAllocator* allocator);
@@ -92,7 +90,6 @@ protected:
 	friend class b3Fixture;
 	friend class b3ContactManager;
 	friend class b3ContactSolver;
-	friend class b3List<b3Contact>;
 
 	// Flags
 	enum 
