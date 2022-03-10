@@ -10,18 +10,17 @@ Bounce is a 3D physics engine for games.
 * Fast memory allocators
 * Built-in math library
 * Tunable settings used across the entire library
-* Integrated profiler
-* Included debug draw utility
+* Debug draw utility and profiler
 
 ### Collision
 
 * Continuous collision detection
 * Dynamic tree broadphase
-* Static tree for triangle meshes
 * SAT
 * GJK
 * Spheres, capsules, triangles, convex hulls, triangle meshes 
 * Optimized pair management
+* One-shot contact manifolds
 
 ### Dynamics
 
@@ -33,7 +32,6 @@ Bounce is a 3D physics engine for games.
 * Simulation islands and sleep management
 * Linear time solver
 * Stable shape stacking
-* One-shot contact manifolds
 * Contact clustering, reduction, and persistence
 * Contact callbacks: begin, pre-solve, post-solve
 * Ray-casting, shape-casting, and volume queries
