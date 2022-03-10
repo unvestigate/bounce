@@ -634,9 +634,9 @@ struct b3WorldShapeCastQueryWrapper
 			return true;
 		}
 
+		b3Shape* shapeB = fixtureB->GetShape();
 		b3Body* bodyB = fixtureB->GetBody();
 		b3Transform xfB = bodyB->GetTransform();
-		b3Shape* shapeB = fixtureB->GetShape();
 
 		if (shapeB->GetType() == b3Shape::e_mesh)
 		{
@@ -651,47 +651,21 @@ struct b3WorldShapeCastQueryWrapper
 			inv_scale.y = scalar(1) / meshB->m_scale.y;
 			inv_scale.z = scalar(1) / meshB->m_scale.z;
 
-			b3Transform xf = b3MulT(xfB, xfA);
+			// Compute the swept AABB in the space of the unscaled tree
+			b3Transform xf1 = b3MulT(xfB, xfA);
+			b3Transform xf2 = b3MulT(xfB, xfA2);
 
-			// Compute the aabb in the space of the unscaled tree
-			b3AABB aabb;
-			shapeA->ComputeAABB(&aabb, xf);
-			aabb.Scale(inv_scale);
+			b3AABB aabb1, aabb2;
+			shapeA->ComputeAABB(&aabb1, xf1);
+			shapeA->ComputeAABB(&aabb2, xf2);
 
-			// Compute the displacement in the space of the unscaled tree
-			b3Vec3 displacement = b3MulC(xfB.rotation, dA);
-			displacement = b3Mul(inv_scale, displacement);
+			aabb1.Scale(inv_scale);
+			aabb2.Scale(inv_scale);
 
-			if (displacement.x < scalar(0))
-			{
-				aabb.lowerBound.x += displacement.x;
-			}
-			else
-			{
-				aabb.upperBound.x += displacement.x;
-			}
-
-			if (displacement.y < scalar(0))
-			{
-				aabb.lowerBound.y += displacement.y;
-			}
-			else
-			{
-				aabb.upperBound.y += displacement.y;
-			}
-
-			if (displacement.z < scalar(0))
-			{
-				aabb.lowerBound.z += displacement.z;
-			}
-			else
-			{
-				aabb.upperBound.z += displacement.z;
-			}
+			b3AABB aabb = b3Combine(aabb1, aabb2);
 
 			MeshQueryWrapper wrapper;
 			wrapper.wrapper = this;
-
 			meshB->m_mesh->tree.QueryAABB(&wrapper, aabb);
 
 			if (maxFraction == scalar(0))
@@ -766,7 +740,7 @@ struct b3WorldShapeCastQueryWrapper
 	const b3BroadPhase* broadPhase;
 
 	const b3Shape* shapeA;
-	b3Transform xfA;
+	b3Transform xfA, xfA2;
 	const b3ShapeGJKProxy* proxyA;
 	b3Vec3 dA;
 	scalar maxFraction;
@@ -791,41 +765,22 @@ void b3World::ShapeCast(b3ShapeCastListener* listener, b3ShapeCastFilter* filter
 
 	b3ShapeGJKProxy proxyA(shape, 0);
 
-	b3AABB aabb;
-	shape->ComputeAABB(&aabb, xf);
+	// Compute a AABB that covers the swept shape
+	b3Transform xf2 = xf;
+	xf2.translation += displacement;
 
-	if (displacement.x < scalar(0))
-	{
-		aabb.lowerBound.x += displacement.x;
-	}
-	else
-	{
-		aabb.upperBound.x += displacement.x;
-	}
+	b3AABB aabb1, aabb2;
+	shape->ComputeAABB(&aabb1, xf);
+	shape->ComputeAABB(&aabb2, xf2);
 
-	if (displacement.y < scalar(0))
-	{
-		aabb.lowerBound.y += displacement.y;
-	}
-	else
-	{
-		aabb.upperBound.y += displacement.y;
-	}
-
-	if (displacement.z < scalar(0))
-	{
-		aabb.lowerBound.z += displacement.z;
-	}
-	else
-	{
-		aabb.upperBound.z += displacement.z;
-	}
+	b3AABB aabb = b3Combine(aabb1, aabb2);
 
 	b3WorldShapeCastQueryWrapper wrapper;
 	wrapper.listener = listener;
 	wrapper.filter = filter;
 	wrapper.shapeA = shape;
 	wrapper.xfA = xf;
+	wrapper.xfA2 = xf2;
 	wrapper.proxyA = &proxyA;
 	wrapper.dA = displacement;
 	wrapper.maxFraction = scalar(1);
@@ -834,6 +789,7 @@ void b3World::ShapeCast(b3ShapeCastListener* listener, b3ShapeCastFilter* filter
 	wrapper.childIndex0 = B3_MAX_U32;
 	wrapper.broadPhase = &m_contactManager.m_broadPhase;
 
+	// Query against the swept AABB
 	m_contactManager.m_broadPhase.QueryAABB(&wrapper, aabb);
 }
 
@@ -848,41 +804,21 @@ bool b3World::ShapeCastSingle(b3ShapeCastSingleOutput* output, b3ShapeCastFilter
 
 	b3ShapeGJKProxy proxyA(shape, 0);
 	
-	b3AABB aabb;
-	shape->ComputeAABB(&aabb, xf);
+	b3Transform xf2 = xf;
+	xf2.translation += displacement;
 
-	if (displacement.x < scalar(0))
-	{
-		aabb.lowerBound.x += displacement.x;
-	}
-	else
-	{
-		aabb.upperBound.x += displacement.x;
-	}
+	b3AABB aabb1, aabb2;
+	shape->ComputeAABB(&aabb1, xf);
+	shape->ComputeAABB(&aabb2, xf2);
 
-	if (displacement.y < scalar(0))
-	{
-		aabb.lowerBound.y += displacement.y;
-	}
-	else
-	{
-		aabb.upperBound.y += displacement.y;
-	}
-
-	if (displacement.z < scalar(0))
-	{
-		aabb.lowerBound.z += displacement.z;
-	}
-	else
-	{
-		aabb.upperBound.z += displacement.z;
-	}
+	b3AABB aabb = b3Combine(aabb1, aabb2);
 
 	b3WorldShapeCastQueryWrapper wrapper;
 	wrapper.listener = nullptr;
 	wrapper.filter = filter;
 	wrapper.proxyA = &proxyA;
 	wrapper.xfA = xf;
+	wrapper.xfA2 = xf2;
 	wrapper.shapeA = shape;
 	wrapper.dA = displacement;
 	wrapper.maxFraction = scalar(1);
@@ -891,6 +827,7 @@ bool b3World::ShapeCastSingle(b3ShapeCastSingleOutput* output, b3ShapeCastFilter
 	wrapper.fraction0 = B3_MAX_SCALAR;
 	wrapper.broadPhase = &m_contactManager.m_broadPhase;
 
+	// Query against the swept AABB
 	m_contactManager.m_broadPhase.QueryAABB(&wrapper, aabb);
 
 	if (wrapper.fixture0 == nullptr)
