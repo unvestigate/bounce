@@ -92,7 +92,10 @@ struct b3MeshShapeRayCastCallback
 	{
 		B3_NOT_USED(subInput);
 
-		uint32 childIndex = mesh->m_mesh->tree.GetUserData(proxyId);
+		void* userData = mesh->m_mesh->tree.GetUserData(proxyId);
+		b3MeshTriangle* triangle = (b3MeshTriangle*)userData;
+		
+		uint32 childIndex = triangle->GetIndex();
 		
 		b3RayCastOutput childOutput;
 		if (mesh->RayCast(&childOutput, input, xf, childIndex))

@@ -471,7 +471,7 @@ bool b3RevoluteJoint::SolvePositionConstraints(const b3SolverData& data)
 	scalar angularError = scalar(0);
 	
 	// Angular slop in cosine units.
-	scalar kCosSlop = scalar(0.01);
+	const scalar kCosSlop = scalar(0.002);
 
 	{
 		b3Quat fA = qA * m_localRotationA;

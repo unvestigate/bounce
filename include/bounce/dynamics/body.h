@@ -351,9 +351,6 @@ public:
 	// Get the next body in the world body list.
 	const b3Body* GetNext() const;
 	b3Body* GetNext();
-
-	// Dump this body to a file.
-	void Dump() const;
 private:
 	friend class b3World;
 	friend class b3Island;

@@ -20,15 +20,19 @@
 
 void b3Mesh::BuildTree()
 {
-	b3AABB* aabbs = (b3AABB*)b3Alloc(triangleCount * sizeof(b3AABB));
+	// This function must be called once.
+	B3_ASSERT(isTreeBuilt == false);
+	
 	for (uint32 i = 0; i < triangleCount; ++i)
 	{
-		aabbs[i] = GetTriangleAABB(i);
+		b3AABB aabb = GetTriangleAABB(i);
+		b3MeshTriangle* triangle = triangles + i;
+
+		triangle->index = i;
+		triangle->proxyId = tree.CreateProxy(aabb, triangle);
 	}
 
-	tree.Build(aabbs, triangleCount);
-
-	b3Free(aabbs);
+	isTreeBuilt = true;
 }
 
 void b3Mesh::BuildAdjacency()
@@ -36,11 +40,10 @@ void b3Mesh::BuildAdjacency()
 	// Assume the edges are open edges.
 	for (uint32 i = 0; i < triangleCount; ++i)
 	{
-		b3MeshTriangle* t = triangles + i;
-		
-		t->u1 = B3_NULL_VERTEX;
-		t->u2 = B3_NULL_VERTEX;
-		t->u3 = B3_NULL_VERTEX;
+		b3MeshTriangle* triangle = triangles + i;
+		triangle->u1 = B3_NULL_VERTEX;
+		triangle->u2 = B3_NULL_VERTEX;
+		triangle->u3 = B3_NULL_VERTEX;
 	}
 
 	// Connect the edges.

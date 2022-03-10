@@ -23,7 +23,7 @@
 #include <bounce/common/time.h>
 
 // Persistent node statistics. 
-struct b3ProfilerStatistic
+class b3ProfilerStatistic
 {
 public:
 	// Get the unique name of the associated node.
@@ -120,7 +120,7 @@ public:
 	uint32 GetStatisticCount() const { return m_statisticCount; }
 private:
 	b3ProfilerStatistic* FindStatistic(const char* name);
-	void DestroyNodeRecursively(b3ProfilerNode* node);
+	void DestroyNode(b3ProfilerNode* node);
 
 	b3Time m_time; 
 	b3BlockPool m_nodePool;

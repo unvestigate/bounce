@@ -563,36 +563,3 @@ void b3Body::SetAngularSleepTolerance(scalar tolerance)
 	B3_ASSERT(tolerance >= scalar(0));
 	m_angularSleepTolerance = tolerance;
 }
-
-void b3Body::Dump() const
-{
-	uint32 bodyIndex = m_islandIndex;
-
-	b3Log("		{\n");
-	b3Log("		b3BodyDef bd;\n");
-	b3Log("		bd.type = (b3BodyType) %d;\n", m_type);
-	b3Log("		bd.position.Set(%f, %f, %f);\n", m_sweep.worldCenter.x, m_sweep.worldCenter.y, m_sweep.worldCenter.z);
-	b3Log("		bd.orientation.Set(%f, %f, %f, %f);\n", m_sweep.orientation.v.x, m_sweep.orientation.v.y, m_sweep.orientation.v.z, m_sweep.orientation.s);
-	b3Log("		bd.linearVelocity.Set(%f, %f, %f);\n", m_linearVelocity.x, m_linearVelocity.y, m_linearVelocity.z);
-	b3Log("		bd.angularVelocity.Set(%f, %f, %f);\n", m_angularVelocity.x, m_angularVelocity.y, m_angularVelocity.z);
-	b3Log("		bd.gravityScale.Set(%f, %f, %f);\n", m_gravityScale.x, m_gravityScale.y, m_gravityScale.z);
-	b3Log("		bd.linearDamping.Set(%f, %f, %f);\n", m_linearDamping.x, m_linearDamping.y, m_linearDamping.z);
-	b3Log("		bd.angularDamping.Set(%f, %f, %f);\n", m_angularDamping.x, m_angularDamping.y, m_angularDamping.z);
-	b3Log("		bd.awake = %d;\n", m_flags & e_awakeFlag);
-	b3Log("		bd.allowSleep = %d;\n", m_flags & e_autoSleepFlag);
-	b3Log("		bd.fixedRotationX = %d;\n", m_flags & e_fixedRotationX);
-	b3Log("		bd.fixedRotationY = %d;\n", m_flags & e_fixedRotationY);
-	b3Log("		bd.fixedRotationZ = %d;\n", m_flags & e_fixedRotationZ);
-	b3Log("		bd.linearSleepTolerance = %f;\n", m_linearSleepTolerance);
-	b3Log("		bd.angularSleepTolerance = %f;\n", m_angularSleepTolerance);
-	b3Log("		\n");
-	b3Log("		bodies[%d] = world.CreateBody(bd);\n");
-	b3Log("		\n");
-	for (b3Fixture* f = m_fixtureList; f; f = f->m_next)
-	{
-		b3Log("		{\n");
-		f->Dump(bodyIndex);
-		b3Log("		}\n");
-	}
-	b3Log("		}\n");
-}

@@ -112,9 +112,6 @@ public:
 	// the flag is only checked when fixture AABBs begin to overlap.
 	bool GetCollideConnected() const;
 
-	// Dump this joint to the log file.
-	virtual void Dump() const { b3Log("Dump feature not implemented for this joint type.\n"); }
-
 	// Draw this joint.
 	virtual void Draw(b3Draw* draw) const = 0;
 

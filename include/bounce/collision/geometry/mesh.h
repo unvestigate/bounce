@@ -19,7 +19,7 @@
 #ifndef B3_MESH_H
 #define B3_MESH_H
 
-#include <bounce/collision/trees/static_tree.h>
+#include <bounce/collision/trees/dynamic_tree.h>
 
 #define B3_NULL_VERTEX B3_MAX_U32
 
@@ -38,12 +38,24 @@ struct b3MeshTriangle
 	// Read an indexed vertex from this triangle.
 	uint32 GetVertex(uint32 i) const { return (&v1)[i]; }
 
+	// Get the triangle index into mesh.
+	uint32 GetIndex() const { return index; }
+
+	// Get the tree proxy identifier.
+	uint32 GetProxyId() const { return proxyId; }
+
 	// The wing vertex of each edge in this triangle.
 	// An edge is a boundary if its wing vertex is set to B3_NULL_VERTEX.
 	uint32 u1, u2, u3;
 
 	// The triangle vertices in the mesh.
 	uint32 v1, v2, v3;
+	
+	// Triangle index back in the mesh.
+	uint32 index;
+
+	// Tree proxy identifier.
+	uint32 proxyId;
 };
 
 struct b3Mesh 
@@ -52,20 +64,22 @@ struct b3Mesh
 	b3Vec3* vertices;
 	uint32 triangleCount;
 	b3MeshTriangle* triangles;
-	b3StaticTree tree;
+	b3DynamicTree tree;
+	bool isTreeBuilt = false;
 
-	// Build the static AABB tree. 
+	// Build the AABB tree. 
 	void BuildTree();
 
-	// Build mesh adjacency.
+	// Build mesh adjacency. 
 	// This won't work properly if there are non-manifold edges.
 	void BuildAdjacency();
 
 	const b3Vec3& GetVertex(uint32 index) const;
 	const b3MeshTriangle* GetTriangle(uint32 index) const;
-	b3AABB GetTriangleAABB(uint32 index) const;
+	const b3DynamicTree& GetTree() const;
+	bool IsTreeBuilt() const;
 	
-	uint32 GetSize() const;
+	b3AABB GetTriangleAABB(uint32 index) const;
 
 	void Scale(const b3Vec3& scale);
 	void Rotate(const b3Quat& rotation);
@@ -85,10 +99,20 @@ inline const b3MeshTriangle* b3Mesh::GetTriangle(uint32 index) const
 	return triangles + index;
 }
 
+inline const b3DynamicTree& b3Mesh::GetTree() const
+{
+	return tree;
+}
+
+inline bool b3Mesh::IsTreeBuilt() const
+{
+	return isTreeBuilt;
+}
+
 inline b3AABB b3Mesh::GetTriangleAABB(uint32 index) const
 {
 	const b3MeshTriangle* triangle = triangles + index;
-	
+
 	b3Vec3 v1 = vertices[triangle->v1];
 	b3Vec3 v2 = vertices[triangle->v2];
 	b3Vec3 v3 = vertices[triangle->v3];
@@ -98,16 +122,6 @@ inline b3AABB b3Mesh::GetTriangleAABB(uint32 index) const
 	aabb.upperBound = b3Max(v1, b3Max(v2, v3));
 
 	return aabb;
-}
-
-inline uint32 b3Mesh::GetSize() const
-{
-	uint32 size = 0;
-	size += sizeof(b3Mesh);
-	size += sizeof(b3Vec3) * vertexCount;
-	size += sizeof(b3MeshTriangle) * triangleCount;
-	size += tree.GetSize();
-	return size;
 }
 
 #endif

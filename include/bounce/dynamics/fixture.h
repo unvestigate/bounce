@@ -137,9 +137,6 @@ public:
 	const b3ContactEdge* GetContactList() const;
 	b3ContactEdge* GetContactList();
 
-	// Dump this shape to the log file.
-	void Dump(uint32 bodyIndex) const;
-
 	// Draw this shape geometry.
 	void Draw(b3Draw* draw, const b3Color& color);
 	

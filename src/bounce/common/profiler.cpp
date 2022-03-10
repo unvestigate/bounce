@@ -46,7 +46,7 @@ void b3Profiler::Clear()
 	B3_ASSERT(m_top == nullptr);
 	if (m_root)
 	{
-		DestroyNodeRecursively(m_root);
+		DestroyNode(m_root);
 		m_root = nullptr;
 	}
 }
@@ -169,14 +169,14 @@ b3ProfilerStatistic* b3Profiler::FindStatistic(const char* name)
 	return nullptr;
 }
 
-void b3Profiler::DestroyNodeRecursively(b3ProfilerNode* node)
+void b3Profiler::DestroyNode(b3ProfilerNode* node)
 {
 	b3ProfilerNode* c = node->m_childList;
 	while (c)
 	{
 		b3ProfilerNode* boom = c;
 		c = c->m_childNext;
-		DestroyNodeRecursively(boom);
+		DestroyNode(boom);
 	}
 	node->~b3ProfilerNode();
 	m_nodePool.Free(node);

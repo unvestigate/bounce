@@ -32,7 +32,6 @@ ${BOUNCE_INCLUDE_DIR}/bounce/common/memory/stack_allocator.h
 ${BOUNCE_INCLUDE_DIR}/bounce/common/memory/block_allocator.h
 
 ${BOUNCE_INCLUDE_DIR}/bounce/common/template/array.h
-${BOUNCE_INCLUDE_DIR}/bounce/common/template/queue.h
 ${BOUNCE_INCLUDE_DIR}/bounce/common/template/stack.h
 
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/broad_phase.h
@@ -68,7 +67,6 @@ ${BOUNCE_INCLUDE_DIR}/bounce/collision/shapes/shape.h
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/shapes/triangle_shape.h
 
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/trees/dynamic_tree.h
-${BOUNCE_INCLUDE_DIR}/bounce/collision/trees/static_tree.h
 
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/collide/manifold.h
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/collide/clip.h
@@ -154,7 +152,6 @@ set(BOUNCE_SOURCE_FILES
 	bounce/collision/shapes/triangle_shape.cpp
 
 	bounce/collision/trees/dynamic_tree.cpp
-	bounce/collision/trees/static_tree.cpp
 
 	bounce/collision/collide/manifold.cpp
 	bounce/collision/collide/clip.cpp

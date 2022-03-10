@@ -56,8 +56,6 @@ struct b3Hull
 	uint32 GetSupportFace(const b3Vec3& direction) const;
 	
 	b3Plane GetEdgeSidePlane(uint32 index) const;
-	
-	uint32 GetSize() const;
 
 	void Validate() const;
 	void Validate(const b3Face* face) const;
@@ -151,17 +149,6 @@ inline b3Plane b3Hull::GetEdgeSidePlane(uint32 index) const
 	plane.normal = b3Normalize(D);
 	plane.offset = b3Dot(plane.normal, P);
 	return plane;
-}
-
-inline uint32 b3Hull::GetSize() const
-{
-	uint32 size = 0;
-	size += sizeof(b3Hull);
-	size += vertexCount * sizeof(b3Vec3);
-	size += edgeCount * sizeof(b3HalfEdge);
-	size += faceCount * sizeof(b3Face);
-	size += faceCount * sizeof(b3Plane);
-	return size;
 }
 
 #endif

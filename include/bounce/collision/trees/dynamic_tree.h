@@ -32,7 +32,7 @@ struct b3DynamicNode
 	// Is this node a leaf?
 	bool IsLeaf() const
 	{
-		//A node is a leaf if child 2 == B3_NULL_DYNAMIC_NODE or height == 0.
+		// A node is a leaf if child 2 == B3_NULL_DYNAMIC_NODE or height == 0.
 		return child1 == B3_NULL_DYNAMIC_NODE;
 	}
 
