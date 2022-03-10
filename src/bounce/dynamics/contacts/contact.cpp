@@ -142,6 +142,8 @@ b3Contact::b3Contact(b3Fixture* fixtureA, b3Fixture* fixtureB)
 	m_fixtureA = fixtureA;
 	m_fixtureB = fixtureB;
 	
+	m_flags = 0;
+	
 	m_prev = nullptr;
 	m_next = nullptr;
 
@@ -157,6 +159,7 @@ b3Contact::b3Contact(b3Fixture* fixtureA, b3Fixture* fixtureB)
 
 	m_manifoldCapacity = 0;
 	m_manifoldCount = 0;
+	m_manifolds = nullptr;
 }
 
 void b3Contact::GetWorldManifold(b3WorldManifold* out, uint32 index) const

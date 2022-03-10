@@ -103,22 +103,6 @@ public:
 
 	}
 
-	void EndContact(b3Contact* c)
-	{
-		b3Fixture* fA = c->GetFixtureA();
-		b3Body* bA = fA->GetBody();
-		b3Fixture* fB = c->GetFixtureB();
-		b3Body* bB = fB->GetBody();
-
-		if (fA == m_sensor)
-		{
-		}
-
-		if (fB == m_sensor)
-		{
-		}
-	}
-
 	void Step()
 	{
 		if (m_attack)
