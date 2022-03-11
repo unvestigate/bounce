@@ -83,7 +83,6 @@ struct b3Quat
 	void SetAxisAngle(const b3Vec3& axis, scalar angle)
 	{
 		scalar theta = scalar(0.5) * angle;
-		
 		v = sin(theta) * axis;
 		s = cos(theta);
 	}
@@ -103,13 +102,13 @@ struct b3Quat
 			*axis = inv_sine * v;
 		}
 
-		// cosine check
+		// Cosine check
 		scalar cosine = b3Clamp(s, scalar(-1), scalar(1));
 		
-		// half angle
+		// Half angle
 		scalar theta = acos(cosine);
 		
-		// full angle
+		// Full angle
 		*angle = scalar(2) * theta;
 	}
 
@@ -171,19 +170,19 @@ struct b3Quat
 	// Get the angle about the x axis.
 	scalar GetXAngle() const
 	{
-		return atan2(v.x, s);
+		return scalar(2) * atan2(v.x, s);
 	}
 
 	// Get the angle about the y axis.
 	scalar GetYAngle() const
 	{
-		return atan2(v.y, s);
+		return scalar(2) * atan2(v.y, s);
 	}
 	
 	// Get the angle about the z axis.
 	scalar GetZAngle() const
 	{
-		return atan2(v.z, s);
+		return scalar(2) * atan2(v.z, s);
 	}
 
 	b3Vec3 v;
@@ -390,25 +389,40 @@ inline b3Quat b3QuatRotationZ(scalar angle)
 // Rotation between two normal vectors.
 inline b3Quat b3QuatRotationBetween(const b3Vec3& a, const b3Vec3& b)
 {
-	// |a x b| = sin(theta)
-	// a . b = cos(theta)
-	// sin(theta / 2) = +/- sqrt([1 - cos(theta)] / 2)
-	// cos(theta / 2) = +/- sqrt([1 + cos(theta)] / 2)
-	// q.v = sin(theta / 2) * (a x b) / |a x b|
-	// q.s = cos(theta / 2)
 	b3Quat q;
 
-	b3Vec3 axis = b3Cross(a, b);
-	scalar s = b3Length(axis);
-	scalar c = b3Dot(a, b);
-	if (s > B3_EPSILON)
+	// a = -b 
+	// a + b = 0
+	if (b3LengthSquared(a + b) <= B3_EPSILON * B3_EPSILON)
 	{
-		q.v = b3Sqrt(scalar(0.5) * (scalar(1) - c)) * (axis / s);
-		q.s = b3Sqrt(scalar(0.5) * (scalar(1) + c));
+		// Opposite vectors
+		// Choose 180 degree rotation about a perpendicular axis
+		// sin(pi / 2) = 1
+		// cos(pi / 2) = 0
+		q.v = b3Perp(a);
+		q.s = scalar(0);
 	}
 	else
 	{
-		q.SetIdentity();
+		// |a x b| = sin(theta)
+		// a . b = cos(theta)
+		// sin(theta / 2) = +/- sqrt([1 - cos(theta)] / 2)
+		// cos(theta / 2) = +/- sqrt([1 + cos(theta)] / 2)
+		// q.v = sin(theta / 2) * (a x b) / |a x b|
+		// q.s = cos(theta / 2)
+		b3Vec3 axis = b3Cross(a, b);
+		scalar s = b3Length(axis);
+		scalar c = b3Dot(a, b);
+		if (s <= B3_EPSILON)
+		{
+			// Paralell vectors
+			q.SetIdentity();
+		}
+		else
+		{
+			q.v = b3Sqrt(scalar(0.5) * (scalar(1) - c)) * (axis / s);
+			q.s = b3Sqrt(scalar(0.5) * (scalar(1) + c));
+		}
 	}
 
 	return q;
