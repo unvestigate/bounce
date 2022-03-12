@@ -376,12 +376,12 @@ private:
 	// Flags
 	enum 
 	{
-		e_awakeFlag = 0x0001,
-		e_islandFlag = 0x0002,
-		e_autoSleepFlag = 0x0004,
-		e_fixedRotationX = 0x0008,
-		e_fixedRotationY = 0x0010,
-		e_fixedRotationZ = 0x0020
+		e_awakeFlag			= 0x0001,
+		e_islandFlag		= 0x0002,
+		e_autoSleepFlag		= 0x0004,
+		e_fixedRotationX	= 0x0008,
+		e_fixedRotationY	= 0x0010,
+		e_fixedRotationZ	= 0x0020
 	};
 
 	b3Body(const b3BodyDef& def, b3World* world);
@@ -582,7 +582,7 @@ inline const b3Sweep& b3Body::GetSweep() const
 
 inline bool b3Body::IsAwake() const
 {
-	return (m_flags & e_awakeFlag) != 0;
+	return (m_flags & e_awakeFlag) == e_awakeFlag;
 }
 
 inline void b3Body::SetAwake(bool flag) 

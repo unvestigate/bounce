@@ -64,9 +64,6 @@ public:
 	// Get the fixture B in this contact.
 	const b3Fixture* GetFixtureB() const;
 	b3Fixture* GetFixtureB();
-
-	// Get the manifold capacity from this contact.
-	uint32 GetManifoldCapacity() const;
 	
 	// Get a contact manifold from this contact.
 	const b3Manifold* GetManifold(uint32 index) const;
@@ -91,11 +88,14 @@ protected:
 	friend class b3ContactManager;
 	friend class b3ContactSolver;
 
-	// Flags
+	// Flags stored in m_flags
 	enum 
 	{
-		e_touchingFlag = 0x0001,
-		e_islandFlag = 0x0002,
+		// Used when crawling contact graph when forming islands.
+		e_islandFlag = 0x0001,
+		
+		// Set when the shapes are touching.
+		e_touchingFlag = 0x0002,
 	};
 
 	b3Contact(b3Fixture* fixtureA, b3Fixture* fixtureB);
@@ -109,10 +109,8 @@ protected:
 	
 	static void InitializeRegisters();
 
-	// Factory create.
+	// Factory create/destroy.
 	static b3Contact* Create(b3Fixture* fixtureA, b3Fixture* fixtureB, b3BlockAllocator* allocator);
-	
-	// Factory destroy.
 	static void Destroy(b3Contact* contact, b3BlockAllocator* allocator);
 
 	// Update the contact state.
@@ -134,6 +132,10 @@ protected:
 
 	uint32 m_flags;
 
+	// World pool and list pointers.
+	b3Contact* m_prev;
+	b3Contact* m_next;
+
 	// Nodes for connecting bodies.
 	b3ContactEdge m_nodeA;
 	b3ContactEdge m_nodeB;
@@ -141,14 +143,10 @@ protected:
 	b3Fixture* m_fixtureA;
 	b3Fixture* m_fixtureB;
 
-	// Contact manifolds containing the contact points.
+	// Contact manifolds containing contact points.
 	uint32 m_manifoldCapacity;
 	b3Manifold* m_manifolds;
 	uint32 m_manifoldCount;
-
-	// Links to the world contact list.
-	b3Contact* m_prev;
-	b3Contact* m_next;
 };
 
 inline b3Fixture* b3Contact::GetFixtureA() 
@@ -171,11 +169,6 @@ inline const b3Fixture* b3Contact::GetFixtureB() const
 	return m_fixtureB;
 }
 
-inline uint32 b3Contact::GetManifoldCapacity() const
-{
-	return m_manifoldCapacity;
-}
-
 inline const b3Manifold* b3Contact::GetManifold(uint32 index) const
 {
 	B3_ASSERT(index < m_manifoldCount);
@@ -195,7 +188,7 @@ inline uint32 b3Contact::GetManifoldCount() const
 
 inline bool b3Contact::IsTouching() const 
 {
-	return (m_flags & e_touchingFlag) != 0;
+	return (m_flags & e_touchingFlag) == e_touchingFlag;
 }
 
 inline const b3Contact* b3Contact::GetNext() const

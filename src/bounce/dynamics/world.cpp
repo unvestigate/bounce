@@ -267,12 +267,10 @@ void b3World::Solve(const b3TimeStep& step)
 	{
 		b->m_flags &= ~b3Body::e_islandFlag;
 	}
-
 	for (b3Contact* c = m_contactManager.m_contactList; c; c = c->m_next)
 	{
 		c->m_flags &= ~b3Contact::e_islandFlag;
 	}
-
 	for (b3Joint* j = m_jointManager.m_jointList; j; j = j->m_next)
 	{
 		j->m_islandFlag = false;
@@ -313,14 +311,14 @@ void b3World::Solve(const b3TimeStep& step)
 			b3Body* b = stack[--stackCount];
 			island.Add(b);
 
-			// This body must be awake.
-			b->m_flags |= b3Body::e_awakeFlag;
-
 			// Don't propagate islands across static bodies to keep them small.
 			if (b->GetType() == e_staticBody)
 			{
 				continue;
 			}
+
+			// Make sure the body is awake (without resetting sleep timer).
+			b->m_flags |= b3Body::e_awakeFlag;
 
 			// Search all contacts connected to this body.
 			for (b3Fixture* f = b->m_fixtureList; f; f = f->m_next)
@@ -446,7 +444,7 @@ void b3World::Solve(const b3TimeStep& step)
 		// Update fixtures for mid-phase.
 		m_contactManager.SynchronizeFixtures();
 
-		// Find new contacts.
+		// Look for new contacts.
 		m_contactManager.FindNewContacts();
 	}
 }
