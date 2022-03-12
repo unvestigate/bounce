@@ -191,10 +191,9 @@ void b3Body::DestroyFixture(b3Fixture* fixture)
 	ResetMass();
 }
 
-void b3Body::SetTransform(const b3Vec3& position, const b3Quat& orientation)
+void b3Body::SetTransform(const b3Transform& transform)
 {
-	m_xf.translation = position;
-	m_xf.rotation = orientation;
+	m_xf = transform;
 
 	m_sweep.worldCenter = b3Mul(m_xf, m_sweep.localCenter);
 	m_sweep.orientation = m_xf.rotation;
@@ -210,12 +209,8 @@ void b3Body::SetTransform(const b3Vec3& position, const b3Quat& orientation)
 		f->Synchronize(broadPhase, m_xf, m_xf);
 	}
 
+	// Check for new contacts the next step
 	m_world->m_newContacts = true;
-}
-
-void b3Body::SetTransform(const b3Vec3& position, const b3Mat33& orientation)
-{
-	SetTransform(position, b3Mat33Quat(orientation));
 }
 
 void b3Body::SynchronizeFixtures() 

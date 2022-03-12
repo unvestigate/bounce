@@ -173,17 +173,13 @@ public:
 	// Get the body sweep.
 	const b3Sweep& GetSweep() const;
 
+	// Set the body world transform.
+	// However, manipulating a body transform during the simulation may cause non-physical behaviour.
+	void SetTransform(const b3Transform& transform);
+
 	// Get the body world transform.
 	const b3Transform& GetTransform() const;
 	
-	// Set the body world transform from a position and orientation quaternion.
-	// However, manipulating a body transform during the simulation may cause non-physical behaviour.
-	void SetTransform(const b3Vec3& position, const b3Quat& orientation);
-
-	// Set the body world transform from a position and orientation matrix.
-	// However, manipulating a body transform during the simulation may cause non-physical behaviour.
-	void SetTransform(const b3Vec3& position, const b3Mat33& orientation);
-
 	// Get the position of the world body origin.
 	b3Vec3 GetPosition() const;
 

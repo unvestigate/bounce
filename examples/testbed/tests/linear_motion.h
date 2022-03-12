@@ -59,7 +59,9 @@ public:
 		if (b3Distance(m_body->GetPosition(), p) > 50.0f)
 		{
 			b3Quat q = m_body->GetOrientation();
-			m_body->SetTransform(p, q);
+
+			b3Transform xf(p, q);
+			m_body->SetTransform(xf);
 		}
 	}
 

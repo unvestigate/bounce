@@ -97,7 +97,8 @@ public:
 
 		// Invalidate the body B's orientation
 		b3Quat q = b3QuatRotationX(B3_PI);
-		bB->SetTransform(bB->GetPosition(), q);
+		b3Transform xf(bB->GetPosition(), q);
+		bB->SetTransform(xf);
 	}
 
 	void Step()

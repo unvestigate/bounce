@@ -66,7 +66,8 @@ public:
 		
 		// Invalidate the orientation
 		b3Quat q = b3QuatRotationX(B3_PI);
-		head->SetTransform(head->GetPosition(), q);
+		b3Transform xf(head->GetPosition(), q);
+		head->SetTransform(xf);
 	}
 
 	static Test* Create()

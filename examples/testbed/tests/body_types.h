@@ -117,42 +117,46 @@ public:
 		{
 			if (button == GLFW_KEY_LEFT)
 			{
-				b3Vec3 p = m_body->GetSweep().worldCenter;
-				b3Quat q = m_body->GetSweep().orientation;
+				b3Vec3 p = m_body->GetPosition();
+				b3Quat q = m_body->GetOrientation();
 				
 				p.x -= 1.0f;
 
-				m_body->SetTransform(p, q);
+				b3Transform xf(p, q);
+				m_body->SetTransform(xf);
 			}
 
 			if (button == GLFW_KEY_RIGHT)
 			{
-				b3Vec3 p = m_body->GetSweep().worldCenter;
-				b3Quat q = m_body->GetSweep().orientation;
+				b3Vec3 p = m_body->GetPosition();
+				b3Quat q = m_body->GetOrientation();
 
 				p.x += 1.0f;
 
-				m_body->SetTransform(p, q);
+				b3Transform xf(p, q);
+				m_body->SetTransform(xf);
 			}
 
 			if (button == GLFW_KEY_UP)
 			{
-				b3Vec3 p = m_body->GetSweep().worldCenter;
-				b3Quat q = m_body->GetSweep().orientation;
+				b3Vec3 p = m_body->GetPosition();
+				b3Quat q = m_body->GetOrientation();
 
 				p.z += 1.0f;
 
-				m_body->SetTransform(p, q);
+				b3Transform xf(p, q);
+				m_body->SetTransform(xf);
 			}
 
 			if (button == GLFW_KEY_DOWN)
 			{
-				b3Vec3 p = m_body->GetSweep().worldCenter;
-				b3Quat q = m_body->GetSweep().orientation;
+				b3Vec3 p = m_body->GetPosition();
+				b3Quat q = m_body->GetOrientation();
 
 				p.z -= 1.0f;
 
-				m_body->SetTransform(p, q);
+				b3Transform xf(p, q);
+				m_body->SetTransform(xf);
 			}
 		}
 

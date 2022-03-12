@@ -31,8 +31,17 @@ public:
 			// Transform grid into a terrain
 			for (uint32 i = 0; i < m_terrain.vertexCount; ++i)
 			{
+				m_terrain.vertices[i].x *= 4.0f;
 				m_terrain.vertices[i].y = RandomFloat(0.0f, 1.0f);
+				m_terrain.vertices[i].z *= 4.0f;
 			}
+
+			// Rotate the terrain body
+			b3Quat orientation;
+			orientation.SetAxisAngle(b3Vec3_y, 0.25f * B3_PI);
+
+			b3Transform transform(body->GetPosition(), orientation);
+			body->SetTransform(transform);
 
 			m_terrain.BuildTree();
 			m_terrain.BuildAdjacency();
@@ -40,10 +49,10 @@ public:
 			b3MeshShape ms;
 			ms.m_mesh = &m_terrain;
 
-			b3FixtureDef sd;
-			sd.shape = &ms;
+			b3FixtureDef fd;
+			fd.shape = &ms;
 
-			body->CreateFixture(sd);
+			body->CreateFixture(fd);
 		}
 
 		{
@@ -53,25 +62,26 @@ public:
 
 			b3Body* body = m_world.CreateBody(bd);
 
-			m_box.SetExtents(1.0f, 1.0f, 1.0f);
+			m_box.SetExtents(2.0f, 0.5f, 1.0f);
 
 			b3HullShape hs;
 			hs.m_hull = &m_box;
 
-			b3FixtureDef sd;
-			sd.shape = &hs;
-			sd.density = 0.1f;
+			b3FixtureDef fd;
+			fd.shape = &hs;
+			fd.density = 0.1f;
 
-			body->CreateFixture(sd);
+			body->CreateFixture(fd);
 
+			// Get the current mass data
 			b3MassData md;
 			body->GetMassData(&md);
 
 			// Shift inertia to old center of mass
 			b3Mat33 Ic = md.I - md.mass * b3Steiner(md.center);
 
-			// Change center of mass
-			md.center.Set(3.0f, 0.0f, 0.0f);
+			// Change the center of mass
+			md.center.Set(0.0f, -3.0f, 0.0f);
 
 			// Shift inertia to local body origin
 			b3Mat33 I2 = Ic + md.mass * b3Steiner(md.center);
@@ -88,8 +98,8 @@ public:
 		return new ShiftCenter();
 	}
 
-	b3BoxHull m_box;
 	b3GridMesh<25, 25> m_terrain;
+	b3BoxHull m_box;
 };
 
 #endif
