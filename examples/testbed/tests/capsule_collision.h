@@ -44,7 +44,7 @@ public:
 		b3Manifold manifold;
 		manifold.Initialize();
 
-		b3CollideCapsuleAndCapsule(manifold, m_xfA, &m_sA, m_xfB, &m_sB);
+		b3CollideCapsules(manifold, m_xfA, &m_sA, m_xfB, &m_sB);
 
 		for (uint32 i = 0; i < manifold.pointCount; ++i)
 		{

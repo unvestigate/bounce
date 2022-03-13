@@ -126,15 +126,15 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 }
 
 void b3CollideHullAndCapsule(b3Manifold& manifold,
-	const b3Transform& xf1, const b3HullShape* s1,
-	const b3Transform& xf2, const b3CapsuleShape* s2)
+	const b3Transform& xf1, const b3HullShape* hull1,
+	const b3Transform& xf2, const b3CapsuleShape* capsule2)
 {
-	scalar r1 = s1->m_radius, r2 = s2->m_radius;
+	scalar r1 = hull1->m_radius, r2 = capsule2->m_radius;
 
 	scalar totalRadius = r1 + r2;
 
-	b3ShapeGJKProxy proxy1(s1, 0);
-	b3ShapeGJKProxy proxy2(s2, 0);
+	b3ShapeGJKProxy proxy1(hull1, 0);
+	b3ShapeGJKProxy proxy2(capsule2, 0);
 
 	b3GJKOutput gjk = b3GJK(xf1, proxy1, xf2, proxy2, false);
 
@@ -143,8 +143,8 @@ void b3CollideHullAndCapsule(b3Manifold& manifold,
 		return;
 	}
 
-	const b3Hull* hull1 = s1->m_hull;
-	const b3Capsule hull2(s2->m_vertex1, s2->m_vertex2, r2);
+	const b3Hull* h1 = hull1->m_hull;
+	const b3Capsule h2(capsule2->m_vertex1, capsule2->m_vertex2, r2);
 
 	if (gjk.distance > scalar(0))
 	{
@@ -157,8 +157,8 @@ void b3CollideHullAndCapsule(b3Manifold& manifold,
 
 		// Search reference face.
 		b3Vec3 localN1 = b3MulC(xf1.rotation, N1);
-		uint32 index1 = hull1->GetSupportFace(localN1);
-		b3Vec3 localFaceN1 = hull1->GetPlane(index1).normal;
+		uint32 index1 = h1->GetSupportFace(localN1);
+		b3Vec3 localFaceN1 = h1->GetPlane(index1).normal;
 
 		// Paralell vectors |v1xv2| = sin(theta)
 		const scalar kTol = scalar(0.005);
@@ -168,7 +168,7 @@ void b3CollideHullAndCapsule(b3Manifold& manifold,
 		{
 			// Reference face found.
 			// Try to build a face contact.
-			b3BuildFaceContact(manifold, xf1, hull1, index1, r1, xf2, &hull2, r2);
+			b3BuildFaceContact(manifold, xf1, h1, index1, r1, xf2, &h2, r2);
 			if (manifold.pointCount == 2)
 			{
 				return;
@@ -186,13 +186,13 @@ void b3CollideHullAndCapsule(b3Manifold& manifold,
 		return;
 	}
 
-	b3FaceQuery faceQuery1 = b3QueryFaceSeparation(xf1, hull1, xf2, &hull2);
+	b3FaceQuery faceQuery1 = b3QueryFaceSeparation(xf1, h1, xf2, &h2);
 	if (faceQuery1.separation > totalRadius)
 	{
 		return;
 	}
 
-	b3EdgeQuery edgeQuery = b3QueryEdgeSeparation(xf1, hull1, xf2, &hull2);
+	b3EdgeQuery edgeQuery = b3QueryEdgeSeparation(xf1, h1, xf2, &h2);
 	if (edgeQuery.separation > totalRadius)
 	{
 		return;
@@ -201,10 +201,10 @@ void b3CollideHullAndCapsule(b3Manifold& manifold,
 	const scalar kTol = scalar(0.1) * B3_LINEAR_SLOP;
 	if (edgeQuery.separation > faceQuery1.separation + kTol)
 	{
-		b3BuildEdgeContact(manifold, xf1, hull1, edgeQuery.index1, xf2, &hull2);
+		b3BuildEdgeContact(manifold, xf1, h1, edgeQuery.index1, xf2, &h2);
 	}
 	else
 	{
-		b3BuildFaceContact(manifold, xf1, hull1, faceQuery1.index, r1, xf2, &hull2, r2);
+		b3BuildFaceContact(manifold, xf1, h1, faceQuery1.index, r1, xf2, &h2, r2);
 	}
 }

@@ -126,16 +126,16 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 }
 
 void b3CollideTriangleAndCapsule(b3Manifold& manifold,
-	const b3Transform& xf1, const b3TriangleShape* s1,
-	const b3Transform& xf2, const b3CapsuleShape* s2)
+	const b3Transform& xf1, const b3TriangleShape* triangle1,
+	const b3Transform& xf2, const b3CapsuleShape* capsule2)
 {
-	scalar r1 = s1->m_radius;
-	scalar r2 = s2->m_radius;
+	scalar r1 = triangle1->m_radius;
+	scalar r2 = capsule2->m_radius;
 
 	scalar totalRadius = r1 + r2;
 
-	b3ShapeGJKProxy proxy1(s1, 0);
-	b3ShapeGJKProxy proxy2(s2, 0);
+	b3ShapeGJKProxy proxy1(triangle1, 0);
+	b3ShapeGJKProxy proxy2(capsule2, 0);
 
 	b3SimplexCache simplex;
 	simplex.count = 0;
@@ -147,8 +147,8 @@ void b3CollideTriangleAndCapsule(b3Manifold& manifold,
 		return;
 	}
 
-	b3TriangleHull hull1(s1->m_vertex1, s1->m_vertex2, s1->m_vertex3);
-	b3Capsule hull2(s2->m_vertex1, s2->m_vertex2, r2);
+	b3TriangleHull hull1(triangle1->m_vertex1, triangle1->m_vertex2, triangle1->m_vertex3);
+	b3Capsule hull2(capsule2->m_vertex1, capsule2->m_vertex2, r2);
 
 	if (gjk.distance > scalar(0))
 	{
@@ -179,7 +179,7 @@ void b3CollideTriangleAndCapsule(b3Manifold& manifold,
 			}
 		}
 
-		if (s1->m_hasE1Vertex || s1->m_hasE2Vertex || s1->m_hasE3Vertex)
+		if (triangle1->m_hasE1Vertex || triangle1->m_hasE2Vertex || triangle1->m_hasE3Vertex)
 		{
 			b3GJKFeaturePair featurePair = b3GetFeaturePair(simplex);
 
@@ -188,9 +188,9 @@ void b3CollideTriangleAndCapsule(b3Manifold& manifold,
 				uint32 v1 = featurePair.index1[0];
 				uint32 v2 = featurePair.index1[1];
 
-				b3Vec3 vertices[3] = { s1->m_vertex1, s1->m_vertex2, s1->m_vertex3 };
-				bool hasWing[3] = { s1->m_hasE1Vertex, s1->m_hasE2Vertex, s1->m_hasE3Vertex };
-				b3Vec3 edgeWings[3] = { s1->m_e1Vertex, s1->m_e2Vertex, s1->m_e3Vertex };
+				b3Vec3 vertices[3] = { triangle1->m_vertex1, triangle1->m_vertex2, triangle1->m_vertex3 };
+				bool hasWing[3] = { triangle1->m_hasE1Vertex, triangle1->m_hasE2Vertex, triangle1->m_hasE3Vertex };
+				b3Vec3 edgeWings[3] = { triangle1->m_e1Vertex, triangle1->m_e2Vertex, triangle1->m_e3Vertex };
 
 				bool edgeFound = false;
 				uint32 edgeIndex;

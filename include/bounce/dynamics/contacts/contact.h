@@ -32,7 +32,7 @@ class b3BlockAllocator;
 
 // A contact edge to a contact graph, where a body is a vertex and a contact an edge.
 // A contact edge belongs to a doubly linked list maintained in each attached fixture.
-// Each joint has two contact nodes, one for each attached fixture.
+// Each contact has two contact nodes, one for each attached fixture.
 struct b3ContactEdge
 {
 	b3Fixture* other; // the other fixture attached

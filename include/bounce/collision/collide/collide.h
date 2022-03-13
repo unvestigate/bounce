@@ -45,7 +45,7 @@ struct b3ConvexCache
 // Used for computing the distance between two generic shapes.
 struct b3ShapeGJKProxy : public b3GJKProxy
 {
-	b3ShapeGJKProxy() { }
+	b3ShapeGJKProxy() = default;
 
 	b3ShapeGJKProxy(const b3Shape* shape, uint32 index)
 	{
@@ -61,51 +61,51 @@ bool b3TestOverlap(const b3Transform& xf1, uint32 index1, const b3Shape* shape1,
 	b3ConvexCache* cache);
 
 // Compute a manifold for two spheres.
-void b3CollideSphereAndSphere(b3Manifold& manifold, 
-	const b3Transform& xf1, const b3SphereShape* shape1, 
-	const b3Transform& xf2, const b3SphereShape* shape2);
+void b3CollideSpheres(b3Manifold& manifold, 
+	const b3Transform& xf1, const b3SphereShape* sphere1, 
+	const b3Transform& xf2, const b3SphereShape* sphere2);
 
 // Compute a manifold for a capsule and a sphere.
 void b3CollideCapsuleAndSphere(b3Manifold& manifold,
-	const b3Transform& xf1, const b3CapsuleShape* shape1,
-	const b3Transform& xf2, const b3SphereShape* shape2);
+	const b3Transform& xf1, const b3CapsuleShape* capsule1,
+	const b3Transform& xf2, const b3SphereShape* sphere2);
 
 // Compute a manifold for two capsules.
-void b3CollideCapsuleAndCapsule(b3Manifold& manifold, 
-	const b3Transform& xf1, const b3CapsuleShape* shape1, 
-	const b3Transform& xf2, const b3CapsuleShape* shape2);
+void b3CollideCapsules(b3Manifold& manifold, 
+	const b3Transform& xf1, const b3CapsuleShape* capsule1, 
+	const b3Transform& xf2, const b3CapsuleShape* capsule2);
 
 // Compute a manifold for a triangle and a sphere.
 void b3CollideTriangleAndSphere(b3Manifold& manifold,
-	const b3Transform& xf1, const b3TriangleShape* shape1,
-	const b3Transform& xf2, const b3SphereShape* shape2);
+	const b3Transform& xf1, const b3TriangleShape* triangle1,
+	const b3Transform& xf2, const b3SphereShape* sphere2);
 
 // Compute a manifold for a triangle and a capsule.
 void b3CollideTriangleAndCapsule(b3Manifold& manifold,
-	const b3Transform& xf1, const b3TriangleShape* shape1,
-	const b3Transform& xf2, const b3CapsuleShape* shape2);
+	const b3Transform& xf1, const b3TriangleShape* triangle1,
+	const b3Transform& xf2, const b3CapsuleShape* capsule2);
 
 // Compute a manifold for a triangle and a hull.
 void b3CollideTriangleAndHull(b3Manifold& manifold,
-	const b3Transform& xf1, const b3TriangleShape* shape1,
-	const b3Transform& xf2, const b3HullShape* shape2,
+	const b3Transform& xf1, const b3TriangleShape* triangle1,
+	const b3Transform& xf2, const b3HullShape* hull2,
 	b3ConvexCache* cache, 
 	const b3Transform& xf01, const b3Transform& xf02);
 
 // Compute a manifold for a hull and a sphere.
 void b3CollideHullAndSphere(b3Manifold& manifold,
-	const b3Transform& xf1, const b3HullShape* shape1,
-	const b3Transform& xf2, const b3SphereShape* shape2);
+	const b3Transform& xf1, const b3HullShape* hull1,
+	const b3Transform& xf2, const b3SphereShape* sphere2);
 
 // Compute a manifold for a hull and a capsule.
 void b3CollideHullAndCapsule(b3Manifold& manifold,
-	const b3Transform& xf1, const b3HullShape* shape1,
-	const b3Transform& xf2, const b3CapsuleShape* shape2);
+	const b3Transform& xf1, const b3HullShape* hull1,
+	const b3Transform& xf2, const b3CapsuleShape* capsule2);
 
 // Compute a manifold for two hulls. 
-void b3CollideHullAndHull(b3Manifold& manifold, 
-	const b3Transform& xf1, const b3HullShape* shape1, 
-	const b3Transform& xf2, const b3HullShape* shape2,
+void b3CollideHulls(b3Manifold& manifold, 
+	const b3Transform& xf1, const b3HullShape* hull1, 
+	const b3Transform& xf2, const b3HullShape* hull2,
 	b3ConvexCache* cache, 
 	const b3Transform& xf01, const b3Transform& xf02);
 

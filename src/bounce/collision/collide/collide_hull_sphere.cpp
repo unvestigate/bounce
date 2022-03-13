@@ -21,25 +21,24 @@
 #include <bounce/collision/shapes/hull_shape.h>
 #include <bounce/collision/shapes/sphere_shape.h>
 #include <bounce/collision/geometry/hull.h>
-#include <bounce/collision/geometry/sphere.h>
 
 void b3CollideHullAndSphere(b3Manifold& manifold,
-	const b3Transform& xf1, const b3HullShape* s1,
-	const b3Transform& xf2, const b3SphereShape* s2)
+	const b3Transform& xf1, const b3HullShape* hull1,
+	const b3Transform& xf2, const b3SphereShape* sphere2)
 {
-	scalar radius = s1->m_radius + s2->m_radius;
-	const b3Hull* hull1 = s1->m_hull;
+	scalar radius = hull1->m_radius + sphere2->m_radius;
+	const b3Hull* h1 = hull1->m_hull;
 
 	// Sphere center in the frame of the hull.
-	b3Vec3 cLocal = b3MulT(xf1, b3Mul(xf2, s2->m_center));
+	b3Vec3 cLocal = b3MulT(xf1, b3Mul(xf2, sphere2->m_center));
 
 	// Find the minimum separation face.	
 	uint32 faceIndex = 0;
 	scalar separation = -B3_MAX_SCALAR;
 
-	for (uint32 i = 0; i < hull1->faceCount; ++i)
+	for (uint32 i = 0; i < h1->faceCount; ++i)
 	{
-		b3Plane plane = hull1->GetPlane(i);
+		b3Plane plane = h1->GetPlane(i);
 		scalar s = b3Distance(cLocal, plane);
 
 		if (s > radius)
@@ -58,42 +57,23 @@ void b3CollideHullAndSphere(b3Manifold& manifold,
 	if (separation < scalar(0))
 	{
 		// The center is inside the hull.
-		b3Plane localPlane1 = hull1->planes[faceIndex];
+		b3Plane localPlane1 = h1->planes[faceIndex];
 
 		b3Vec3 c1 = b3ClosestPointOnPlane(cLocal, localPlane1);
 
 		manifold.pointCount = 1;
 		manifold.points[0].localNormal1 = localPlane1.normal;
 		manifold.points[0].localPoint1 = c1;
-		manifold.points[0].localPoint2 = s2->m_center;
+		manifold.points[0].localPoint2 = sphere2->m_center;
 		manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
 		manifold.points[0].key.key1 = 0;
 		manifold.points[0].key.key2 = 0;
 		return;
 	}
 
-	// Reference face polygon.
-	b3StackArray<b3Vec3, 64> referencePolygon;
-
-	const b3Face* face = hull1->GetFace(faceIndex);
-	const b3HalfEdge* begin = hull1->GetEdge(face->edge);
-	const b3HalfEdge* edge = begin;
-	do
-	{
-		b3Vec3 vertex = hull1->GetVertex(edge->origin);
-		referencePolygon.PushBack(vertex);
-		edge = hull1->GetEdge(edge->next);
-	} while (edge != begin);
-
-	b3GJKProxy proxy1;
-	proxy1.vertexCount = referencePolygon.Count();
-	proxy1.vertices = referencePolygon.Begin();
-
-	b3GJKProxy proxy2;
-	proxy2.vertexBuffer[0] = s2->m_center;
-	proxy2.vertexCount = 1;
-	proxy2.vertices = proxy2.vertexBuffer;
-
+	b3ShapeGJKProxy proxy1(hull1, 0);
+	b3ShapeGJKProxy proxy2(sphere2, 0);
+	
 	b3GJKOutput query = b3GJK(xf1, proxy1, xf2, proxy2, false);
 
 	if (query.distance > radius)
@@ -112,7 +92,7 @@ void b3CollideHullAndSphere(b3Manifold& manifold,
 		manifold.pointCount = 1;
 		manifold.points[0].localNormal1 = b3MulC(xf1.rotation, normal);
 		manifold.points[0].localPoint1 = b3MulT(xf1, c1);
-		manifold.points[0].localPoint2 = s2->m_center;
+		manifold.points[0].localPoint2 = sphere2->m_center;
 		manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
 		manifold.points[0].key.key1 = 0;
 		manifold.points[0].key.key2 = 0;

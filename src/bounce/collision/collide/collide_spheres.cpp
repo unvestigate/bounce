@@ -21,15 +21,15 @@
 #include <bounce/collision/shapes/sphere_shape.h>
 #include <bounce/collision/geometry/sphere.h>
 
-void b3CollideSphereAndSphere(b3Manifold& manifold, 
-	const b3Transform& xf1, const b3SphereShape* s1,
-	const b3Transform& xf2, const b3SphereShape* s2)
+void b3CollideSpheres(b3Manifold& manifold, 
+	const b3Transform& xf1, const b3SphereShape* sphere1,
+	const b3Transform& xf2, const b3SphereShape* sphere2)
 {
-	b3Vec3 c1 = xf1 * s1->m_center;
-	scalar r1 = s1->m_radius;
+	b3Vec3 c1 = xf1 * sphere1->m_center;
+	scalar r1 = sphere1->m_radius;
 
-	b3Vec3 c2 = xf2 * s2->m_center;
-	scalar r2 = s2->m_radius;
+	b3Vec3 c2 = xf2 * sphere2->m_center;
+	scalar r2 = sphere2->m_radius;
 	
 	b3Vec3 d = c2 - c1;
 	scalar dd = b3Dot(d, d);
@@ -48,8 +48,8 @@ void b3CollideSphereAndSphere(b3Manifold& manifold,
 	
 	manifold.pointCount = 1;
 	manifold.points[0].localNormal1 = b3MulC(xf1.rotation, normal);
-	manifold.points[0].localPoint1 = s1->m_center;
-	manifold.points[0].localPoint2 = s2->m_center;
+	manifold.points[0].localPoint1 = sphere1->m_center;
+	manifold.points[0].localPoint2 = sphere2->m_center;
 	manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
 	manifold.points[0].key.key1 = 0;
 	manifold.points[0].key.key2 = 0;

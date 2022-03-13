@@ -567,11 +567,11 @@ b3TOIOutput b3TimeOfImpact(const b3TOIInput& input)
 	output.t = input.tMax;
 	output.iterations = 0;
 
-	const b3GJKProxy& proxyA = input.proxyA;
-	const b3GJKProxy& proxyB = input.proxyB;
+	const b3GJKProxy& proxyA = input.proxy1;
+	const b3GJKProxy& proxyB = input.proxy2;
 
-	b3Sweep sweepA = input.sweepA;
-	b3Sweep sweepB = input.sweepB;
+	b3Sweep sweepA = input.sweep1;
+	b3Sweep sweepB = input.sweep2;
 
 	scalar tMax = input.tMax;
 

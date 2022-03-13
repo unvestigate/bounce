@@ -22,13 +22,13 @@
 #include <bounce/collision/shapes/sphere_shape.h>
 
 void b3CollideCapsuleAndSphere(b3Manifold& manifold, 
-	const b3Transform& xf1, const b3CapsuleShape* s1,
-	const b3Transform& xf2, const b3SphereShape* s2)
+	const b3Transform& xf1, const b3CapsuleShape* capsule1,
+	const b3Transform& xf2, const b3SphereShape* sphere2)
 {
 	// The sphere center in the frame of the capsule.
-	b3Vec3 Q = b3MulT(xf1, b3Mul(xf2, s2->m_center));
+	b3Vec3 Q = b3MulT(xf1, b3Mul(xf2, sphere2->m_center));
 
-	b3Vec3 A = s1->m_vertex1, B = s1->m_vertex2;
+	b3Vec3 A = capsule1->m_vertex1, B = capsule1->m_vertex2;
 	
 	b3Vec3 AB = B - A;
 	
@@ -36,7 +36,7 @@ void b3CollideCapsuleAndSphere(b3Manifold& manifold,
 	scalar u = b3Dot(B - Q, AB);
 	scalar v = b3Dot(Q - A, AB);
 	
-	scalar radius = s1->m_radius + s2->m_radius;
+	scalar radius = capsule1->m_radius + sphere2->m_radius;
 
 	if (v <= scalar(0))
 	{
@@ -59,7 +59,7 @@ void b3CollideCapsuleAndSphere(b3Manifold& manifold,
 		manifold.pointCount = 1;
 		manifold.points[0].localNormal1 = n;
 		manifold.points[0].localPoint1 = P;
-		manifold.points[0].localPoint2 = s2->m_center;
+		manifold.points[0].localPoint2 = sphere2->m_center;
 		manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
 		manifold.points[0].key.key1 = 0;
 		manifold.points[0].key.key2 = 0;
@@ -88,7 +88,7 @@ void b3CollideCapsuleAndSphere(b3Manifold& manifold,
 		manifold.pointCount = 1;
 		manifold.points[0].localNormal1 = n;
 		manifold.points[0].localPoint1 = P;
-		manifold.points[0].localPoint2 = s2->m_center;
+		manifold.points[0].localPoint2 = sphere2->m_center;
 		manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
 		manifold.points[0].key.key1 = 0;
 		manifold.points[0].key.key2 = 0;
@@ -120,7 +120,7 @@ void b3CollideCapsuleAndSphere(b3Manifold& manifold,
 	manifold.pointCount = 1;
 	manifold.points[0].localNormal1 = n;
 	manifold.points[0].localPoint1 = P;
-	manifold.points[0].localPoint2 = s2->m_center;
+	manifold.points[0].localPoint2 = sphere2->m_center;
 	manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
 	manifold.points[0].key.key1 = 0;
 	manifold.points[0].key.key2 = 0;

@@ -22,16 +22,16 @@
 #include <bounce/collision/shapes/sphere_shape.h>
 
 void b3CollideTriangleAndSphere(b3Manifold& manifold,
-	const b3Transform& xf1, const b3TriangleShape* s1,
-	const b3Transform& xf2, const b3SphereShape* s2)
+	const b3Transform& xf1, const b3TriangleShape* triangle1,
+	const b3Transform& xf2, const b3SphereShape* sphere2)
 {
 	// Put the sphere center in the frame of the triangle.
-	b3Vec3 Q = b3MulT(xf1, b3Mul(xf2, s2->m_center));
+	b3Vec3 Q = b3MulT(xf1, b3Mul(xf2, sphere2->m_center));
 
 	// ABC
-	b3Vec3 A = s1->m_vertex1, B = s1->m_vertex2, C = s1->m_vertex3;
+	b3Vec3 A = triangle1->m_vertex1, B = triangle1->m_vertex2, C = triangle1->m_vertex3;
 
-	scalar radius = s1->m_radius + s2->m_radius;
+	scalar radius = triangle1->m_radius + sphere2->m_radius;
 
 	// Test vertex regions
 	scalar wAB[3], wBC[3], wCA[3];
@@ -60,7 +60,7 @@ void b3CollideTriangleAndSphere(b3Manifold& manifold,
 		manifold.pointCount = 1;
 		manifold.points[0].localNormal1 = n;
 		manifold.points[0].localPoint1 = P;
-		manifold.points[0].localPoint2 = s2->m_center;
+		manifold.points[0].localPoint2 = sphere2->m_center;
 		manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
 		manifold.points[0].key.key1 = 0;
 		manifold.points[0].key.key2 = 0;
@@ -89,7 +89,7 @@ void b3CollideTriangleAndSphere(b3Manifold& manifold,
 		manifold.pointCount = 1;
 		manifold.points[0].localNormal1 = n;
 		manifold.points[0].localPoint1 = P;
-		manifold.points[0].localPoint2 = s2->m_center;
+		manifold.points[0].localPoint2 = sphere2->m_center;
 		manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
 		manifold.points[0].key.key1 = 0;
 		manifold.points[0].key.key2 = 0;
@@ -118,7 +118,7 @@ void b3CollideTriangleAndSphere(b3Manifold& manifold,
 		manifold.pointCount = 1;
 		manifold.points[0].localNormal1 = n;
 		manifold.points[0].localPoint1 = P;
-		manifold.points[0].localPoint2 = s2->m_center;
+		manifold.points[0].localPoint2 = sphere2->m_center;
 		manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
 		manifold.points[0].key.key1 = 0;
 		manifold.points[0].key.key2 = 0;
@@ -145,9 +145,9 @@ void b3CollideTriangleAndSphere(b3Manifold& manifold,
 		}
 
 		// Is there a face connected to AB?
-		if (s1->m_hasE1Vertex)
+		if (triangle1->m_hasE1Vertex)
 		{
-			b3Vec3 A1 = s1->m_e1Vertex;
+			b3Vec3 A1 = triangle1->m_e1Vertex;
 			b3Vec3 B1 = B;
 			b3Vec3 C1 = A;
 
@@ -171,7 +171,7 @@ void b3CollideTriangleAndSphere(b3Manifold& manifold,
 		manifold.pointCount = 1;
 		manifold.points[0].localNormal1 = n;
 		manifold.points[0].localPoint1 = P;
-		manifold.points[0].localPoint2 = s2->m_center;
+		manifold.points[0].localPoint2 = sphere2->m_center;
 		manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
 		manifold.points[0].key.key1 = 0;
 		manifold.points[0].key.key2 = 0;
@@ -194,9 +194,9 @@ void b3CollideTriangleAndSphere(b3Manifold& manifold,
 		}
 
 		// Is there a face connected to AC?
-		if (s1->m_hasE2Vertex)
+		if (triangle1->m_hasE2Vertex)
 		{
-			b3Vec3 A2 = s1->m_e2Vertex;
+			b3Vec3 A2 = triangle1->m_e2Vertex;
 			b3Vec3 B2 = C;
 			b3Vec3 C2 = B;
 
@@ -220,7 +220,7 @@ void b3CollideTriangleAndSphere(b3Manifold& manifold,
 		manifold.pointCount = 1;
 		manifold.points[0].localNormal1 = n;
 		manifold.points[0].localPoint1 = P;
-		manifold.points[0].localPoint2 = s2->m_center;
+		manifold.points[0].localPoint2 = sphere2->m_center;
 		manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
 		manifold.points[0].key.key1 = 0;
 		manifold.points[0].key.key2 = 0;
@@ -243,9 +243,9 @@ void b3CollideTriangleAndSphere(b3Manifold& manifold,
 		}
 
 		// Is there a face connected to CA?
-		if (s1->m_hasE3Vertex)
+		if (triangle1->m_hasE3Vertex)
 		{
-			b3Vec3 A3 = s1->m_e3Vertex;
+			b3Vec3 A3 = triangle1->m_e3Vertex;
 			b3Vec3 B3 = A;
 			b3Vec3 C3 = C;
 
@@ -269,7 +269,7 @@ void b3CollideTriangleAndSphere(b3Manifold& manifold,
 		manifold.pointCount = 1;
 		manifold.points[0].localNormal1 = n;
 		manifold.points[0].localPoint1 = P;
-		manifold.points[0].localPoint2 = s2->m_center;
+		manifold.points[0].localPoint2 = sphere2->m_center;
 		manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
 		manifold.points[0].key.key1 = 0;
 		manifold.points[0].key.key2 = 0;
@@ -304,7 +304,7 @@ void b3CollideTriangleAndSphere(b3Manifold& manifold,
 	manifold.pointCount = 1;
 	manifold.points[0].localNormal1 = n;
 	manifold.points[0].localPoint1 = P;
-	manifold.points[0].localPoint2 = s2->m_center;
+	manifold.points[0].localPoint2 = sphere2->m_center;
 	manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
 	manifold.points[0].key.key1 = 0;
 	manifold.points[0].key.key2 = 0;

@@ -125,9 +125,7 @@ static void b3ClosestPoints(b3Vec3& C1, b3Vec3& C2,
 	}
 
 	C1 = b3ClosestPointOnSegment(C1, hull1);
-	
 	C2 = b3ClosestPointOnSegment(C1, hull2);
-	
 	C1 = b3ClosestPointOnSegment(C2, hull1);
 }
 
@@ -153,25 +151,25 @@ static bool b3AreParalell(const b3Capsule& hull1, const b3Capsule& hull2)
 	return b3Length(N) < kTol * L1 * L2;
 }
 
-void b3CollideCapsuleAndCapsule(b3Manifold& manifold, 
-	const b3Transform& xf1, const b3CapsuleShape* s1,
-	const b3Transform& xf2, const b3CapsuleShape* s2)
+void b3CollideCapsules(b3Manifold& manifold, 
+	const b3Transform& xf1, const b3CapsuleShape* capsule1,
+	const b3Transform& xf2, const b3CapsuleShape* capsule2)
 {
 	b3Capsule hull1;
-	hull1.vertex1 = xf1 * s1->m_vertex1;
-	hull1.vertex2 = xf1 * s1->m_vertex2;
+	hull1.vertex1 = xf1 * capsule1->m_vertex1;
+	hull1.vertex2 = xf1 * capsule1->m_vertex2;
 	
 	b3Capsule hull2;
-	hull2.vertex1 = xf2 * s2->m_vertex1;
-	hull2.vertex2 = xf2 * s2->m_vertex2;
+	hull2.vertex1 = xf2 * capsule2->m_vertex1;
+	hull2.vertex2 = xf2 * capsule2->m_vertex2;
 	
 	b3Vec3 point1, point2;
 	b3ClosestPoints(point1, point2, hull1, hull2);
 	
 	scalar distance = b3Distance(point1, point2);
 
-	scalar r1 = s1->m_radius;
-	scalar r2 = s2->m_radius;
+	scalar r1 = capsule1->m_radius;
+	scalar r2 = capsule2->m_radius;
 	scalar totalRadius = r1 + r2;
 	if (distance > totalRadius)
 	{
@@ -205,8 +203,8 @@ void b3CollideCapsuleAndCapsule(b3Manifold& manifold,
 					b3Vec3 p1 = scalar(0.5) * (clipEdge1[0].position + r1 * n1 + cp1 - r2 * n1);
 					b3Vec3 p2 = scalar(0.5) * (clipEdge1[1].position + r1 * n2 + cp2 - r2 * n2);
 
-					b3Vec3 center = scalar(0.5) * (p1 + p2);
-					b3Vec3 normal = b3Normalize(n1 + n2);
+					// b3Vec3 center = scalar(0.5) * (p1 + p2);
+					// b3Vec3 normal = b3Normalize(n1 + n2);
 
 					manifold.pointCount = 2;
 

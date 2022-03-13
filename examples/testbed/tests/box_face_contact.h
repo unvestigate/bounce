@@ -48,7 +48,7 @@ public:
 		b3Manifold manifold;
 		manifold.Initialize();
 
-		b3CollideHullAndHull(manifold, m_xfA, &m_sA, m_xfB, &m_sB, &cache, m_xfA, m_xfB);
+		b3CollideHulls(manifold, m_xfA, &m_sA, m_xfB, &m_sB, &cache, m_xfA, m_xfB);
 
 		for (uint32 i = 0; i < manifold.pointCount; ++i)
 		{

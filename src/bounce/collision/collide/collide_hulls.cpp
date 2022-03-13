@@ -27,28 +27,28 @@ bool b3_convexCache = true;
 uint32 b3_convexCalls = 0, b3_convexCacheHits = 0;
 
 static void b3BuildEdgeContact(b3Manifold& manifold,
-	const b3Transform& xf1, uint32 index1, const b3HullShape* s1,
-	const b3Transform& xf2, uint32 index2, const b3HullShape* s2)
+	const b3Transform& xf1, uint32 index1, const b3HullShape* hull1,
+	const b3Transform& xf2, uint32 index2, const b3HullShape* hull2)
 {
-	const b3Hull* hull1 = s1->m_hull;
-	const b3HalfEdge* edge1 = hull1->GetEdge(index1);
-	const b3HalfEdge* twin1 = hull1->GetEdge(index1 + 1);
+	const b3Hull* h1 = hull1->m_hull;
+	const b3HalfEdge* edge1 = h1->GetEdge(index1);
+	const b3HalfEdge* twin1 = h1->GetEdge(index1 + 1);
 
-	b3Vec3 C1 = xf1 * hull1->centroid;
-	b3Vec3 P1 = xf1 * hull1->GetVertex(edge1->origin);
-	b3Vec3 Q1 = xf1 * hull1->GetVertex(twin1->origin);
+	b3Vec3 C1 = xf1 * h1->centroid;
+	b3Vec3 P1 = xf1 * h1->GetVertex(edge1->origin);
+	b3Vec3 Q1 = xf1 * h1->GetVertex(twin1->origin);
 	b3Vec3 E1 = Q1 - P1;
 	b3Vec3 N1 = E1;
 	scalar L1 = N1.Normalize();
 	B3_ASSERT(L1 > B3_LINEAR_SLOP);
 
-	const b3Hull* hull2 = s2->m_hull;
-	const b3HalfEdge* edge2 = hull2->GetEdge(index2);
-	const b3HalfEdge* twin2 = hull2->GetEdge(index2 + 1);
+	const b3Hull* h2 = hull2->m_hull;
+	const b3HalfEdge* edge2 = h2->GetEdge(index2);
+	const b3HalfEdge* twin2 = h2->GetEdge(index2 + 1);
 
-	b3Vec3 C2 = xf2 * hull2->centroid;
-	b3Vec3 P2 = xf2 * hull2->GetVertex(edge2->origin);
-	b3Vec3 Q2 = xf2 * hull2->GetVertex(twin2->origin);
+	b3Vec3 C2 = xf2 * h2->centroid;
+	b3Vec3 P2 = xf2 * h2->GetVertex(edge2->origin);
+	b3Vec3 Q2 = xf2 * h2->GetVertex(twin2->origin);
 	b3Vec3 E2 = Q2 - P2;
 	b3Vec3 N2 = E2;
 	scalar L2 = N2.Normalize();
@@ -96,24 +96,24 @@ static void b3BuildEdgeContact(b3Manifold& manifold,
 }
 
 static void b3BuildFaceContact(b3Manifold& manifold,
-	const b3Transform& xf1, uint32 index1, const b3HullShape* s1,
-	const b3Transform& xf2, const b3HullShape* s2,
+	const b3Transform& xf1, uint32 index1, const b3HullShape* hull1,
+	const b3Transform& xf2, const b3HullShape* hull2,
 	bool flipNormal)
 {
-	const b3Hull* hull1 = s1->m_hull;
-	scalar r1 = s1->m_radius;
+	const b3Hull* h1 = hull1->m_hull;
+	scalar r1 = hull1->m_radius;
 
-	const b3Hull* hull2 = s2->m_hull;
-	scalar r2 = s2->m_radius;
+	const b3Hull* h2 = hull2->m_hull;
+	scalar r2 = hull2->m_radius;
 
 	scalar totalRadius = r1 + r2;
 
 	// 1. Define the reference face plane (1).
-	const b3Face* face1 = hull1->GetFace(index1);
-	const b3HalfEdge* edge1 = hull1->GetEdge(face1->edge);
-	b3Plane localPlane1 = hull1->GetPlane(index1);
+	const b3Face* face1 = h1->GetFace(index1);
+	const b3HalfEdge* edge1 = h1->GetEdge(face1->edge);
+	b3Plane localPlane1 = h1->GetPlane(index1);
 	b3Vec3 localNormal1 = localPlane1.normal;
-	b3Vec3 localPoint1 = hull1->GetVertex(edge1->origin);
+	b3Vec3 localPoint1 = h1->GetVertex(edge1->origin);
 	b3Plane plane1 = b3Mul(xf1, localPlane1);
 
 	// 2. Find the incident face polygon (2).	
@@ -123,12 +123,12 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 
 	// Find the support face polygon in the *negated* direction.
 	b3StackArray<b3ClipVertex, 32> polygon2;
-	uint32 index2 = hull2->GetSupportFace(-normal1);
-	b3BuildPolygon(polygon2, xf2, index2, hull2);
+	uint32 index2 = h2->GetSupportFace(-normal1);
+	b3BuildPolygon(polygon2, xf2, index2, h2);
 
 	// 3. Clip incident face polygon (2) against the reference face (1) side planes.
 	b3StackArray<b3ClipVertex, 32> clipPolygon2;
-	b3ClipPolygonToFace(clipPolygon2, polygon2, xf1, totalRadius, index1, hull1);
+	b3ClipPolygonToFace(clipPolygon2, polygon2, xf1, totalRadius, index1, h1);
 	if (clipPolygon2.IsEmpty())
 	{
 		return;
@@ -174,8 +174,7 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 
 	b3StackArray<b3ClusterPolygonVertex, 32> reducedPolygon1;
 	b3ReducePolygon(reducedPolygon1, polygon1, orientedNormal, minIndex);
-	B3_ASSERT(!reducedPolygon1.IsEmpty());
-
+	
 	// 6. Build face contact.
 	uint32 pointCount = reducedPolygon1.Count();
 	for (uint32 i = 0; i < pointCount; ++i)
@@ -213,32 +212,32 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 }
 
 static void b3CollideHulls(b3Manifold& manifold,
-	const b3Transform& xf1, const b3HullShape* s1,
-	const b3Transform& xf2, const b3HullShape* s2)
+	const b3Transform& xf1, const b3HullShape* hull1,
+	const b3Transform& xf2, const b3HullShape* hull2)
 {
 	B3_ASSERT(manifold.pointCount == 0);
 
-	const b3Hull* hull1 = s1->m_hull;
-	scalar r1 = s1->m_radius;
+	const b3Hull* h1 = hull1->m_hull;
+	scalar r1 = hull1->m_radius;
 
-	const b3Hull* hull2 = s2->m_hull;
-	scalar r2 = s2->m_radius;
+	const b3Hull* h2 = hull2->m_hull;
+	scalar r2 = hull2->m_radius;
 
 	scalar totalRadius = r1 + r2;
 
-	b3FaceQuery faceQuery1 = b3QueryFaceSeparation(xf1, hull1, xf2, hull2);
+	b3FaceQuery faceQuery1 = b3QueryFaceSeparation(xf1, h1, xf2, h2);
 	if (faceQuery1.separation > totalRadius)
 	{
 		return;
 	}
 
-	b3FaceQuery faceQuery2 = b3QueryFaceSeparation(xf2, hull2, xf1, hull1);
+	b3FaceQuery faceQuery2 = b3QueryFaceSeparation(xf2, h2, xf1, h1);
 	if (faceQuery2.separation > totalRadius)
 	{
 		return;
 	}
 
-	b3EdgeQuery edgeQuery = b3QueryEdgeSeparation(xf1, hull1, xf2, hull2);
+	b3EdgeQuery edgeQuery = b3QueryEdgeSeparation(xf1, h1, xf2, h2);
 	if (edgeQuery.separation > totalRadius)
 	{
 		return;
@@ -247,17 +246,17 @@ static void b3CollideHulls(b3Manifold& manifold,
 	const scalar kTol = scalar(0.1) * B3_LINEAR_SLOP;
 	if (edgeQuery.separation > b3Max(faceQuery1.separation, faceQuery2.separation) + kTol)
 	{
-		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, s1, xf2, edgeQuery.index2, s2);
+		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, hull1, xf2, edgeQuery.index2, hull2);
 	}
 	else
 	{
 		if (faceQuery1.separation + kTol > faceQuery2.separation)
 		{
-			b3BuildFaceContact(manifold, xf1, faceQuery1.index, s1, xf2, s2, false);
+			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
 		}
 		else
 		{
-			b3BuildFaceContact(manifold, xf2, faceQuery2.index, s2, xf1, s1, true);
+			b3BuildFaceContact(manifold, xf2, faceQuery2.index, hull2, xf1, hull1, true);
 		}
 	}
 
@@ -270,17 +269,17 @@ static void b3CollideHulls(b3Manifold& manifold,
 	// Heuristic failed. Fallback.
 	if (edgeQuery.separation > b3Max(faceQuery1.separation, faceQuery2.separation))
 	{
-		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, s1, xf2, edgeQuery.index2, s2);
+		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, hull1, xf2, edgeQuery.index2, hull2);
 	}
 	else
 	{
 		if (faceQuery1.separation > faceQuery2.separation)
 		{
-			b3BuildFaceContact(manifold, xf1, faceQuery1.index, s1, xf2, s2, false);
+			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
 		}
 		else
 		{
-			b3BuildFaceContact(manifold, xf2, faceQuery2.index, s2, xf1, s1, true);
+			b3BuildFaceContact(manifold, xf2, faceQuery2.index, hull2, xf1, hull1, true);
 		}
 	}
 
@@ -292,28 +291,28 @@ static void b3CollideHulls(b3Manifold& manifold,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 static void b3RebuildEdgeContact(b3Manifold& manifold,
-	const b3Transform& xf1, uint32 index1, const b3HullShape* s1,
-	const b3Transform& xf2, uint32 index2, const b3HullShape* s2)
+	const b3Transform& xf1, uint32 index1, const b3HullShape* hull1,
+	const b3Transform& xf2, uint32 index2, const b3HullShape* hull2)
 {
-	const b3Hull* hull1 = s1->m_hull;
-	const b3HalfEdge* edge1 = hull1->GetEdge(index1);
-	const b3HalfEdge* twin1 = hull1->GetEdge(index1 + 1);
+	const b3Hull* h1 = hull1->m_hull;
+	const b3HalfEdge* edge1 = h1->GetEdge(index1);
+	const b3HalfEdge* twin1 = h1->GetEdge(index1 + 1);
 
-	b3Vec3 C1 = xf1 * hull1->centroid;
-	b3Vec3 P1 = xf1 * hull1->GetVertex(edge1->origin);
-	b3Vec3 Q1 = xf1 * hull1->GetVertex(twin1->origin);
+	b3Vec3 C1 = xf1 * h1->centroid;
+	b3Vec3 P1 = xf1 * h1->GetVertex(edge1->origin);
+	b3Vec3 Q1 = xf1 * h1->GetVertex(twin1->origin);
 	b3Vec3 E1 = Q1 - P1;
 	b3Vec3 N1 = E1;
 	scalar L1 = N1.Normalize();
 	B3_ASSERT(L1 > scalar(0));
 
-	const b3Hull* hull2 = s2->m_hull;
-	const b3HalfEdge* edge2 = hull2->GetEdge(index2);
-	const b3HalfEdge* twin2 = hull2->GetEdge(index2 + 1);
+	const b3Hull* h2 = hull2->m_hull;
+	const b3HalfEdge* edge2 = h2->GetEdge(index2);
+	const b3HalfEdge* twin2 = h2->GetEdge(index2 + 1);
 
-	b3Vec3 C2 = xf2 * hull2->centroid;
-	b3Vec3 P2 = xf2 * hull2->GetVertex(edge2->origin);
-	b3Vec3 Q2 = xf2 * hull2->GetVertex(twin2->origin);
+	b3Vec3 C2 = xf2 * h2->centroid;
+	b3Vec3 P2 = xf2 * h2->GetVertex(edge2->origin);
+	b3Vec3 Q2 = xf2 * h2->GetVertex(twin2->origin);
 	b3Vec3 E2 = Q2 - P2;
 	b3Vec3 N2 = E2;
 	scalar L2 = N2.Normalize();
@@ -372,8 +371,8 @@ static void b3RebuildEdgeContact(b3Manifold& manifold,
 }
 
 static void b3RebuildFaceContact(b3Manifold& manifold,
-	const b3Transform& xf1, uint32 index1, const b3HullShape* s1,
-	const b3Transform& xf2, const b3HullShape* s2, bool flipNormal, 
+	const b3Transform& xf1, uint32 index1, const b3HullShape* hull1,
+	const b3Transform& xf2, const b3HullShape* hull2, bool flipNormal, 
 	const b3Transform& xf01, const b3Transform& xf02)
 {
 	b3Quat q01 = xf01.rotation, q1 = xf1.rotation;
@@ -400,29 +399,28 @@ static void b3RebuildFaceContact(b3Manifold& manifold,
 	// Check the relative absolute cosine because 
 	// we want to check orientation similarity.
 	const scalar kCosTol = scalar(0.995);
-
 	if (b3Abs(q.s) > kCosTol)
 	{
-		b3BuildFaceContact(manifold, xf1, index1, s1, xf2, s2, flipNormal);
+		b3BuildFaceContact(manifold, xf1, index1, hull1, xf2, hull2, flipNormal);
 	}
 }
 
 static void b3CollideCache(b3Manifold& manifold,
-	const b3Transform& xf1, const b3HullShape* s1,
-	const b3Transform& xf2, const b3HullShape* s2,
+	const b3Transform& xf1, const b3HullShape* hull1,
+	const b3Transform& xf2, const b3HullShape* hull2,
 	b3FeatureCache* cache)
 {
 	B3_ASSERT(cache->featurePair.state == b3SATCacheType::e_empty);
 
-	const b3Hull* hull1 = s1->m_hull;
-	scalar r1 = s1->m_radius;
+	const b3Hull* h1 = hull1->m_hull;
+	scalar r1 = hull1->m_radius;
 
-	const b3Hull* hull2 = s2->m_hull;
-	scalar r2 = s2->m_radius;
+	const b3Hull* h2 = hull2->m_hull;
+	scalar r2 = hull2->m_radius;
 
 	scalar totalRadius = r1 + r2;
 
-	b3FaceQuery faceQuery1 = b3QueryFaceSeparation(xf1, hull1, xf2, hull2);
+	b3FaceQuery faceQuery1 = b3QueryFaceSeparation(xf1, h1, xf2, h2);
 	if (faceQuery1.separation > totalRadius)
 	{
 		// Write a separation cache.
@@ -430,7 +428,7 @@ static void b3CollideCache(b3Manifold& manifold,
 		return;
 	}
 
-	b3FaceQuery faceQuery2 = b3QueryFaceSeparation(xf2, hull2, xf1, hull1);
+	b3FaceQuery faceQuery2 = b3QueryFaceSeparation(xf2, h2, xf1, h1);
 	if (faceQuery2.separation > totalRadius)
 	{
 		// Write a separation cache.
@@ -438,7 +436,7 @@ static void b3CollideCache(b3Manifold& manifold,
 		return;
 	}
 
-	b3EdgeQuery edgeQuery = b3QueryEdgeSeparation(xf1, hull1, xf2, hull2);
+	b3EdgeQuery edgeQuery = b3QueryEdgeSeparation(xf1, h1, xf2, h2);
 	if (edgeQuery.separation > totalRadius)
 	{
 		// Write a separation cache.
@@ -449,7 +447,7 @@ static void b3CollideCache(b3Manifold& manifold,
 	const scalar kTol = scalar(0.1) * B3_LINEAR_SLOP;
 	if (edgeQuery.separation > b3Max(faceQuery1.separation, faceQuery2.separation) + kTol)
 	{
-		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, s1, xf2, edgeQuery.index2, s2);
+		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, hull1, xf2, edgeQuery.index2, hull2);
 
 		// Write an overlap cache.		
 		cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_overlap, b3SATFeatureType::e_edge1, edgeQuery.index1, edgeQuery.index2);
@@ -459,7 +457,7 @@ static void b3CollideCache(b3Manifold& manifold,
 	{
 		if (faceQuery1.separation + kTol > faceQuery2.separation)
 		{
-			b3BuildFaceContact(manifold, xf1, faceQuery1.index, s1, xf2, s2, false);
+			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
 			if (manifold.pointCount > 0)
 			{
 				// Write an overlap cache.
@@ -469,7 +467,7 @@ static void b3CollideCache(b3Manifold& manifold,
 		}
 		else
 		{
-			b3BuildFaceContact(manifold, xf2, faceQuery2.index, s2, xf1, s1, true);
+			b3BuildFaceContact(manifold, xf2, faceQuery2.index, hull2, xf1, hull1, true);
 			if (manifold.pointCount > 0)
 			{
 				// Write an overlap cache.
@@ -482,7 +480,8 @@ static void b3CollideCache(b3Manifold& manifold,
 	// Heuristic failed. Fallback.
 	if (edgeQuery.separation > b3Max(faceQuery1.separation, faceQuery2.separation))
 	{
-		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, s1, xf2, edgeQuery.index2, s2);
+		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, hull1, xf2, edgeQuery.index2, hull2);
+		
 		// Write an overlap cache.		
 		cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_overlap, b3SATFeatureType::e_edge1, edgeQuery.index1, edgeQuery.index2);
 		return;
@@ -491,7 +490,7 @@ static void b3CollideCache(b3Manifold& manifold,
 	{
 		if (faceQuery1.separation > faceQuery2.separation)
 		{
-			b3BuildFaceContact(manifold, xf1, faceQuery1.index, s1, xf2, s2, false);
+			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
 			if (manifold.pointCount > 0)
 			{
 				// Write an overlap cache.
@@ -501,7 +500,7 @@ static void b3CollideCache(b3Manifold& manifold,
 		}
 		else
 		{
-			b3BuildFaceContact(manifold, xf2, faceQuery2.index, s2, xf1, s1, true);
+			b3BuildFaceContact(manifold, xf2, faceQuery2.index, hull2, xf1, hull1, true);
 			if (manifold.pointCount > 0)
 			{
 				// Write an overlap cache.
@@ -517,22 +516,22 @@ static void b3CollideCache(b3Manifold& manifold,
 }
 
 static void b3CollideHulls(b3Manifold& manifold,
-	const b3Transform& xf1, const b3HullShape* s1,
-	const b3Transform& xf2, const b3HullShape* s2,
+	const b3Transform& xf1, const b3HullShape* hull1,
+	const b3Transform& xf2, const b3HullShape* hull2,
 	b3FeatureCache* cache, 
 	const b3Transform& xf01, const b3Transform& xf02)
 {
-	const b3Hull* hull1 = s1->m_hull;
-	scalar r1 = s1->m_radius;
+	const b3Hull* h1 = hull1->m_hull;
+	scalar r1 = hull1->m_radius;
 
-	const b3Hull* hull2 = s2->m_hull;
-	scalar r2 = s2->m_radius;
+	const b3Hull* h2 = hull2->m_hull;
+	scalar r2 = hull2->m_radius;
 
 	scalar totalRadius = r1 + r2;
 
 	// Read cache
 	b3SATCacheType state0 = cache->featurePair.state;
-	b3SATCacheType state1 = cache->ReadState(xf1, hull1, xf2, hull2, totalRadius);
+	b3SATCacheType state1 = cache->ReadState(xf1, h1, xf2, h2, totalRadius);
 
 	if (state0 == b3SATCacheType::e_separation &&
 		state1 == b3SATCacheType::e_separation)
@@ -550,17 +549,17 @@ static void b3CollideHulls(b3Manifold& manifold,
 		{
 		case b3SATFeatureType::e_edge1:
 		{
-			b3RebuildEdgeContact(manifold, xf1, cache->featurePair.index1, s1, xf2, cache->featurePair.index2, s2);
+			b3RebuildEdgeContact(manifold, xf1, cache->featurePair.index1, hull1, xf2, cache->featurePair.index2, hull2);
 			break;
 		}
 		case b3SATFeatureType::e_face1:
 		{
-			b3RebuildFaceContact(manifold, xf1, cache->featurePair.index1, s1, xf2, s2, false, xf01, xf02);
+			b3RebuildFaceContact(manifold, xf1, cache->featurePair.index1, hull1, xf2, hull2, false, xf01, xf02);
 			break;
 		}
 		case b3SATFeatureType::e_face2:
 		{
-			b3RebuildFaceContact(manifold, xf2, cache->featurePair.index1, s2, xf1, s1, true, xf02, xf01);
+			b3RebuildFaceContact(manifold, xf2, cache->featurePair.index1, hull2, xf1, hull1, true, xf02, xf01);
 			break;
 		}
 		default:
@@ -581,24 +580,23 @@ static void b3CollideHulls(b3Manifold& manifold,
 	// Overlap cache miss.
 	// Flush the cache.
 	cache->featurePair.state = b3SATCacheType::e_empty;
-	b3CollideCache(manifold, xf1, s1, xf2, s2, cache);
+	b3CollideCache(manifold, xf1, hull1, xf2, hull2, cache);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void b3CollideHullAndHull(b3Manifold& manifold,
-	const b3Transform& xf1, const b3HullShape* s1,
-	const b3Transform& xf2, const b3HullShape* s2,
+void b3CollideHulls(b3Manifold& manifold,
+	const b3Transform& xf1, const b3HullShape* hull1,
+	const b3Transform& xf2, const b3HullShape* hull2,
 	b3ConvexCache* cache, const b3Transform& xf01, const b3Transform& xf02)
 {
 	++b3_convexCalls;
-
 	if (b3_convexCache)
 	{
-		b3CollideHulls(manifold, xf1, s1, xf2, s2, &cache->featureCache, xf01, xf02);
+		b3CollideHulls(manifold, xf1, hull1, xf2, hull2, &cache->featureCache, xf01, xf02);
 	}
 	else
 	{
-		b3CollideHulls(manifold, xf1, s1, xf2, s2);
+		b3CollideHulls(manifold, xf1, hull1, xf2, hull2);
 	}
 }

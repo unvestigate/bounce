@@ -27,10 +27,10 @@
 // Input parameters for b3TimeOfImpact
 struct b3TOIInput
 {
-	b3GJKProxy proxyA;
-	b3GJKProxy proxyB;
-	b3Sweep sweepA;
-	b3Sweep sweepB;
+	b3GJKProxy proxy1;
+	b3GJKProxy proxy2;
+	b3Sweep sweep1;
+	b3Sweep sweep2;
 	scalar tMax; // sweep interval in [0, 1]
 };
 

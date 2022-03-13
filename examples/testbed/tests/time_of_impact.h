@@ -99,10 +99,10 @@ public:
 		m_shapeB.DrawSolid(&m_draw, xfBx, colorBt);
 
 		b3TOIInput input;
-		input.proxyA = m_proxyA;
-		input.sweepA = m_sweepA;
-		input.proxyB = m_proxyB;
-		input.sweepB = m_sweepB;
+		input.proxy1 = m_proxyA;
+		input.sweep1 = m_sweepA;
+		input.proxy2 = m_proxyB;
+		input.sweep2 = m_sweepB;
 		input.tMax = 1.0f;
 
 		b3TOIOutput output = b3TimeOfImpact(input);
