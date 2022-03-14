@@ -19,7 +19,6 @@
 #include <bounce/collision/collide/collide.h>
 #include <bounce/collision/collide/manifold.h>
 #include <bounce/collision/shapes/sphere_shape.h>
-#include <bounce/collision/geometry/sphere.h>
 
 void b3CollideSpheres(b3Manifold& manifold, 
 	const b3Transform& xf1, const b3SphereShape* sphere1,

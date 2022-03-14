@@ -90,12 +90,12 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 	const b3Transform& xf2, const b3Capsule* hull2, scalar r2)
 {
 	b3Capsule worldHull2(xf2 * hull2->vertex1, xf2 * hull2->vertex2, r2);
-	b3ClipVertex edge2[2];
-	b3BuildEdge(edge2, &worldHull2);
+	b3ClipVertex segment2[2];
+	b3BuildSegment(segment2, &worldHull2);
 
-	// Clip edge 2 against the side planes of the reference face.
-	b3ClipVertex clipEdge2[2];
-	uint32 clipCount = b3ClipEdgeToFace(clipEdge2, edge2, xf1, r1, index1, hull1);
+	// Clip segment 2 against the side planes of the reference face.
+	b3ClipVertex clipSegment2[2];
+	uint32 clipCount = b3ClipSegmentToFaceSidePlanes(clipSegment2, segment2, xf1, r1, index1, hull1);
 
 	// Project clipped edge 2 onto the reference face.
 	b3Plane localPlane1 = hull1->GetPlane(index1);
@@ -106,7 +106,7 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 	uint32 pointCount = 0;
 	for (uint32 i = 0; i < clipCount; ++i)
 	{
-		b3Vec3 c2 = clipEdge2[i].position;
+		b3Vec3 c2 = clipSegment2[i].position;
 		scalar s = b3Distance(c2, plane1);
 		if (s <= totalRadius)
 		{
@@ -116,7 +116,7 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 			mp->localNormal1 = localPlane1.normal;
 			mp->localPoint1 = b3MulT(xf1, c1);
 			mp->localPoint2 = b3MulT(xf2, c2);
-			mp->key = b3MakeKey(clipEdge2[i].pair);
+			mp->key = b3MakeKey(clipSegment2[i].pair);
 
 			++pointCount;
 		}

@@ -23,10 +23,13 @@
 #include <bounce/collision/geometry/capsule.h>
 
 // Compute the closest point on a segment to a point. 
-static b3Vec3 b3ClosestPointOnSegment(const b3Vec3& Q, const b3Capsule& hull)
+static b3Vec3 b3ClosestPointOnSegment(const b3Vec3& point, const b3Capsule& segment)
 {
-	b3Vec3 A = hull.vertex1;
-	b3Vec3 B = hull.vertex2;
+	b3Vec3 Q = point;
+
+	b3Vec3 A = segment.vertex1;
+	b3Vec3 B = segment.vertex2;
+
 	b3Vec3 AB = B - A;
 	
 	// Barycentric coordinates for Q
@@ -56,13 +59,13 @@ static b3Vec3 b3ClosestPointOnSegment(const b3Vec3& Q, const b3Capsule& hull)
 
 // Compute the closest points between two line segments.
 static void b3ClosestPoints(b3Vec3& C1, b3Vec3& C2,
-	const b3Capsule& hull1, const b3Capsule& hull2)
+	const b3Capsule& segment1, const b3Capsule& segment2)
 {
-	b3Vec3 P1 = hull1.vertex1;
-	b3Vec3 Q1 = hull1.vertex2;
+	b3Vec3 P1 = segment1.vertex1;
+	b3Vec3 Q1 = segment1.vertex2;
 	
-	b3Vec3 P2 = hull2.vertex1;
-	b3Vec3 Q2 = hull2.vertex2;
+	b3Vec3 P2 = segment2.vertex1;
+	b3Vec3 Q2 = segment2.vertex2;
 
 	b3Vec3 E1 = Q1 - P1;
 	scalar L1 = b3Length(E1);
@@ -80,13 +83,13 @@ static void b3ClosestPoints(b3Vec3& C1, b3Vec3& C2,
 	if (L1 < B3_LINEAR_SLOP)
 	{
 		C1 = P1;
-		C2 = b3ClosestPointOnSegment(P1, hull2);
+		C2 = b3ClosestPointOnSegment(P1, segment2);
 		return;
 	}
 
 	if (L2 < B3_LINEAR_SLOP)
 	{
-		C1 = b3ClosestPointOnSegment(P2, hull1);
+		C1 = b3ClosestPointOnSegment(P2, segment1);
 		C2 = P2;
 		return;
 	}
@@ -124,21 +127,25 @@ static void b3ClosestPoints(b3Vec3& C1, b3Vec3& C2,
 		C2 = P2;
 	}
 
-	C1 = b3ClosestPointOnSegment(C1, hull1);
-	C2 = b3ClosestPointOnSegment(C1, hull2);
-	C1 = b3ClosestPointOnSegment(C2, hull1);
+	// Clamp C1 to segment 1.
+	C1 = b3ClosestPointOnSegment(C1, segment1);
+
+	// Recompute closest points to segments.
+	C2 = b3ClosestPointOnSegment(C1, segment2);
+	C1 = b3ClosestPointOnSegment(C2, segment1);
 }
 
-static bool b3AreParalell(const b3Capsule& hull1, const b3Capsule& hull2)
+// Check if two segments are paralell.
+static bool b3AreParalell(const b3Capsule& segment1, const b3Capsule& segment2)
 {
-	b3Vec3 E1 = hull1.vertex2 - hull1.vertex1;
+	b3Vec3 E1 = segment1.vertex2 - segment1.vertex1;
 	scalar L1 = b3Length(E1);
 	if (L1 < B3_LINEAR_SLOP)
 	{
 		return false;
 	}
 
-	b3Vec3 E2 = hull2.vertex2 - hull2.vertex1;
+	b3Vec3 E2 = segment2.vertex2 - segment2.vertex1;
 	scalar L2 = b3Length(E2);
 	if (L2 < B3_LINEAR_SLOP)
 	{
@@ -155,16 +162,16 @@ void b3CollideCapsules(b3Manifold& manifold,
 	const b3Transform& xf1, const b3CapsuleShape* capsule1,
 	const b3Transform& xf2, const b3CapsuleShape* capsule2)
 {
-	b3Capsule hull1;
-	hull1.vertex1 = xf1 * capsule1->m_vertex1;
-	hull1.vertex2 = xf1 * capsule1->m_vertex2;
+	b3Capsule segment1;
+	segment1.vertex1 = xf1 * capsule1->m_vertex1;
+	segment1.vertex2 = xf1 * capsule1->m_vertex2;
 	
-	b3Capsule hull2;
-	hull2.vertex1 = xf2 * capsule2->m_vertex1;
-	hull2.vertex2 = xf2 * capsule2->m_vertex2;
+	b3Capsule segment2;
+	segment2.vertex1 = xf2 * capsule2->m_vertex1;
+	segment2.vertex2 = xf2 * capsule2->m_vertex2;
 	
 	b3Vec3 point1, point2;
-	b3ClosestPoints(point1, point2, hull1, hull2);
+	b3ClosestPoints(point1, point2, segment1, segment2);
 	
 	scalar distance = b3Distance(point1, point2);
 
@@ -178,30 +185,30 @@ void b3CollideCapsules(b3Manifold& manifold,
 
 	if (distance > scalar(0))
 	{
-		if (b3AreParalell(hull1, hull2))
+		if (b3AreParalell(segment1, segment2))
 		{
-			// Clip edge 1 against the side planes of edge 2.
-			b3ClipVertex edge1[2];
-			b3BuildEdge(edge1, &hull1);
+			// Clip segment 1 against the side planes of segment 2.
+			b3ClipVertex inSegment1[2];
+			b3BuildSegment(inSegment1, &segment1);
 
-			b3ClipVertex clipEdge1[2];
-			uint32 clipCount = b3ClipEdgeToFace(clipEdge1, edge1, &hull2);
+			b3ClipVertex clipSegment1[2];
+			uint32 clipCount = b3ClipSegmentToFaceSidePlanes(clipSegment1, inSegment1, &segment2);
 
 			if (clipCount == 2)
 			{
-				b3Vec3 cp1 = b3ClosestPointOnSegment(clipEdge1[0].position, hull2);
-				b3Vec3 cp2 = b3ClosestPointOnSegment(clipEdge1[1].position, hull2);
+				b3Vec3 cp1 = b3ClosestPointOnSegment(clipSegment1[0].position, segment2);
+				b3Vec3 cp2 = b3ClosestPointOnSegment(clipSegment1[1].position, segment2);
 
-				scalar d1 = b3Distance(clipEdge1[0].position, cp1);
-				scalar d2 = b3Distance(clipEdge1[1].position, cp2);
+				scalar d1 = b3Distance(clipSegment1[0].position, cp1);
+				scalar d2 = b3Distance(clipSegment1[1].position, cp2);
 
 				if (d1 > B3_EPSILON && d1 <= totalRadius && d2 > B3_EPSILON && d2 <= totalRadius)
 				{
-					b3Vec3 n1 = (cp1 - clipEdge1[0].position) / d1;
-					b3Vec3 n2 = (cp2 - clipEdge1[1].position) / d2;
+					b3Vec3 n1 = (cp1 - clipSegment1[0].position) / d1;
+					b3Vec3 n2 = (cp2 - clipSegment1[1].position) / d2;
 
-					b3Vec3 p1 = scalar(0.5) * (clipEdge1[0].position + r1 * n1 + cp1 - r2 * n1);
-					b3Vec3 p2 = scalar(0.5) * (clipEdge1[1].position + r1 * n2 + cp2 - r2 * n2);
+					b3Vec3 p1 = scalar(0.5) * (clipSegment1[0].position + r1 * n1 + cp1 - r2 * n1);
+					b3Vec3 p2 = scalar(0.5) * (clipSegment1[1].position + r1 * n2 + cp2 - r2 * n2);
 
 					// b3Vec3 center = scalar(0.5) * (p1 + p2);
 					// b3Vec3 normal = b3Normalize(n1 + n2);
@@ -209,14 +216,14 @@ void b3CollideCapsules(b3Manifold& manifold,
 					manifold.pointCount = 2;
 
 					manifold.points[0].localNormal1 = b3MulC(xf1.rotation, n1);
-					manifold.points[0].localPoint1 = b3MulT(xf1, clipEdge1[0].position);
+					manifold.points[0].localPoint1 = b3MulT(xf1, clipSegment1[0].position);
 					manifold.points[0].localPoint2 = b3MulT(xf2, cp1);
-					manifold.points[0].key = b3MakeKey(clipEdge1[0].pair);
+					manifold.points[0].key = b3MakeKey(clipSegment1[0].pair);
 
 					manifold.points[1].localNormal1 = b3MulC(xf1.rotation, n2);
-					manifold.points[1].localPoint1 = b3MulT(xf1, clipEdge1[1].position);
+					manifold.points[1].localPoint1 = b3MulT(xf1, clipSegment1[1].position);
 					manifold.points[1].localPoint2 = b3MulT(xf2, cp2);
-					manifold.points[1].key = b3MakeKey(clipEdge1[1].pair);
+					manifold.points[1].key = b3MakeKey(clipSegment1[1].pair);
 
 					return;
 				}

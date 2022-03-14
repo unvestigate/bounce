@@ -20,13 +20,13 @@
 #include <bounce/collision/geometry/capsule.h>
 #include <bounce/collision/geometry/hull.h>
 
-void b3BuildEdge(b3ClipVertex vOut[2],
-	const b3Capsule* hull)
+void b3BuildSegment(b3ClipVertex vOut[2],
+	const b3Capsule* segment)
 {
-	vOut[0].position = hull->vertex1;
+	vOut[0].position = segment->vertex1;
 	vOut[0].pair = b3MakePair(B3_NULL_EDGE, B3_NULL_EDGE, 0, 0);
 	
-	vOut[1].position = hull->vertex2;
+	vOut[1].position = segment->vertex2;
 	vOut[1].pair = b3MakePair(B3_NULL_EDGE, B3_NULL_EDGE, 1, 0);
 }
 
@@ -58,7 +58,7 @@ void b3BuildPolygon(b3ClipPolygon& pOut,
 }
 
 // Sutherland-Hodgman clipping.
-uint32 b3ClipEdgeToPlane(b3ClipVertex vOut[2],
+uint32 b3ClipSegmentToPlane(b3ClipVertex vOut[2],
 	const b3ClipVertex vIn[2], const b3ClipPlane& plane)
 {
 	uint32 numOut = 0;
@@ -149,17 +149,17 @@ void b3ClipPolygonToPlane(b3ClipPolygon& pOut,
 	}
 }
 
-// Clip a segment to edge side planes.
-uint32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
-	const b3ClipVertex vIn[2], const b3Capsule* hull)
+// Clip a segment to segment face side planes.
+uint32 b3ClipSegmentToFaceSidePlanes(b3ClipVertex vOut[2],
+	const b3ClipVertex vIn[2], const b3Capsule* segment)
 {
 	// Start from somewhere.
 	vOut[0] = vIn[0];
 	vOut[1] = vIn[1];
 	uint32 numOut = 0;
 
-	b3Vec3 P1 = hull->vertex1;
-	b3Vec3 Q1 = hull->vertex2;
+	b3Vec3 P1 = segment->vertex1;
+	b3Vec3 Q1 = segment->vertex2;
 	b3Vec3 E1 = Q1 - P1;
 
 	B3_ASSERT(b3Dot(E1, E1) > B3_EPSILON * B3_EPSILON);
@@ -168,11 +168,11 @@ uint32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
 	clipPlane1.plane.offset = b3Dot(clipPlane1.plane.normal, Q1);
 	clipPlane1.edge = 0;
 
-	b3ClipVertex clipEdge1[2];
-	numOut = b3ClipEdgeToPlane(clipEdge1, vOut, clipPlane1);
+	b3ClipVertex clipSegment1[2];
+	numOut = b3ClipSegmentToPlane(clipSegment1, vOut, clipPlane1);
 
-	vOut[0] = clipEdge1[0];
-	vOut[1] = clipEdge1[1];
+	vOut[0] = clipSegment1[0];
+	vOut[1] = clipSegment1[1];
 
 	if (numOut < 2)
 	{
@@ -184,11 +184,11 @@ uint32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
 	clipPlane2.plane.offset = b3Dot(clipPlane2.plane.normal, P1);
 	clipPlane2.edge = 1;
 
-	b3ClipVertex clipEdge2[2];
-	numOut = b3ClipEdgeToPlane(clipEdge2, vOut, clipPlane2);
+	b3ClipVertex clipSegment2[2];
+	numOut = b3ClipSegmentToPlane(clipSegment2, vOut, clipPlane2);
 
-	vOut[0] = clipEdge2[0];
-	vOut[1] = clipEdge2[1];
+	vOut[0] = clipSegment2[0];
+	vOut[1] = clipSegment2[1];
 
 	if (numOut < 2)
 	{
@@ -198,8 +198,8 @@ uint32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
 	return numOut;
 }
 
-// Clip a segment to face side planes.
-uint32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
+// Clip a segment to a face side planes.
+uint32 b3ClipSegmentToFaceSidePlanes(b3ClipVertex vOut[2],
 	const b3ClipVertex vIn[2], const b3Transform& xf, scalar r, uint32 index, const b3Hull* hull)
 {
 	// Start from somewhere.
@@ -222,11 +222,11 @@ uint32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
 		clipPlane.edge = edgeId;
 		clipPlane.plane = b3Mul(xf, plane);
 
-		b3ClipVertex clipEdge[2];
-		numOut = b3ClipEdgeToPlane(clipEdge, vOut, clipPlane);
+		b3ClipVertex clipSegment[2];
+		numOut = b3ClipSegmentToPlane(clipSegment, vOut, clipPlane);
 
-		vOut[0] = clipEdge[0];
-		vOut[1] = clipEdge[1];
+		vOut[0] = clipSegment[0];
+		vOut[1] = clipSegment[1];
 
 		if (numOut == 0)
 		{
@@ -241,7 +241,7 @@ uint32 b3ClipEdgeToFace(b3ClipVertex vOut[2],
 }
 
 // Clip a polygon to face side planes.
-void b3ClipPolygonToFace(b3ClipPolygon& pOut,
+void b3ClipPolygonToFaceSidePlanes(b3ClipPolygon& pOut,
 	const b3ClipPolygon& pIn, const b3Transform& xf, scalar r, uint32 index, const b3Hull* hull)
 {
 	B3_ASSERT(pIn.Count() > 0);

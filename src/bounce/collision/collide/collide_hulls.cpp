@@ -128,7 +128,7 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 
 	// 3. Clip incident face polygon (2) against the reference face (1) side planes.
 	b3StackArray<b3ClipVertex, 32> clipPolygon2;
-	b3ClipPolygonToFace(clipPolygon2, polygon2, xf1, totalRadius, index1, h1);
+	b3ClipPolygonToFaceSidePlanes(clipPolygon2, polygon2, xf1, totalRadius, index1, h1);
 	if (clipPolygon2.IsEmpty())
 	{
 		return;
