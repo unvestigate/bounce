@@ -84,7 +84,7 @@ void b3ClipPolygonToPlane(b3ClipPolygon& pOut,
 
 // Clip a segment by a segment face side planes.
 // Return the number of output points.
-uint32 b3ClipSegmentToFaceSidePlanes(b3ClipVertex vOut[2],
+uint32 b3ClipSegmentToSegmentSidePlanes(b3ClipVertex vOut[2],
 	const b3ClipVertex vIn[2], const b3Capsule* segment);
 
 // Clip a segment by a hull face side planes.

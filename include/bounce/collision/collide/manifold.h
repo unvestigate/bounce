@@ -24,42 +24,48 @@
 
 #define B3_NULL_TRIANGLE B3_MAX_U32
 
-// A contact manifold point identifier.
-struct b3ManifoldPointKey
+struct b3Key128
 {
-	bool operator==(const b3ManifoldPointKey& other) const
-	{
-		return triangleKey == other.triangleKey &&
-			key1 == other.key1 && key2 == other.key2;
-	}
-
-	uint32 triangleKey; 
-	uint64 key1; 
-	uint64 key2; 
+	uint64 key1;
+	uint64 key2;
 };
 
-inline b3ManifoldPointKey b3MakeKey(const b3FeaturePair& featurePair)
+union b3PairKey
 {
-	struct b3Key128
+	b3FeaturePair pair;
+	b3Key128 key;
+};
+
+// A contact manifold point identifier.
+struct b3ContactID
+{
+	bool operator==(const b3ContactID& other) const
 	{
-		uint64 key1;
-		uint64 key2;
-	};
+		bool tk = triangleKey == other.triangleKey;
+		bool k1 = other.key.key.key1 == other.key.key.key1;
+		bool k2 = key.key.key2 == other.key.key.key2;
+		return tk && k1 && k2;
+	}
 
-	union b3FeaturePairKey
-	{
-		b3FeaturePair pair;
-		b3Key128 key;
-	};
+	uint32 triangleKey;
+	b3PairKey key;
+};
 
-	b3FeaturePairKey fpkey;
-	fpkey.pair = featurePair;
+inline b3ContactID b3MakeID(const b3FeaturePair& pair)
+{
+	b3ContactID id;
+	id.triangleKey = B3_NULL_TRIANGLE;
+	id.key.pair = pair;
+	return id;
+}
 
-	b3ManifoldPointKey key;
-	key.triangleKey = B3_NULL_TRIANGLE;
-	key.key1 = fpkey.key.key1;
-	key.key2 = fpkey.key.key2;
-	return key;
+inline b3ContactID b3MakeID(uint64 key1, uint64 key2)
+{
+	b3ContactID id;
+	id.triangleKey = B3_NULL_TRIANGLE;
+	id.key.key.key1 = key1;
+	id.key.key.key2 = key2;
+	return id;
 }
 
 // A contact manifold point.
@@ -68,14 +74,10 @@ struct b3ManifoldPoint
 	b3Vec3 localNormal1; // local normal on the first shape 
 	b3Vec3 localPoint1; // local point on the first shape without its radius
 	b3Vec3 localPoint2; // local point on the other shape without its radius
-
-	b3ManifoldPointKey key; // point identifier
-
-	scalar normalImpulse; // normal impulse
-	uint64 persistCount; // number of time steps this point is persisting
-
-	b3FeaturePair featurePair; // internal use
-	bool edgeContact; // internal use
+	scalar normalImpulse; // the non-penetration impulse
+	b3ContactID id; // uniquely identifies a contact point between two shapes
+	bool persisting; // is the point persisting over the time steps
+	bool edgeContact; // edge contact flag - for internal use
 };
 
 // A contact manifold is a group of contact points with similar contact normal.

@@ -49,7 +49,5 @@ void b3CollideSpheres(b3Manifold& manifold,
 	manifold.points[0].localNormal1 = b3MulC(xf1.rotation, normal);
 	manifold.points[0].localPoint1 = sphere1->m_center;
 	manifold.points[0].localPoint2 = sphere2->m_center;
-	manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
-	manifold.points[0].key.key1 = 0;
-	manifold.points[0].key.key2 = 0;
+	manifold.points[0].id = b3MakeID(0, 0);
 }

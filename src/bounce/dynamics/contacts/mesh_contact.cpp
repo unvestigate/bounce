@@ -266,7 +266,7 @@ void b3MeshContact::Collide()
 
 		for (uint32 j = 0; j < manifold->pointCount; ++j)
 		{
-			manifold->points[j].key.triangleKey = m_triangles[i].index;
+			manifold->points[j].id.triangleKey = m_triangles[i].index;
 		}
 
 		++manifoldCount;

@@ -82,7 +82,7 @@ static void b3BuildEdgeContact(b3Manifold& manifold,
 	manifold.points[0].localNormal1 = b3MulC(xf1.rotation, N);
 	manifold.points[0].localPoint1 = b3MulT(xf1, c1);
 	manifold.points[0].localPoint2 = b3MulT(xf2, c2);
-	manifold.points[0].key = b3MakeKey(pair);
+	manifold.points[0].id = b3MakeID(pair);
 }
 
 static void b3BuildFaceContact(b3Manifold& manifold,
@@ -116,7 +116,7 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 			mp->localNormal1 = localPlane1.normal;
 			mp->localPoint1 = b3MulT(xf1, c1);
 			mp->localPoint2 = b3MulT(xf2, c2);
-			mp->key = b3MakeKey(clipSegment2[i].pair);
+			mp->id = b3MakeID(clipSegment2[i].pair);
 
 			++pointCount;
 		}
@@ -238,18 +238,15 @@ void b3CollideTriangleAndCapsule(b3Manifold& manifold,
 					}
 					
 					b3Vec3 center = (A + B + C) / scalar(3);
+					b3Plane plane = hull1.trianglePlanes[0];
+					scalar distance = b3Distance(center, plane);
 
-					b3Plane frontPlane = hull1.trianglePlanes[0];
-
-					scalar distance = b3Distance(center, frontPlane);
-
-					const scalar kCoplanarTol = 0.005f;
-					
 					// Is the edge coplanar?
+					const scalar kCoplanarTol = scalar(0.005);
 					if (distance > -kCoplanarTol && distance < kCoplanarTol)
 					{
-						b3Vec3 n = frontPlane.normal;
-
+						b3Vec3 n = plane.normal;
+						
 						if (b3Dot(n, localN1) < scalar(0))
 						{
 							n = -n;
@@ -271,9 +268,7 @@ void b3CollideTriangleAndCapsule(b3Manifold& manifold,
 		manifold.points[0].localNormal1 = localN1;
 		manifold.points[0].localPoint1 = b3MulT(xf1, c1);
 		manifold.points[0].localPoint2 = b3MulT(xf2, c2);
-		manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
-		manifold.points[0].key.key1 = 0;
-		manifold.points[0].key.key2 = 0;
+		manifold.points[0].id = b3MakeID(0, 0);
 
 		return;
 	}

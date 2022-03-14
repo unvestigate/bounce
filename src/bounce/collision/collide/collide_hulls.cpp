@@ -90,8 +90,7 @@ static void b3BuildEdgeContact(b3Manifold& manifold,
 	manifold.points[0].localNormal1 = b3MulC(xf1.rotation, N);
 	manifold.points[0].localPoint1 = b3MulT(xf1, c1);
 	manifold.points[0].localPoint2 = b3MulT(xf2, c2);
-	manifold.points[0].key = b3MakeKey(pair);
-	manifold.points[0].featurePair = pair;
+	manifold.points[0].id = b3MakeID(pair);
 	manifold.points[0].edgeContact = true;
 }
 
@@ -193,8 +192,7 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 			mp->localNormal1 = b3MulC(xf2.rotation, orientedNormal);
 			mp->localPoint1 = b3MulT(xf2, v2.position);
 			mp->localPoint2 = b3MulT(xf1, v1);
-			mp->key = b3MakeKey(pair);
-			mp->featurePair = pair;
+			mp->id = b3MakeID(pair);
 			mp->edgeContact = false;
 		}
 		else
@@ -202,8 +200,7 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 			mp->localNormal1 = b3MulC(xf1.rotation, orientedNormal);
 			mp->localPoint1 = b3MulT(xf1, v1);
 			mp->localPoint2 = b3MulT(xf2, v2.position);
-			mp->key = b3MakeKey(v2.pair);
-			mp->featurePair = v2.pair;
+			mp->id = b3MakeID(v2.pair);
 			mp->edgeContact = false;
 		}
 	}
@@ -364,8 +361,7 @@ static void b3RebuildEdgeContact(b3Manifold& manifold,
 		manifold.points[0].localNormal1 = b3MulC(xf1.rotation, N);
 		manifold.points[0].localPoint1 = b3MulT(xf1, c1);
 		manifold.points[0].localPoint2 = b3MulT(xf2, c2);
-		manifold.points[0].key = b3MakeKey(pair);
-		manifold.points[0].featurePair = pair;
+		manifold.points[0].id = b3MakeID(pair);
 		manifold.points[0].edgeContact = true;
 	}
 }
@@ -380,20 +376,17 @@ static void b3RebuildFaceContact(b3Manifold& manifold,
 
 	// Check if the relative orientation has changed.
 	// Here the second orientation seen by the first orientation.
-	// dp = p2 - p1
-	// dq * q1 = q2
-	// dq = inv(q1) * q2
-
+	
 	// The old relative rotation.
-	// "q0(2) - q0(1)"
+	// "q02 - q01"
 	b3Quat dq0 = b3Conjugate(q01) * q02;
 
 	// The new relative rotation.
-	// "q(2) - q(1)"
+	// "q2 - q1"
 	b3Quat dq = b3Conjugate(q1) * q2;
 
 	// Relative rotation between the new relative rotation and the old relative rotation.
-	// "dq(2) - dq0(1)"
+	// "dq - dq0"
 	b3Quat q = b3Conjugate(dq0) * dq;
 
 	// Check the relative absolute cosine because 
@@ -440,7 +433,7 @@ static void b3CollideCache(b3Manifold& manifold,
 	if (edgeQuery.separation > totalRadius)
 	{
 		// Write a separation cache.
-		cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_separation, b3SATFeatureType::e_edge1, edgeQuery.index1, edgeQuery.index2);
+		cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_separation, b3SATFeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
 		return;
 	}
 
@@ -450,7 +443,7 @@ static void b3CollideCache(b3Manifold& manifold,
 		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, hull1, xf2, edgeQuery.index2, hull2);
 
 		// Write an overlap cache.		
-		cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_overlap, b3SATFeatureType::e_edge1, edgeQuery.index1, edgeQuery.index2);
+		cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_overlap, b3SATFeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
 		return;
 	}
 	else
@@ -483,7 +476,7 @@ static void b3CollideCache(b3Manifold& manifold,
 		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, hull1, xf2, edgeQuery.index2, hull2);
 		
 		// Write an overlap cache.		
-		cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_overlap, b3SATFeatureType::e_edge1, edgeQuery.index1, edgeQuery.index2);
+		cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_overlap, b3SATFeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
 		return;
 	}
 	else
@@ -547,7 +540,7 @@ static void b3CollideHulls(b3Manifold& manifold,
 		// Try to rebuild or reclip the features.
 		switch (cache->featurePair.type)
 		{
-		case b3SATFeatureType::e_edge1:
+		case b3SATFeatureType::e_edges:
 		{
 			b3RebuildEdgeContact(manifold, xf1, cache->featurePair.index1, hull1, xf2, cache->featurePair.index2, hull2);
 			break;

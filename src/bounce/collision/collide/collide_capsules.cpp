@@ -192,7 +192,7 @@ void b3CollideCapsules(b3Manifold& manifold,
 			b3BuildSegment(inSegment1, &segment1);
 
 			b3ClipVertex clipSegment1[2];
-			uint32 clipCount = b3ClipSegmentToFaceSidePlanes(clipSegment1, inSegment1, &segment2);
+			uint32 clipCount = b3ClipSegmentToSegmentSidePlanes(clipSegment1, inSegment1, &segment2);
 
 			if (clipCount == 2)
 			{
@@ -207,8 +207,8 @@ void b3CollideCapsules(b3Manifold& manifold,
 					b3Vec3 n1 = (cp1 - clipSegment1[0].position) / d1;
 					b3Vec3 n2 = (cp2 - clipSegment1[1].position) / d2;
 
-					b3Vec3 p1 = scalar(0.5) * (clipSegment1[0].position + r1 * n1 + cp1 - r2 * n1);
-					b3Vec3 p2 = scalar(0.5) * (clipSegment1[1].position + r1 * n2 + cp2 - r2 * n2);
+					// b3Vec3 p1 = scalar(0.5) * (clipSegment1[0].position + r1 * n1 + cp1 - r2 * n1);
+					// b3Vec3 p2 = scalar(0.5) * (clipSegment1[1].position + r1 * n2 + cp2 - r2 * n2);
 
 					// b3Vec3 center = scalar(0.5) * (p1 + p2);
 					// b3Vec3 normal = b3Normalize(n1 + n2);
@@ -218,12 +218,12 @@ void b3CollideCapsules(b3Manifold& manifold,
 					manifold.points[0].localNormal1 = b3MulC(xf1.rotation, n1);
 					manifold.points[0].localPoint1 = b3MulT(xf1, clipSegment1[0].position);
 					manifold.points[0].localPoint2 = b3MulT(xf2, cp1);
-					manifold.points[0].key = b3MakeKey(clipSegment1[0].pair);
+					manifold.points[0].id = b3MakeID(clipSegment1[0].pair);
 
 					manifold.points[1].localNormal1 = b3MulC(xf1.rotation, n2);
 					manifold.points[1].localPoint1 = b3MulT(xf1, clipSegment1[1].position);
 					manifold.points[1].localPoint2 = b3MulT(xf2, cp2);
-					manifold.points[1].key = b3MakeKey(clipSegment1[1].pair);
+					manifold.points[1].id = b3MakeID(clipSegment1[1].pair);
 
 					return;
 				}
@@ -236,9 +236,7 @@ void b3CollideCapsules(b3Manifold& manifold,
 		manifold.points[0].localNormal1 = b3MulC(xf1.rotation, normal);
 		manifold.points[0].localPoint1 = b3MulT(xf1, point1);
 		manifold.points[0].localPoint2 = b3MulT(xf2, point2);
-		manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
-		manifold.points[0].key.key1 = 0;
-		manifold.points[0].key.key2 = 0;
+		manifold.points[0].id = b3MakeID(0, 0);
 
 		return;
 	}

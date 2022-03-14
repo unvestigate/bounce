@@ -30,7 +30,8 @@ void b3Manifold::Initialize()
 	{
 		b3ManifoldPoint* p = points + i;
 		p->normalImpulse = scalar(0);
-		p->persistCount = 0;
+		p->persisting = false;
+		p->edgeContact = false;
 	}
 }
 
@@ -46,11 +47,11 @@ void b3Manifold::Initialize(const b3Manifold& oldManifold)
 		for (uint32 j = 0; j < oldManifold.pointCount; ++j)
 		{
 			const b3ManifoldPoint* p2 = oldManifold.points + j;
-			
-			if (p2->key == p1->key)
+
+			if (p2->id == p1->id)
 			{
 				p1->normalImpulse = p2->normalImpulse;
-				p1->persistCount = p2->persistCount + 1;
+				p1->persisting = true;
 				break;
 			}
 		}

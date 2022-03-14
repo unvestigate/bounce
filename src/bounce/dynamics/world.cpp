@@ -976,7 +976,7 @@ void b3World::DebugDraw() const
 
 				if (flags & b3Draw::e_contactPointsFlag)
 				{
-					m_debugDraw->DrawPoint(p, scalar(4), mp->persistCount > 0 ? b3Color_green : b3Color_red);
+					m_debugDraw->DrawPoint(p, scalar(4), mp->persisting ? b3Color_green : b3Color_red);
 				}
 
 				if (flags & b3Draw::e_contactNormalsFlag)

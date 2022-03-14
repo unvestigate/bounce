@@ -149,8 +149,8 @@ void b3ClipPolygonToPlane(b3ClipPolygon& pOut,
 	}
 }
 
-// Clip a segment to segment face side planes.
-uint32 b3ClipSegmentToFaceSidePlanes(b3ClipVertex vOut[2],
+// Clip a segment to segment side planes.
+uint32 b3ClipSegmentToSegmentSidePlanes(b3ClipVertex vOut[2],
 	const b3ClipVertex vIn[2], const b3Capsule* segment)
 {
 	// Start from somewhere.

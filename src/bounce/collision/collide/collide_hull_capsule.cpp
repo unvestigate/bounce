@@ -17,8 +17,8 @@
 */
 
 #include <bounce/collision/collide/collide.h>
-#include <bounce/collision/collide/clip.h>
 #include <bounce/collision/collide/manifold.h>
+#include <bounce/collision/collide/clip.h>
 #include <bounce/collision/shapes/hull_shape.h>
 #include <bounce/collision/shapes/capsule_shape.h>
 #include <bounce/collision/geometry/hull.h>
@@ -82,7 +82,7 @@ static void b3BuildEdgeContact(b3Manifold& manifold,
 	manifold.points[0].localNormal1 = b3MulC(xf1.rotation, N);
 	manifold.points[0].localPoint1 = b3MulT(xf1, c1);
 	manifold.points[0].localPoint2 = b3MulT(xf2, c2);
-	manifold.points[0].key = b3MakeKey(pair);
+	manifold.points[0].id = b3MakeID(pair);
 }
 
 static void b3BuildFaceContact(b3Manifold& manifold,
@@ -117,7 +117,7 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 			mp->localNormal1 = localPlane1.normal;
 			mp->localPoint1 = b3MulT(xf1, c1);
 			mp->localPoint2 = b3MulT(xf2, c2);
-			mp->key = b3MakeKey(clipSegment2[i].pair);
+			mp->id = b3MakeID(clipSegment2[i].pair);
 
 			++pointCount;
 		}
@@ -180,9 +180,7 @@ void b3CollideHullAndCapsule(b3Manifold& manifold,
 		manifold.points[0].localNormal1 = localN1;
 		manifold.points[0].localPoint1 = b3MulT(xf1, c1);
 		manifold.points[0].localPoint2 = b3MulT(xf2, c2);
-		manifold.points[0].key.triangleKey = B3_NULL_TRIANGLE;
-		manifold.points[0].key.key1 = 0;
-		manifold.points[0].key.key2 = 0;
+		manifold.points[0].id = b3MakeID(0, 0);
 
 		return;
 	}

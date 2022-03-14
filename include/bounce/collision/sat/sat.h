@@ -64,7 +64,7 @@ enum b3SATCacheType
 
 enum b3SATFeatureType
 {
-	e_edge1, // an edge on hull 1 and an edge on hull 2
+	e_edges, // an edge on hull 1 and an edge on hull 2
 	e_face1, // a face on hull 1 and a vertex/edge/face on hull 2
 	e_face2, // a face on hull 2 and a vertex/edge/face on hull 1
 };

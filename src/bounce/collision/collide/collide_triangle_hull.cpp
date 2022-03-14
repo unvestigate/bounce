@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2016-2019 Irlan Robson 
+* Copyright (c) 2016-2019 Irlan Robson
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -22,64 +22,10 @@
 #include <bounce/collision/shapes/hull_shape.h>
 #include <bounce/collision/geometry/triangle_hull.h>
 
-// Half-edge to edge map
-struct b3EdgeMap
-{
-	b3EdgeMap()
-	{
-		m_halfEdgeEdges[0] = 0;
-		m_halfEdgeEdges[2] = 1;
-		m_halfEdgeEdges[4] = 2;
-
-		m_halfEdgeEdges[1] = 0;
-		m_halfEdgeEdges[3] = 1;
-		m_halfEdgeEdges[5] = 2;
-	}
-
-	bool IsEdgeCoplanar(uint32 index) const;
-	
-	const b3TriangleHull* m_triangleHull;
-	bool m_hasWing[3];
-	b3Vec3 m_edgeWings[3];
-	uint32 m_halfEdgeEdges[6];
-};
-
-bool b3EdgeMap::IsEdgeCoplanar(uint32 halfEdgeIndex) const
-{
-	uint32 edgeIndex = m_halfEdgeEdges[halfEdgeIndex];
-
-	if (m_hasWing[edgeIndex] == false)
-	{
-		return false;
-	}
-	
-	uint32 ev1 = edgeIndex;
-	uint32 ev2 = edgeIndex + 1 < 3 ? edgeIndex + 1 : 0;
-
-	// Adjacent triangle
-	b3Vec3 A = m_edgeWings[edgeIndex];
-	b3Vec3 B = m_triangleHull->triangleVertices[ev2];
-	b3Vec3 C = m_triangleHull->triangleVertices[ev1];
-	
-	b3Vec3 center = (A + B + C) / scalar(3);
-
-	b3Plane frontPlane = m_triangleHull->trianglePlanes[0];
-
-	scalar distance = b3Distance(center, frontPlane);
-
-	const scalar kCoplanarTol = 0.005f;
-	if (distance > -kCoplanarTol && distance < kCoplanarTol)
-	{
-		return true;
-	}
-
-	return false;
-}
-
 void b3CollideTriangleAndHull(b3Manifold& manifold,
 	const b3Transform& xf1, const b3TriangleShape* triangle1,
 	const b3Transform& xf2, const b3HullShape* hull2,
-	b3ConvexCache* cache, 
+	b3ConvexCache* cache,
 	const b3Transform& xf01, const b3Transform& xf02)
 {
 	b3TriangleHull h1(triangle1->m_vertex1, triangle1->m_vertex2, triangle1->m_vertex3);
@@ -92,16 +38,12 @@ void b3CollideTriangleAndHull(b3Manifold& manifold,
 	b3CollideHulls(manifold, xf1, &hull1, xf2, hull2, cache, xf01, xf02);
 
 	// Adjust normals
-	b3EdgeMap edgeMap;
-	edgeMap.m_triangleHull = &h1;
+	b3Vec3 vertices[3] = { triangle1->m_vertex1, triangle1->m_vertex2, triangle1->m_vertex3 };
+	bool hasWing[3] = { triangle1->m_hasE1Vertex, triangle1->m_hasE2Vertex, triangle1->m_hasE3Vertex };
+	b3Vec3 edgeWings[3] = { triangle1->m_e1Vertex, triangle1->m_e2Vertex, triangle1->m_e3Vertex };
 	
-	edgeMap.m_hasWing[0] = triangle1->m_hasE1Vertex;
-	edgeMap.m_hasWing[1] = triangle1->m_hasE2Vertex;
-	edgeMap.m_hasWing[2] = triangle1->m_hasE3Vertex;
-
-	edgeMap.m_edgeWings[0] = triangle1->m_e1Vertex;
-	edgeMap.m_edgeWings[1] = triangle1->m_e2Vertex;
-	edgeMap.m_edgeWings[2] = triangle1->m_e3Vertex;
+	// These map half edges to triangle edges
+	uint32 halfEdgeEdges[6] = { 0, 0, 1, 1, 2, 2 };
 
 	b3Plane plane1 = xf1 * h1.planes[0];
 	b3Vec3 centroid1 = xf1 * h1.centroid;
@@ -110,8 +52,7 @@ void b3CollideTriangleAndHull(b3Manifold& manifold,
 	for (uint32 i = 0; i < manifold.pointCount; ++i)
 	{
 		b3ManifoldPoint* mp = manifold.points + i;
-
-		b3FeaturePair pair = mp->featurePair;
+		b3FeaturePair pair = mp->id.key.pair;
 
 		uint32 e1;
 		if (mp->edgeContact)
@@ -135,17 +76,38 @@ void b3CollideTriangleAndHull(b3Manifold& manifold,
 			}
 		}
 
-		b3Vec3 localN1 = mp->localNormal1;
-		b3Vec3 localC1 = mp->localPoint1;
-		b3Vec3 localC2 = mp->localPoint2;
+		uint32 edgeIndex = halfEdgeEdges[e1];
 
-		b3Vec3 n1 = b3Mul(xf1.rotation, localN1);
-		b3Vec3 c1 = xf1 * localC1;
-		b3Vec3 c2 = xf2 * localC2;
-		scalar s = b3Dot(c2 - c1, n1);
-
-		if (edgeMap.IsEdgeCoplanar(e1))
+		if (hasWing[edgeIndex] == false)
 		{
+			continue;
+		}
+
+		uint32 ev1 = edgeIndex;
+		uint32 ev2 = edgeIndex + 1 < 3 ? edgeIndex + 1 : 0;
+
+		// Adjacent triangle
+		b3Vec3 A = edgeWings[edgeIndex];
+		b3Vec3 B = vertices[ev2];
+		b3Vec3 C = vertices[ev1];
+
+		b3Vec3 center = (A + B + C) / scalar(3);
+		b3Plane plane = h1.trianglePlanes[0];
+		scalar distance = b3Distance(center, plane);
+
+		// Is the edge coplanar?
+		const scalar kCoplanarTol = scalar(0.005);
+		if (distance > -kCoplanarTol && distance < kCoplanarTol)
+		{
+			b3Vec3 localN1 = mp->localNormal1;
+			b3Vec3 localC1 = mp->localPoint1;
+			b3Vec3 localC2 = mp->localPoint2;
+
+			b3Vec3 n1 = b3Mul(xf1.rotation, localN1);
+			b3Vec3 c1 = xf1 * localC1;
+			b3Vec3 c2 = xf2 * localC2;
+			scalar s = b3Dot(c2 - c1, n1);
+
 			b3Vec3 n = plane1.normal;
 			
 			if (b3Dot(n, centroid2 - centroid1) < scalar(0))

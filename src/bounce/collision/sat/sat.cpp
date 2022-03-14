@@ -188,7 +188,7 @@ b3SATCacheType b3FeatureCache::ReadState(
 
 	switch (featurePair.type)
 	{
-	case b3SATFeatureType::e_edge1:
+	case b3SATFeatureType::e_edges:
 	{
 		return ReadEdge(xf1, hull1, xf2, hull2, totalRadius);
 	}
