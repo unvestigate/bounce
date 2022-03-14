@@ -42,7 +42,7 @@ struct b3ContactID
 	bool operator==(const b3ContactID& other) const
 	{
 		bool tk = triangleKey == other.triangleKey;
-		bool k1 = other.key.key.key1 == other.key.key.key1;
+		bool k1 = key.key.key1 == other.key.key.key1;
 		bool k2 = key.key.key2 == other.key.key.key2;
 		return tk && k1 && k2;
 	}
