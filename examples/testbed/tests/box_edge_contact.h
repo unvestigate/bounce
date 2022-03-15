@@ -34,7 +34,7 @@ public:
 
 		m_sB.m_hull = &m_box;
 		m_xfB.translation.Set(-1.29999995, 1.34999979, 0.000000000);
-		m_xfB.rotation.Set(0.810514629, 0.342624813, 0.334119707, 0.337692767);
+		m_xfB.rotation.Set(b3Vec3(0.810514629, 0.342624813, 0.334119707), 0.337692767);
 	}
 	
 	void Step()

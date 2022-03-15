@@ -454,7 +454,7 @@ void b3Rope::Step(scalar h)
 		// Integrate velocity		
 		x += h * v;
 
-		b3Quat q_w(w.x, w.y, w.z, scalar(0));
+		b3Quat q_w(w, scalar(0));
 		b3Quat q_dot = scalar(0.5) * q * q_w;
 		q += h * q_dot;
 		q.Normalize();
@@ -477,7 +477,7 @@ void b3Rope::Step(scalar h)
 		link->m_v += h * link->m_a;
 
 		// Integrate velocity
-		b3Quat q_w(link->m_v.x, link->m_v.y, link->m_v.z, scalar(0));
+		b3Quat q_w(link->m_v, scalar(0));
 		b3Quat q_dot = scalar(0.5) * link->m_p * q_w;
 
 		link->m_p += h * q_dot;

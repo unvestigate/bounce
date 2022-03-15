@@ -80,8 +80,8 @@ inline b3Mat33 b3RotateToFrame(const b3Mat33& inertia, const b3Quat& rotation)
 // the angular velocity of the rotating frame represented by the orientation.
 inline b3Quat b3Derivative(const b3Quat& orientation, const b3Vec3& velocity)
 {
-	b3Quat w(velocity.x, velocity.y, velocity.z, scalar(0));
-	return scalar(0.5) * w * orientation;
+	b3Quat qw(velocity, scalar(0));
+	return scalar(0.5) * qw * orientation;
 }
 
 // Integrate an orientation over a time step given
