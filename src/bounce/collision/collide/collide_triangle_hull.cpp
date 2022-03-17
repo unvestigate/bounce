@@ -42,7 +42,7 @@ void b3CollideTriangleAndHull(b3Manifold& manifold,
 	bool hasWing[3] = { triangle1->m_hasE1Vertex, triangle1->m_hasE2Vertex, triangle1->m_hasE3Vertex };
 	b3Vec3 edgeWings[3] = { triangle1->m_e1Vertex, triangle1->m_e2Vertex, triangle1->m_e3Vertex };
 	
-	// These map half edges to triangle edges
+	// These map hull half edges to triangle edges
 	uint32 halfEdgeEdges[6] = { 0, 0, 1, 1, 2, 2 };
 
 	b3Plane plane1 = xf1 * h1.planes[0];

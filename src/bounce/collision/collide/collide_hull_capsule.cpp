@@ -64,8 +64,8 @@ static void b3BuildEdgeContact(b3Manifold& manifold,
 	scalar s = inv_den * (b * e - d);
 	scalar t = inv_den * (e - b * d);
 
-	b3Vec3 c1 = P1 + s * N1;
-	b3Vec3 c2 = P2 + t * N2;
+	b3Vec3 x1 = P1 + s * N1;
+	b3Vec3 x2 = P2 + t * N2;
 
 	// Ensure normal orientation to capsule.
 	b3Vec3 N = b3Cross(E1, E2);
@@ -80,8 +80,8 @@ static void b3BuildEdgeContact(b3Manifold& manifold,
 
 	manifold.pointCount = 1;
 	manifold.points[0].localNormal1 = b3MulC(xf1.rotation, N);
-	manifold.points[0].localPoint1 = b3MulT(xf1, c1);
-	manifold.points[0].localPoint2 = b3MulT(xf2, c2);
+	manifold.points[0].localPoint1 = b3MulT(xf1, x1);
+	manifold.points[0].localPoint2 = b3MulT(xf2, x2);
 	manifold.points[0].id = b3MakeID(pair);
 }
 
@@ -137,9 +137,9 @@ void b3CollideHullAndCapsule(b3Manifold& manifold,
 	b3ShapeGJKProxy proxy1(hull1, 0);
 	b3ShapeGJKProxy proxy2(capsule2, 0);
 
-	b3GJKOutput gjk = b3GJK(xf1, proxy1, xf2, proxy2, false);
+	b3GJKOutput query = b3GJK(xf1, proxy1, xf2, proxy2, false);
 
-	if (gjk.distance > totalRadius)
+	if (query.distance > totalRadius)
 	{
 		return;
 	}
@@ -147,11 +147,11 @@ void b3CollideHullAndCapsule(b3Manifold& manifold,
 	const b3Hull* h1 = hull1->m_hull;
 	const b3Capsule h2(capsule2->m_vertex1, capsule2->m_vertex2, r2);
 
-	if (gjk.distance > scalar(0))
+	if (query.distance > scalar(0))
 	{
-		b3Vec3 c1 = gjk.point1;
-		b3Vec3 c2 = gjk.point2;
-		scalar d = gjk.distance;
+		b3Vec3 c1 = query.point1;
+		b3Vec3 c2 = query.point2;
+		scalar d = query.distance;
 
 		// Define reference normal.
 		b3Vec3 N1 = (c2 - c1) / d;
