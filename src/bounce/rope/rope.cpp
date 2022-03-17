@@ -506,7 +506,7 @@ void b3Rope::Draw(b3Draw* draw) const
 		b3RopeBody* b = m_links;
 
 		draw->DrawTransform(b->m_X);
-		draw->DrawSolidSphere(b->m_X.rotation.GetXAxis(), b->m_X.translation, scalar(0.2), b3Color_green);
+		draw->DrawSolidSphere(b->m_X.rotation, b->m_X.translation, scalar(0.2), b3Color_green);
 	}
 
 	for (uint32 i = 1; i < m_linkCount; ++i)
@@ -524,6 +524,6 @@ void b3Rope::Draw(b3Draw* draw) const
 		draw->DrawPoint(X_J0.translation, scalar(5), b3Color_red);
 
 		draw->DrawTransform(b->m_X);
-		draw->DrawSolidSphere(b->m_X.rotation.GetXAxis(), b->m_X.translation, scalar(0.2), b3Color_green);
+		draw->DrawSolidSphere(b->m_X.rotation, b->m_X.translation, scalar(0.2), b3Color_green);
 	}
 }

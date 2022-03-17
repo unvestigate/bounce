@@ -84,7 +84,7 @@ b3GJKOutput b3GJK(const b3Transform& xf1, const b3GJKProxy& proxy1,
 // for the first time.
 struct b3SimplexCache
 {
-	scalar metric; // lenght or area or volume
+	scalar metric; // length or area or volume
 	uint32 iterations; // number of GJK iterations
 	uint16 count; // number of support vertices
 	uint8 index1[4]; // support vertices on proxy 1

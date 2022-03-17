@@ -107,7 +107,7 @@ void b3Shape::DrawSolid(b3Draw* draw, const b3Transform& xf, const b3Color& colo
 
 		b3Vec3 center = xf * sphere->m_center;
 
-		draw->DrawSolidSphere(xf.rotation.GetYAxis(), center, sphere->m_radius, color);
+		draw->DrawSolidSphere(xf.rotation, center, sphere->m_radius, color);
 
 		break;
 	}
@@ -118,7 +118,7 @@ void b3Shape::DrawSolid(b3Draw* draw, const b3Transform& xf, const b3Color& colo
 		b3Vec3 c1 = xf * capsule->m_vertex1;
 		b3Vec3 c2 = xf * capsule->m_vertex2;
 
-		draw->DrawSolidCapsule(xf.rotation.GetYAxis(), c1, c2, capsule->m_radius, color);
+		draw->DrawSolidCapsule(xf.rotation, c1, c2, capsule->m_radius, color);
 
 		break;
 	}
