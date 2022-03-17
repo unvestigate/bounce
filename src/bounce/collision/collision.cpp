@@ -23,7 +23,7 @@
 #include <bounce/collision/geometry/cylinder_hull.h>
 #include <bounce/collision/geometry/cone_hull.h>
 
-const b3Sphere b3Sphere_identity(b3Vec3_zero, scalar(1)); 
+const b3Sphere b3Sphere_identity(b3Vec3(scalar(0), scalar(0), scalar(0)), scalar(1)); 
 
 const b3Capsule b3Capsule_identity(b3Vec3(scalar(0), scalar(-0.5), scalar(0)), b3Vec3(scalar(0), scalar(0.5), scalar(0)), scalar(1));
 
