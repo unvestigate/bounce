@@ -140,9 +140,9 @@ void b3CollideTriangleAndCapsule(b3Manifold& manifold,
 	b3SimplexCache simplex;
 	simplex.count = 0;
 
-	b3GJKOutput gjk = b3GJK(xf1, proxy1, xf2, proxy2, false, &simplex);
+	b3GJKOutput query = b3GJK(xf1, proxy1, xf2, proxy2, false, &simplex);
 
-	if (gjk.distance > totalRadius)
+	if (query.distance > totalRadius)
 	{
 		return;
 	}
@@ -150,11 +150,11 @@ void b3CollideTriangleAndCapsule(b3Manifold& manifold,
 	b3TriangleHull hull1(triangle1->m_vertex1, triangle1->m_vertex2, triangle1->m_vertex3);
 	b3Capsule hull2(capsule2->m_vertex1, capsule2->m_vertex2, r2);
 
-	if (gjk.distance > scalar(0))
+	if (query.distance > scalar(0))
 	{
-		b3Vec3 c1 = gjk.point1;
-		b3Vec3 c2 = gjk.point2;
-		scalar d = gjk.distance;
+		b3Vec3 c1 = query.point1;
+		b3Vec3 c2 = query.point2;
+		scalar d = query.distance;
 
 		// Define reference normal.
 		b3Vec3 N1 = (c2 - c1) / d;
