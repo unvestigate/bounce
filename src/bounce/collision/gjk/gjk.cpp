@@ -745,7 +745,7 @@ void b3Simplex::ReadCache(const b3SimplexCache* cache,
 	const b3Transform& xf2, const b3GJKProxy& proxy2)
 {
 	B3_ASSERT(cache->count <= 4);
-	m_count = (uint8)cache->count;
+	m_count = cache->count;
 	for (uint32 i = 0; i < m_count; ++i)
 	{
 		b3SimplexVertex* v = m_vertices + i;
@@ -796,11 +796,11 @@ void b3Simplex::ReadCache(const b3SimplexCache* cache,
 void b3Simplex::WriteCache(b3SimplexCache* cache) const
 {
 	cache->metric = GetMetric();
-	cache->count = uint16(m_count);
+	cache->count = m_count;
 	for (uint32 i = 0; i < m_count; ++i)
 	{
-		cache->index1[i] = uint8(m_vertices[i].index1);
-		cache->index2[i] = uint8(m_vertices[i].index2);
+		cache->index1[i] = m_vertices[i].index1;
+		cache->index2[i] = m_vertices[i].index2;
 	}
 }
 

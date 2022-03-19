@@ -32,7 +32,6 @@ b3Shape* b3SphereShape::Clone(b3BlockAllocator* allocator) const
 	b3SphereShape* clone = new (mem)b3SphereShape;
 	*clone = *this;
 	return clone;
-
 }
 
 void b3SphereShape::ComputeMass(b3MassData* massData, scalar density) const 

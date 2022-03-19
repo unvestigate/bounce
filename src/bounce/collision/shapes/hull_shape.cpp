@@ -35,7 +35,6 @@ b3Shape* b3HullShape::Clone(b3BlockAllocator* allocator) const
 	b3HullShape* clone = new (mem)b3HullShape;
 	*clone = *this;
 	return clone;
-
 }
 
 void b3HullShape::ComputeMass(b3MassData* massData, scalar density) const

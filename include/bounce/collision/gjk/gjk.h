@@ -86,9 +86,9 @@ struct b3SimplexCache
 {
 	scalar metric; // length or area or volume
 	uint32 iterations; // number of GJK iterations
-	uint16 count; // number of support vertices
-	uint8 index1[4]; // support vertices on proxy 1
-	uint8 index2[4]; // support vertices on proxy 2
+	uint32 count; // number of support vertices
+	uint32 index1[4]; // support vertices on proxy 1
+	uint32 index2[4]; // support vertices on proxy 2
 };
 
 // A feature pair contains the vertices of the features associated 

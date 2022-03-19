@@ -36,7 +36,6 @@ b3Shape* b3TriangleShape::Clone(b3BlockAllocator* allocator) const
 	b3TriangleShape* clone = new (mem)b3TriangleShape;
 	*clone = *this;
 	return clone;
-
 }
 
 void b3TriangleShape::Set(const b3Vec3& v1, const b3Vec3& v2, const b3Vec3& v3)

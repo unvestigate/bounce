@@ -38,7 +38,7 @@ struct b3MeshTriangle
 	// Read an indexed vertex from this triangle.
 	uint32 GetVertex(uint32 i) const { return (&v1)[i]; }
 
-	// Get the triangle index into mesh.
+	// Get the triangle index in the mesh.
 	uint32 GetIndex() const { return index; }
 
 	// Get the tree proxy identifier.
@@ -51,10 +51,10 @@ struct b3MeshTriangle
 	// The triangle vertices in the mesh.
 	uint32 v1, v2, v3;
 	
-	// Triangle index back in the mesh.
+	// The triangle index in the mesh.
 	uint32 index;
 
-	// Tree proxy identifier.
+	// The tree proxy identifier.
 	uint32 proxyId;
 };
 

@@ -35,7 +35,6 @@ b3Shape* b3MeshShape::Clone(b3BlockAllocator* allocator) const
 	b3MeshShape* clone = new (mem)b3MeshShape;
 	*clone = *this;
 	return clone;
-
 }
 
 void b3MeshShape::ComputeMass(b3MassData* massData, scalar density) const 

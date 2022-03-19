@@ -31,7 +31,6 @@ b3Shape* b3CapsuleShape::Clone(b3BlockAllocator* allocator) const
 	b3CapsuleShape* clone = new (mem)b3CapsuleShape;
 	*clone = *this;
 	return clone;
-
 }
 
 void b3CapsuleShape::ComputeMass(b3MassData* massData, scalar density) const 
@@ -49,7 +48,6 @@ void b3CapsuleShape::ComputeMass(b3MassData* massData, scalar density) const
 	scalar r2 = r * r;
 	scalar r3 = r2 * r;
 
-	//
 	b3Vec3 center = scalar(0.5) * (A + B);
 	scalar mass = scalar(0);
 	b3Mat33 I; I.SetZero();
