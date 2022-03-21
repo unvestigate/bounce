@@ -130,7 +130,7 @@ static void b3ClosestPoints(b3Vec3& C1, b3Vec3& C2,
 	// Clamp C1 to segment 1.
 	C1 = b3ClosestPointOnSegment(C1, segment1);
 
-	// Recompute closest points to segments.
+	// Recompute closest points on segments.
 	C2 = b3ClosestPointOnSegment(C1, segment2);
 	C1 = b3ClosestPointOnSegment(C2, segment1);
 }
@@ -206,12 +206,6 @@ void b3CollideCapsules(b3Manifold& manifold,
 				{
 					b3Vec3 n1 = (cp1 - clipSegment1[0].position) / d1;
 					b3Vec3 n2 = (cp2 - clipSegment1[1].position) / d2;
-
-					// b3Vec3 p1 = scalar(0.5) * (clipSegment1[0].position + r1 * n1 + cp1 - r2 * n1);
-					// b3Vec3 p2 = scalar(0.5) * (clipSegment1[1].position + r1 * n2 + cp2 - r2 * n2);
-
-					// b3Vec3 center = scalar(0.5) * (p1 + p2);
-					// b3Vec3 normal = b3Normalize(n1 + n2);
 
 					manifold.pointCount = 2;
 
