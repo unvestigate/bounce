@@ -115,6 +115,7 @@ void b3Profiler::CloseScope()
 {
 	B3_ASSERT(m_top != nullptr);
 
+	B3_ASSERT(m_top->m_recursionCount > 0);
 	--m_top->m_recursionCount;
 	if (m_top->m_recursionCount > 0)
 	{

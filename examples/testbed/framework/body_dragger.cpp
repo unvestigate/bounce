@@ -32,11 +32,6 @@ BodyDragger::BodyDragger(b3Ray* ray, b3World* world)
 	m_mouseJoint = nullptr;
 }
 
-BodyDragger::~BodyDragger()
-{
-
-}
-
 bool BodyDragger::StartDragging()
 {
 	B3_ASSERT(IsDragging() == false);

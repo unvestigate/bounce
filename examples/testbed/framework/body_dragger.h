@@ -31,8 +31,7 @@ class BodyDragger
 {
 public:
 	BodyDragger(b3Ray* ray, b3World* world);
-	~BodyDragger();
-
+	
 	bool StartDragging();
 
 	void Drag();
