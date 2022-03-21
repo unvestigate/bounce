@@ -262,11 +262,11 @@ bool b3SpringJoint::SolvePositionConstraints(const b3SolverData& data)
 	b3Vec3 impulse = lambda * n;
 		
 	xA -= mA * impulse;
-	qA -= b3Derivative(qA, b3Mul(iA, b3Cross(rA, impulse)));
+	qA -= b3Derivative(qA, iA * b3Cross(rA, impulse));
 	iA = b3RotateToFrame(m_localInvIA, qA);
 
 	xB += mB * impulse;
-	qB += b3Derivative(qB, b3Mul(iB, b3Cross(rB, impulse)));
+	qB += b3Derivative(qB, iB * b3Cross(rB, impulse));
 	iB = b3RotateToFrame(m_localInvIB, qB);
 
 	data.positions[m_indexA].x = xA;

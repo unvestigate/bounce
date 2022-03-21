@@ -422,8 +422,8 @@ bool b3PrismaticJoint::SolvePositionConstraints(const b3SolverData& data)
 		scalar impulse = limitMass * -C;
 
 		b3Vec3 P = impulse * axis;
-		b3Vec3 LA = impulse * m_a1;
-		b3Vec3 LB = impulse * m_a2;
+		b3Vec3 LA = impulse * a1;
+		b3Vec3 LB = impulse * a2;
 
 		xA -= mA * P;
 		qA -= b3Derivative(qA, iA * LA);
