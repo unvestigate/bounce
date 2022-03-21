@@ -112,10 +112,11 @@ static void b3ClosestPoints(b3Vec3& C1, b3Vec3& C2,
 		C2 = P2;
 	}
 
+	// Clamp C1 to segment 1.
 	C1 = b3ClosestPointOnSegment(C1, P1, Q1);
 
+	// Recompute closest points on segments.
 	C2 = b3ClosestPointOnSegment(C1, P2, Q2);
-
 	C1 = b3ClosestPointOnSegment(C2, P1, Q1);
 }
 
