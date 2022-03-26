@@ -16,13 +16,15 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <bounce/collision/collide/collide.h>
-#include <bounce/collision/collide/manifold.h>
-#include <bounce/collision/collide/clip.h>
+#include <bounce/collision/collision.h>
+#include <bounce/collision/clip.h>
 #include <bounce/collision/shapes/hull_shape.h>
 #include <bounce/collision/shapes/capsule_shape.h>
 #include <bounce/collision/geometry/hull.h>
 #include <bounce/collision/geometry/capsule.h>
+#include <bounce/collision/gjk/gjk_proxy.h>
+#include <bounce/collision/gjk/gjk.h>
+#include <bounce/collision/sat/sat_hull_edge.h>
 
 static void b3BuildEdgeContact(b3Manifold& manifold,
 	const b3Transform& xf1, const b3Hull* hull1, uint32 index1,
@@ -134,8 +136,8 @@ void b3CollideHullAndCapsule(b3Manifold& manifold,
 
 	scalar totalRadius = r1 + r2;
 
-	b3ShapeGJKProxy proxy1(hull1, 0);
-	b3ShapeGJKProxy proxy2(capsule2, 0);
+	b3GJKProxy proxy1(hull1, 0);
+	b3GJKProxy proxy2(capsule2, 0);
 
 	b3GJKOutput query = b3GJK(xf1, proxy1, xf2, proxy2, false);
 

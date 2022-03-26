@@ -176,58 +176,61 @@ b3EdgeQuery b3QueryEdgeSeparation(const b3Transform& xf1, const b3Hull* hull1,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-b3SATCacheType b3FeatureCache::ReadState(
+b3CacheType b3FeatureCache::ReadState(
 	const b3Transform& xf1, const b3Hull* hull1,
 	const b3Transform& xf2, const b3Hull* hull2, scalar totalRadius)
 {
 	// If the cache was empty or flushed choose an arbitrary feature pair.
-	if (featurePair.state == b3SATCacheType::e_empty)
+	if (cacheType == b3CacheType::e_empty)
 	{
-		featurePair = b3MakeFeaturePair(b3SATCacheType::e_separation, b3SATFeatureType::e_face1, 0, 0);
+		cacheType = b3CacheType::e_separation;
+		featureType = b3FeatureType::e_face1;
+		index1 = 0;
+		index2 = 0;
 	}
 
-	switch (featurePair.type)
+	switch (featureType)
 	{
-	case b3SATFeatureType::e_edges:
+	case b3FeatureType::e_edges:
 	{
 		return ReadEdge(xf1, hull1, xf2, hull2, totalRadius);
 	}
-	case b3SATFeatureType::e_face1:
+	case b3FeatureType::e_face1:
 	{
 		return ReadFace(xf1, hull1, xf2, hull2, totalRadius);
 	}
-	case b3SATFeatureType::e_face2:
+	case b3FeatureType::e_face2:
 	{
 		return ReadFace(xf2, hull2, xf1, hull1, totalRadius);
 	}
 	default:
 	{
-		return b3SATCacheType::e_empty;
+		return b3CacheType::e_empty;
 	}
 	}
 }
 
-b3SATCacheType b3FeatureCache::ReadFace(
+b3CacheType b3FeatureCache::ReadFace(
 	const b3Transform& xf1, const b3Hull* hull1,
 	const b3Transform& xf2, const b3Hull* hull2, scalar totalRadius)
 {
 	// Perform computations in the local space of the second hull.
 	b3Transform xf = b3MulT(xf2, xf1);
-	b3Plane plane = xf * hull1->GetPlane(featurePair.index1);
+	b3Plane plane = xf * hull1->GetPlane(index1);
 	scalar separation = b3Project(hull2, plane);
 	if (separation > totalRadius)
 	{
-		return e_separation;
+		return b3CacheType::e_separation;
 	}
-	return e_overlap;
+	return b3CacheType::e_overlap;
 }
 
-b3SATCacheType b3FeatureCache::ReadEdge(
+b3CacheType b3FeatureCache::ReadEdge(
 	const b3Transform& xf1, const b3Hull* hull1,
 	const b3Transform& xf2, const b3Hull* hull2, scalar totalRadius)
 {
-	uint32 i = featurePair.index1;
-	uint32 j = featurePair.index2;
+	uint32 i = index1;
+	uint32 j = index2;
 
 	// Query minimum separation distance and axis of the first hull planes.
 	// Perform computations in the local space of the second hull.
@@ -266,15 +269,15 @@ b3SATCacheType b3FeatureCache::ReadEdge(
 		scalar separation = b3Project(P1, Q1, E1, P2, E2, C1);
 		if (separation > totalRadius)
 		{
-			return b3SATCacheType::e_separation;
+			return b3CacheType::e_separation;
 		}
 		else
 		{
-			return b3SATCacheType::e_overlap;
+			return b3CacheType::e_overlap;
 		}
 	}
 
 	// We can't determine the cache type 
 	// therefore must run SAT.
-	return b3SATCacheType::e_empty;
+	return b3CacheType::e_empty;
 }

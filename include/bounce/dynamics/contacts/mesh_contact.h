@@ -20,8 +20,7 @@
 #define B3_MESH_CONTACT_H
 
 #include <bounce/dynamics/contacts/contact.h>
-#include <bounce/collision/collide/manifold.h>
-#include <bounce/collision/collide/collide.h>
+#include <bounce/collision/sat/sat.h>
 #include <bounce/collision/geometry/aabb.h>
 
 // This structure holds an overlapping triangle. 
@@ -29,8 +28,8 @@
 // by the cluster algorithm.
 struct b3TriangleCache
 {
-	uint32 index; // triangle index
-	b3ConvexCache cache;
+	uint32 index;
+	b3FeatureCache cache;
 };
 
 class b3MeshContact : public b3Contact

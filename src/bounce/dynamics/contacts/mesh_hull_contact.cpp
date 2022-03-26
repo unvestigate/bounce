@@ -50,5 +50,5 @@ void b3MeshAndHullContact::Evaluate(b3Manifold& manifold, const b3Transform& xfA
 	b3MeshShape* mesh = (b3MeshShape*)m_fixtureA->GetShape();
 	b3TriangleShape triangle;
 	mesh->GetChildTriangle(&triangle, m_triangles[cacheIndex].index);
-	b3CollideTriangleAndHull(manifold, xfA, &triangle, xfB, (b3HullShape*)m_fixtureB->GetShape(), &m_triangles[cacheIndex].cache, xf0A, xf0B);
+	b3CollideTriangleAndHull(manifold, xfA, &triangle, xfB, (b3HullShape*)m_fixtureB->GetShape(), m_triangles[cacheIndex].cache, xf0A, xf0B);
 }

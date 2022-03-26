@@ -16,11 +16,12 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <bounce/collision/collide/collide.h>
-#include <bounce/collision/collide/manifold.h>
+#include <bounce/collision/collision.h>
 #include <bounce/collision/shapes/hull_shape.h>
 #include <bounce/collision/shapes/sphere_shape.h>
 #include <bounce/collision/geometry/hull.h>
+#include <bounce/collision/gjk/gjk_proxy.h>
+#include <bounce/collision/gjk/gjk.h>
 
 void b3CollideHullAndSphere(b3Manifold& manifold,
 	const b3Transform& xf1, const b3HullShape* hull1,
@@ -69,8 +70,8 @@ void b3CollideHullAndSphere(b3Manifold& manifold,
 		return;
 	}
 
-	b3ShapeGJKProxy proxy1(hull1, 0);
-	b3ShapeGJKProxy proxy2(sphere2, 0);
+	b3GJKProxy proxy1(hull1, 0);
+	b3GJKProxy proxy2(sphere2, 0);
 	
 	b3GJKOutput query = b3GJK(xf1, proxy1, xf2, proxy2, false);
 

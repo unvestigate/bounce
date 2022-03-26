@@ -18,6 +18,13 @@
 
 #include <bounce/collision/gjk/gjk.h>
 #include <bounce/collision/gjk/gjk_proxy.h>
+#include <bounce/collision/shapes/sphere_shape.h>
+#include <bounce/collision/shapes/capsule_shape.h>
+#include <bounce/collision/shapes/triangle_shape.h>
+#include <bounce/collision/shapes/hull_shape.h>
+#include <bounce/collision/shapes/mesh_shape.h>
+#include <bounce/collision/geometry/hull.h>
+#include <bounce/collision/geometry/mesh.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -25,6 +32,74 @@
 // using Voronoi regions and Barycentric coordinates.
 
 uint32 b3_gjkCalls = 0, b3_gjkIters = 0, b3_gjkMaxIters = 0;
+uint32 b3_gjkCacheHits = 0;
+
+void b3GJKProxy::Set(const b3Shape* shape, uint32 index)
+{
+	switch (shape->GetType())
+	{
+	case b3Shape::e_sphere:
+	{
+		const b3SphereShape* sphere = (b3SphereShape*)shape;
+		m_count = 1;
+		m_vertices = &sphere->m_center;
+		m_radius = sphere->m_radius;
+		break;
+	}
+	case b3Shape::e_capsule:
+	{
+		const b3CapsuleShape* capsule = (b3CapsuleShape*)shape;
+		m_count = 2;
+		m_vertices = &capsule->m_vertex1;
+		m_radius = capsule->m_radius;
+		break;
+	}
+	case b3Shape::e_triangle:
+	{
+		const b3TriangleShape* triangle = (b3TriangleShape*)shape;
+		m_count = 3;
+		m_vertices = &triangle->m_vertex1;
+		m_radius = triangle->m_radius;
+		break;
+	}
+	case b3Shape::e_hull:
+	{
+		const b3HullShape* hull = (b3HullShape*)shape;
+		m_count = hull->m_hull->vertexCount;
+		m_vertices = hull->m_hull->vertices;
+		m_radius = hull->m_radius;
+		break;
+	}
+	case b3Shape::e_mesh:
+	{
+		const b3MeshShape* mesh = (b3MeshShape*)shape;
+		B3_ASSERT(index < mesh->m_mesh->triangleCount);
+		
+		const b3MeshTriangle* triangle = mesh->m_mesh->GetTriangle(index);
+
+		m_buffer[0] = b3Mul(mesh->m_scale, mesh->m_mesh->vertices[triangle->v1]);
+		m_buffer[1] = b3Mul(mesh->m_scale, mesh->m_mesh->vertices[triangle->v2]);
+		m_buffer[2] = b3Mul(mesh->m_scale, mesh->m_mesh->vertices[triangle->v3]);
+
+		m_count = 3;
+		m_vertices = m_buffer;
+		m_radius = mesh->m_radius;
+		break;
+	}
+	default:
+	{
+		B3_ASSERT(false);
+		break;
+	}
+	}
+}
+
+void b3GJKProxy::Set(const b3Vec3* vertices, uint32 count, scalar radius)
+{
+	m_vertices = vertices;
+	m_count = count;
+	m_radius = radius;
+}
 
 // Convert a point Q from Cartesian coordinates to Barycentric coordinates (u, v) 
 // with respect to a segment AB.
@@ -708,8 +783,8 @@ b3GJKOutput b3GJK(const b3Transform& xf1, const b3GJKProxy& proxy1,
 	// Apply radius if requested.
 	if (applyRadius)
 	{
-		scalar r1 = proxy1.radius;
-		scalar r2 = proxy2.radius;
+		scalar r1 = proxy1.m_radius;
+		scalar r2 = proxy2.m_radius;
 
 		if (output.distance > r1 + r2 && output.distance > B3_EPSILON)
 		{
@@ -737,7 +812,6 @@ b3GJKOutput b3GJK(const b3Transform& xf1, const b3GJKProxy& proxy1,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-uint32 b3_gjkCacheHits = 0;
 
 // Implements b3Simplex routines for a cached simplex.
 void b3Simplex::ReadCache(const b3SimplexCache* cache,
@@ -751,10 +825,10 @@ void b3Simplex::ReadCache(const b3SimplexCache* cache,
 		b3SimplexVertex* v = m_vertices + i;
 		v->index1 = cache->index1[i];
 		v->index2 = cache->index2[i];
-		b3Vec3 wALocal = proxy1.GetVertex(v->index1);
-		b3Vec3 wBLocal = proxy2.GetVertex(v->index2);
-		v->point1 = xf1 * wALocal;
-		v->point2 = xf2 * wBLocal;
+		b3Vec3 w1Local = proxy1.GetVertex(v->index1);
+		b3Vec3 w2Local = proxy2.GetVertex(v->index2);
+		v->point1 = xf1 * w1Local;
+		v->point2 = xf2 * w2Local;
 		v->point = v->point2 - v->point1;
 		v->weight = scalar(0);
 	}
@@ -861,15 +935,14 @@ struct b3ShapeCastOutput
 	uint32 iterations; // number of iterations 
 };
 
-// Gino van der Bergen
-// "Smooth Mesh Contacts with GJK"
+// Gino van der Bergen "Smooth Mesh Contacts with GJK"
 // Game Physics Pearls 2010, page 99
 bool b3ShapeCast(b3ShapeCastOutput* output,
 	const b3Transform& xf1, const b3GJKProxy& proxy1,
 	const b3Transform& xf2, const b3GJKProxy& proxy2, const b3Vec3& translation2)
 {
-	scalar r1 = proxy1.radius;
-	scalar r2 = proxy2.radius;
+	scalar r1 = proxy1.m_radius;
+	scalar r2 = proxy2.m_radius;
 	scalar radius = r1 + r2;
 
 	b3Vec3 r = translation2;

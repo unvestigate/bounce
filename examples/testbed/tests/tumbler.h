@@ -156,6 +156,7 @@ public:
 			}
 		}
 
+		m_boxHull.SetIdentity();
 		m_coneHull.SetExtents(1.0f, 1.0f);
 		m_cylinderHull.SetExtents(1.0f, 1.0f);
 
@@ -219,7 +220,7 @@ public:
 				b3Body* body = m_world.CreateBody(bd);
 
 				b3HullShape hs;
-				hs.m_hull = &b3BoxHull_identity;
+				hs.m_hull = &m_boxHull;
 
 				b3FixtureDef sd;
 				sd.density = 0.05f;
@@ -274,6 +275,7 @@ public:
 	}
 
 	uint32 m_count;
+	b3BoxHull m_boxHull;
 	b3ConeHull m_coneHull;
 	b3CylinderHull m_cylinderHull;
 };

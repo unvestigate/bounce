@@ -26,7 +26,6 @@ b3JointSolver::b3JointSolver(const b3JointSolverDef* def)
 	m_solverData.step = def->step;
 	m_solverData.positions = def->positions;
 	m_solverData.velocities = def->velocities;
-	m_solverData.invInertias = def->invInertias;
 }
 
 void b3JointSolver::InitializeVelocityConstraints() 

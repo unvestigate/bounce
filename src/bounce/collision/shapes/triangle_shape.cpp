@@ -69,16 +69,18 @@ void b3TriangleShape::ComputeAABB(b3AABB* aabb, const b3Transform& xf) const
 bool b3TriangleShape::TestSphere(const b3Sphere& sphere, const b3Transform& xf) const
 {
 	b3GJKProxy proxy1;
-	proxy1.vertexBuffer[0] = m_vertex1;
-	proxy1.vertexBuffer[1] = m_vertex2;
-	proxy1.vertexBuffer[2] = m_vertex3;
-	proxy1.vertexCount = 3;
-	proxy1.vertices = proxy1.vertexBuffer;
+	proxy1.m_buffer[0] = m_vertex1;
+	proxy1.m_buffer[1] = m_vertex2;
+	proxy1.m_buffer[2] = m_vertex3;
+	proxy1.m_count = 3;
+	proxy1.m_vertices = proxy1.m_buffer;
+	proxy1.m_radius = m_radius;
 
 	b3GJKProxy proxy2;
-	proxy2.vertexBuffer[0] = b3MulT(xf, sphere.vertex);
-	proxy2.vertexCount = 1;
-	proxy2.vertices = proxy2.vertexBuffer;
+	proxy2.m_buffer[0] = b3MulT(xf, sphere.center);
+	proxy2.m_count = 1;
+	proxy2.m_vertices = proxy2.m_buffer;
+	proxy2.m_radius = sphere.radius;
 
 	b3GJKOutput query = b3GJK(b3Transform_identity, proxy1, b3Transform_identity, proxy2, false);
 

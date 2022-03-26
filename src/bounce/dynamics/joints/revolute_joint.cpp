@@ -85,8 +85,8 @@ void b3RevoluteJoint::InitializeVelocityConstraints(const b3SolverData& data)
 	m_localInvIA = m_bodyA->m_invI;
 	m_localInvIB = m_bodyB->m_invI;
 	
-	m_iA = data.invInertias[m_indexA];
-	m_iB = data.invInertias[m_indexB];
+	m_iA = data.positions[m_indexA].I;
+	m_iB = data.positions[m_indexB].I;
 
 	b3Quat qA = data.positions[m_indexA].q;
 	b3Quat qB = data.positions[m_indexB].q;
@@ -364,8 +364,8 @@ bool b3RevoluteJoint::SolvePositionConstraints(const b3SolverData& data)
 	b3Quat qA = data.positions[m_indexA].q;
 	b3Vec3 xB = data.positions[m_indexB].x;
 	b3Quat qB = data.positions[m_indexB].q;
-	b3Mat33 iA = data.invInertias[m_indexA];
-	b3Mat33 iB = data.invInertias[m_indexB];
+	b3Mat33 iA = data.positions[m_indexA].I;
+	b3Mat33 iB = data.positions[m_indexB].I;
 
 	scalar mA = m_mA;
 	scalar mB = m_mB;
@@ -524,8 +524,8 @@ bool b3RevoluteJoint::SolvePositionConstraints(const b3SolverData& data)
 	data.positions[m_indexA].q = qA;
 	data.positions[m_indexB].x = xB;
 	data.positions[m_indexB].q = qB;
-	data.invInertias[m_indexA] = iA;
-	data.invInertias[m_indexB] = iB;
+	data.positions[m_indexA].I = iA;
+	data.positions[m_indexB].I = iB;
 
 	return linearError <= B3_LINEAR_SLOP && limitError <= B3_ANGULAR_SLOP && angularError <= kCosSlop;
 }

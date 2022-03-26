@@ -43,6 +43,8 @@ public:
 			ground->CreateFixture(sd);
 		}
 
+		m_boxHull.SetIdentity();
+
 		b3Vec3 boxSize;
 		boxSize.Set(2.0f, 2.0f, 2.0f);
 
@@ -72,7 +74,7 @@ public:
 					b3Body* body = m_world.CreateBody(bd);
 
 					b3HullShape hs;
-					hs.m_hull = &b3BoxHull_identity;
+					hs.m_hull = &m_boxHull;
 
 					b3FixtureDef sd;
 					sd.shape = &hs;
@@ -97,6 +99,8 @@ public:
 	{
 		return new Pyramids();
 	}
+
+	b3BoxHull m_boxHull;
 };
 
 #endif

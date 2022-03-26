@@ -16,8 +16,7 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <bounce/collision/collide/collide.h>
-#include <bounce/collision/collide/manifold.h>
+#include <bounce/collision/collision.h>
 #include <bounce/collision/shapes/capsule_shape.h>
 #include <bounce/collision/shapes/sphere_shape.h>
 

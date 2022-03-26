@@ -20,6 +20,7 @@
 #define B3_HULL_CONTACT_H
 
 #include <bounce/dynamics/contacts/convex_contact.h>
+#include <bounce/collision/sat/sat.h>
 
 class b3HullContact : public b3ConvexContact
 {
@@ -31,6 +32,8 @@ public:
 	~b3HullContact() { }
 
 	void Evaluate(b3Manifold& manifold, const b3Transform& xfA, const b3Transform& xfB) override;
+
+	b3FeatureCache m_cache;
 };
 
 #endif

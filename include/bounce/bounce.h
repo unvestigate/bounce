@@ -40,6 +40,7 @@
 #include <bounce/collision/shapes/hull_shape.h>
 #include <bounce/collision/shapes/mesh_shape.h>
 
+#include <bounce/collision/collision.h>
 #include <bounce/collision/broad_phase.h>
 
 #include <bounce/dynamics/contacts/contact.h>

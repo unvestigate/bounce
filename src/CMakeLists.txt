@@ -34,8 +34,10 @@ ${BOUNCE_INCLUDE_DIR}/bounce/common/memory/block_allocator.h
 ${BOUNCE_INCLUDE_DIR}/bounce/common/template/array.h
 ${BOUNCE_INCLUDE_DIR}/bounce/common/template/stack.h
 
-${BOUNCE_INCLUDE_DIR}/bounce/collision/broad_phase.h
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/collision.h
+${BOUNCE_INCLUDE_DIR}/bounce/collision/clip.h
+${BOUNCE_INCLUDE_DIR}/bounce/collision/cluster.h
+${BOUNCE_INCLUDE_DIR}/bounce/collision/broad_phase.h
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/time_of_impact.h
 
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/gjk/gjk.h
@@ -43,7 +45,6 @@ ${BOUNCE_INCLUDE_DIR}/bounce/collision/gjk/gjk_proxy.h
 
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/sat/sat.h
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/sat/sat_hull_edge.h
-${BOUNCE_INCLUDE_DIR}/bounce/collision/sat/sat_hull_vertex.h
 
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/geometry/geometry.h
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/geometry/plane.h
@@ -67,11 +68,6 @@ ${BOUNCE_INCLUDE_DIR}/bounce/collision/shapes/shape.h
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/shapes/triangle_shape.h
 
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/trees/dynamic_tree.h
-
-${BOUNCE_INCLUDE_DIR}/bounce/collision/collide/manifold.h
-${BOUNCE_INCLUDE_DIR}/bounce/collision/collide/clip.h
-${BOUNCE_INCLUDE_DIR}/bounce/collision/collide/collide.h
-${BOUNCE_INCLUDE_DIR}/bounce/collision/collide/cluster.h
 
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/body.h
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/fixture.h
@@ -133,13 +129,14 @@ set(BOUNCE_SOURCE_FILES
 	bounce/collision/broad_phase.cpp
 	bounce/collision/collision.cpp
 	bounce/collision/time_of_impact.cpp
-
+	bounce/collision/clip.cpp
+	bounce/collision/cluster.cpp
+	
 	bounce/collision/gjk/gjk.cpp
 	bounce/collision/gjk/gjk_feature_pair.cpp
 
 	bounce/collision/sat/sat.cpp
 	bounce/collision/sat/sat_hull_edge.cpp
-	bounce/collision/sat/sat_hull_vertex.cpp
 
 	bounce/collision/geometry/hull.cpp
 	bounce/collision/geometry/mesh.cpp
@@ -153,11 +150,8 @@ set(BOUNCE_SOURCE_FILES
 
 	bounce/collision/trees/dynamic_tree.cpp
 
-	bounce/collision/collide/manifold.cpp
-	bounce/collision/collide/clip.cpp
 	bounce/collision/collide/collide_capsules.cpp
 	bounce/collision/collide/collide_capsule_sphere.cpp
-	bounce/collision/collide/collide.cpp
 	bounce/collision/collide/collide_hull_capsule.cpp
 	bounce/collision/collide/collide_hulls.cpp
 	bounce/collision/collide/collide_hull_sphere.cpp
@@ -165,7 +159,6 @@ set(BOUNCE_SOURCE_FILES
 	bounce/collision/collide/collide_triangle_capsule.cpp
 	bounce/collision/collide/collide_triangle_hull.cpp
 	bounce/collision/collide/collide_triangle_sphere.cpp
-	bounce/collision/collide/cluster.cpp
 
 	bounce/dynamics/body.cpp
 	bounce/dynamics/fixture.cpp

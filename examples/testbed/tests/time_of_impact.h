@@ -20,17 +20,18 @@
 #define TIME_OF_IMPACT_H
 
 #include <bounce/collision/time_of_impact.h>
-#include <bounce/collision/collide/collide.h>
 
 class TimeOfImpact : public Test
 {
 public:
 	TimeOfImpact()
 	{
-		m_shapeA.m_hull = &b3BoxHull_identity;
+		m_box.SetIdentity();
+
+		m_shapeA.m_hull = &m_box;
 		m_shapeA.m_radius = 0.0f;
 
-		m_shapeB.m_hull = &b3BoxHull_identity;
+		m_shapeB.m_hull = &m_box;
 		m_shapeB.m_radius = 0.0f;
 
 		m_sweepA.localCenter.SetZero();
@@ -228,13 +229,15 @@ public:
 
 	scalar m_time;
 
+	b3BoxHull m_box;
+
 	b3HullShape m_shapeA;
 	b3Sweep m_sweepA;
-	b3ShapeGJKProxy m_proxyA;
+	b3GJKProxy m_proxyA;
 
 	b3HullShape m_shapeB;
 	b3Sweep m_sweepB;
-	b3ShapeGJKProxy m_proxyB;
+	b3GJKProxy m_proxyB;
 };
 
 #endif

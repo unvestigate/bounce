@@ -16,12 +16,13 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <bounce/collision/collide/collide.h>
-#include <bounce/collision/collide/clip.h>
-#include <bounce/collision/collide/manifold.h>
-#include <bounce/collision/collide/cluster.h>
+#include <bounce/collision/collision.h>
+#include <bounce/collision/clip.h>
+#include <bounce/collision/cluster.h>
 #include <bounce/collision/shapes/hull_shape.h>
 #include <bounce/collision/geometry/hull.h>
+#include <bounce/collision/geometry/geometry.h>
+#include <bounce/collision/sat/sat.h>
 
 bool b3_convexCache = true;
 uint32 b3_convexCalls = 0, b3_convexCacheHits = 0;
@@ -135,7 +136,7 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 
 	// 4. Project the clipped polygon on the reference plane for reduction.
 	// Ensure the deepest point is contained in the reduced polygon.
-	b3StackArray<b3ClusterPolygonVertex, 32> polygon1;
+	b3StackArray<b3ClusterVertex, 32> polygon1;
 
 	uint32 minIndex = 0;
 	scalar minSeparation = B3_MAX_SCALAR;
@@ -153,7 +154,7 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 				minSeparation = separation;
 			}
 
-			b3ClusterPolygonVertex v1;
+			b3ClusterVertex v1;
 			v1.position = b3ClosestPointOnPlane(v2.position, plane1);
 			v1.clipIndex = i;
 			polygon1.PushBack(v1);
@@ -171,7 +172,7 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 	// Ensure normal orientation to hull 2.
 	b3Vec3 orientedNormal = flipNormal ? -normal : normal;
 
-	b3StackArray<b3ClusterPolygonVertex, 32> reducedPolygon1;
+	b3StackArray<b3ClusterVertex, 32> reducedPolygon1;
 	b3ReducePolygon(reducedPolygon1, polygon1, orientedNormal, minIndex);
 	
 	// 6. Build face contact.
@@ -279,10 +280,6 @@ static void b3CollideHulls(b3Manifold& manifold,
 			b3BuildFaceContact(manifold, xf2, faceQuery2.index, hull2, xf1, hull1, true);
 		}
 	}
-
-	// When both convex hulls are not simplified clipping might fail and create no contact points.
-	// For example, when a hull contains tiny faces, coplanar faces, and/or non-sharped edges.
-	// So we need to use an heuristic to create a correct contact point.
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -398,12 +395,12 @@ static void b3RebuildFaceContact(b3Manifold& manifold,
 	}
 }
 
-static void b3CollideCache(b3Manifold& manifold,
+static void b3CollideHullsCache(b3Manifold& manifold,
 	const b3Transform& xf1, const b3HullShape* hull1,
 	const b3Transform& xf2, const b3HullShape* hull2,
-	b3FeatureCache* cache)
+	b3FeatureCache& cache)
 {
-	B3_ASSERT(cache->featurePair.state == b3SATCacheType::e_empty);
+	B3_ASSERT(cache.cacheType == b3CacheType::e_empty);
 
 	const b3Hull* h1 = hull1->m_hull;
 	scalar r1 = hull1->m_radius;
@@ -417,7 +414,7 @@ static void b3CollideCache(b3Manifold& manifold,
 	if (faceQuery1.separation > totalRadius)
 	{
 		// Write a separation cache.
-		cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_separation, b3SATFeatureType::e_face1, faceQuery1.index, faceQuery1.index);
+		cache = b3MakeCache(b3CacheType::e_separation, b3FeatureType::e_face1, faceQuery1.index, faceQuery1.index);
 		return;
 	}
 
@@ -425,7 +422,7 @@ static void b3CollideCache(b3Manifold& manifold,
 	if (faceQuery2.separation > totalRadius)
 	{
 		// Write a separation cache.
-		cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_separation, b3SATFeatureType::e_face2, faceQuery2.index, faceQuery2.index);
+		cache = b3MakeCache(b3CacheType::e_separation, b3FeatureType::e_face2, faceQuery2.index, faceQuery2.index);
 		return;
 	}
 
@@ -433,7 +430,7 @@ static void b3CollideCache(b3Manifold& manifold,
 	if (edgeQuery.separation > totalRadius)
 	{
 		// Write a separation cache.
-		cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_separation, b3SATFeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
+		cache = b3MakeCache(b3CacheType::e_separation, b3FeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
 		return;
 	}
 
@@ -443,7 +440,7 @@ static void b3CollideCache(b3Manifold& manifold,
 		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, hull1, xf2, edgeQuery.index2, hull2);
 
 		// Write an overlap cache.		
-		cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_overlap, b3SATFeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
+		cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
 		return;
 	}
 	else
@@ -454,7 +451,7 @@ static void b3CollideCache(b3Manifold& manifold,
 			if (manifold.pointCount > 0)
 			{
 				// Write an overlap cache.
-				cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_overlap, b3SATFeatureType::e_face1, faceQuery1.index, faceQuery1.index);
+				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face1, faceQuery1.index, faceQuery1.index);
 				return;
 			}
 		}
@@ -464,7 +461,7 @@ static void b3CollideCache(b3Manifold& manifold,
 			if (manifold.pointCount > 0)
 			{
 				// Write an overlap cache.
-				cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_overlap, b3SATFeatureType::e_face2, faceQuery2.index, faceQuery2.index);
+				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face2, faceQuery2.index, faceQuery2.index);
 				return;
 			}
 		}
@@ -476,7 +473,7 @@ static void b3CollideCache(b3Manifold& manifold,
 		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, hull1, xf2, edgeQuery.index2, hull2);
 		
 		// Write an overlap cache.		
-		cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_overlap, b3SATFeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
+		cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
 		return;
 	}
 	else
@@ -487,7 +484,7 @@ static void b3CollideCache(b3Manifold& manifold,
 			if (manifold.pointCount > 0)
 			{
 				// Write an overlap cache.
-				cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_overlap, b3SATFeatureType::e_face1, faceQuery1.index, faceQuery1.index);
+				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face1, faceQuery1.index, faceQuery1.index);
 				return;
 			}
 		}
@@ -497,21 +494,17 @@ static void b3CollideCache(b3Manifold& manifold,
 			if (manifold.pointCount > 0)
 			{
 				// Write an overlap cache.
-				cache->featurePair = b3MakeFeaturePair(b3SATCacheType::e_overlap, b3SATFeatureType::e_face2, faceQuery2.index, faceQuery2.index);
+				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face2, faceQuery2.index, faceQuery2.index);
 				return;
 			}
 		}
 	}
-
-	// When both convex hulls are not simplified clipping might fail and create no contact points.
-	// For example, when a hull contains tiny faces, coplanar faces, and/or non-sharped edges.
-	// So we need to use an heuristic to create a correct contact point.
 }
 
-static void b3CollideHulls(b3Manifold& manifold,
+static void b3CollideHullsCache(b3Manifold& manifold,
 	const b3Transform& xf1, const b3HullShape* hull1,
 	const b3Transform& xf2, const b3HullShape* hull2,
-	b3FeatureCache* cache, 
+	b3FeatureCache& cache, 
 	const b3Transform& xf01, const b3Transform& xf02)
 {
 	const b3Hull* h1 = hull1->m_hull;
@@ -523,36 +516,36 @@ static void b3CollideHulls(b3Manifold& manifold,
 	scalar totalRadius = r1 + r2;
 
 	// Read cache
-	b3SATCacheType state0 = cache->featurePair.state;
-	b3SATCacheType state1 = cache->ReadState(xf1, h1, xf2, h2, totalRadius);
+	b3CacheType state0 = cache.cacheType;
+	b3CacheType state1 = cache.ReadState(xf1, h1, xf2, h2, totalRadius);
 
-	if (state0 == b3SATCacheType::e_separation &&
-		state1 == b3SATCacheType::e_separation)
+	if (state0 == b3CacheType::e_separation &&
+		state1 == b3CacheType::e_separation)
 	{
 		// Separation cache hit.
 		++b3_convexCacheHits;
 		return;
 	}
 
-	if (state0 == b3SATCacheType::e_overlap &&
-		state1 == b3SATCacheType::e_overlap)
+	if (state0 == b3CacheType::e_overlap &&
+		state1 == b3CacheType::e_overlap)
 	{
 		// Try to rebuild or reclip the features.
-		switch (cache->featurePair.type)
+		switch (cache.featureType)
 		{
-		case b3SATFeatureType::e_edges:
+		case b3FeatureType::e_edges:
 		{
-			b3RebuildEdgeContact(manifold, xf1, cache->featurePair.index1, hull1, xf2, cache->featurePair.index2, hull2);
+			b3RebuildEdgeContact(manifold, xf1, cache.index1, hull1, xf2, cache.index2, hull2);
 			break;
 		}
-		case b3SATFeatureType::e_face1:
+		case b3FeatureType::e_face1:
 		{
-			b3RebuildFaceContact(manifold, xf1, cache->featurePair.index1, hull1, xf2, hull2, false, xf01, xf02);
+			b3RebuildFaceContact(manifold, xf1, cache.index1, hull1, xf2, hull2, false, xf01, xf02);
 			break;
 		}
-		case b3SATFeatureType::e_face2:
+		case b3FeatureType::e_face2:
 		{
-			b3RebuildFaceContact(manifold, xf2, cache->featurePair.index1, hull2, xf1, hull1, true, xf02, xf01);
+			b3RebuildFaceContact(manifold, xf2, cache.index1, hull2, xf1, hull1, true, xf02, xf01);
 			break;
 		}
 		default:
@@ -572,8 +565,8 @@ static void b3CollideHulls(b3Manifold& manifold,
 	// Separation cache miss.
 	// Overlap cache miss.
 	// Flush the cache.
-	cache->featurePair.state = b3SATCacheType::e_empty;
-	b3CollideCache(manifold, xf1, hull1, xf2, hull2, cache);
+	cache.cacheType = b3CacheType::e_empty;
+	b3CollideHullsCache(manifold, xf1, hull1, xf2, hull2, cache);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -581,12 +574,13 @@ static void b3CollideHulls(b3Manifold& manifold,
 void b3CollideHulls(b3Manifold& manifold,
 	const b3Transform& xf1, const b3HullShape* hull1,
 	const b3Transform& xf2, const b3HullShape* hull2,
-	b3ConvexCache* cache, const b3Transform& xf01, const b3Transform& xf02)
+	b3FeatureCache& cache, 
+	const b3Transform& xf01, const b3Transform& xf02)
 {
 	++b3_convexCalls;
 	if (b3_convexCache)
 	{
-		b3CollideHulls(manifold, xf1, hull1, xf2, hull2, &cache->featureCache, xf01, xf02);
+		b3CollideHullsCache(manifold, xf1, hull1, xf2, hull2, cache, xf01, xf02);
 	}
 	else
 	{

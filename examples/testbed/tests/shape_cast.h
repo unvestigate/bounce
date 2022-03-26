@@ -24,6 +24,8 @@ class ShapeCast : public Test
 public:
 	ShapeCast()
 	{
+		m_boxHull.SetIdentity();
+
 		{
 			b3BodyDef bd;
 			b3Body* body = m_world.CreateBody(bd);
@@ -44,7 +46,7 @@ public:
 			b3Body* body = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &b3BoxHull_identity;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef fd;
 			fd.shape = &hs;
@@ -80,7 +82,7 @@ public:
 			b3Body* body = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &b3BoxHull_identity;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef fd;
 			fd.shape = &hs;
@@ -114,7 +116,7 @@ public:
 			b3Body* body = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &b3BoxHull_identity;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef fd;
 			fd.shape = &hs;
@@ -130,7 +132,7 @@ public:
 			b3Body* body = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &b3BoxHull_identity;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef fd;
 			fd.shape = &hs;
@@ -146,7 +148,7 @@ public:
 			b3Body* body = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &b3BoxHull_identity;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef fd;
 			fd.shape = &hs;
@@ -162,7 +164,7 @@ public:
 			b3Body* body = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &b3BoxHull_identity;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef fd;
 			fd.shape = &hs;
@@ -275,6 +277,7 @@ public:
 	}
 
 	b3GridMesh<5, 5> m_grid;
+	b3BoxHull m_boxHull;
 
 	b3Fixture* m_fixture;
 	b3Vec3 m_d;

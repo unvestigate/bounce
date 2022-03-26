@@ -61,7 +61,7 @@ bool b3SphereShape::TestSphere(const b3Sphere& sphere, const b3Transform& xf) co
 	b3Vec3 center = b3Mul(xf, m_center);
 	scalar radius = m_radius + sphere.radius;
 	scalar rr = radius * radius;
-	b3Vec3 d = sphere.vertex - center;
+	b3Vec3 d = sphere.center - center;
 	scalar dd = b3Dot(d, d);
 	return dd <= rr;
 }

@@ -111,7 +111,6 @@ struct b3ContactSolverDef
 	uint32 count;
 	b3Position* positions;
 	b3Velocity* velocities;
-	b3Mat33* invInertias;
 	b3StackAllocator* allocator;
 };
 
@@ -144,7 +143,6 @@ public:
 	b3TimeStep m_step;
 	b3Position* m_positions;
 	b3Velocity* m_velocities;
-	b3Mat33* m_invInertias;
 	b3Contact** m_contacts;
 	uint32 m_count;
 	b3StackAllocator* m_allocator;

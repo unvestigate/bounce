@@ -20,8 +20,8 @@
 #define B3_CONTACT_H
 
 #include <bounce/common/math/math.h>
+#include <bounce/collision/collision.h>
 #include <bounce/dynamics/fixture.h>
-#include <bounce/collision/collide/manifold.h>
 
 class b3BlockPool;
 

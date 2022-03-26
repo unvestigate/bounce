@@ -19,20 +19,23 @@
 #ifndef DISTANCE_H
 #define DISTANCE_H
 
-#include <bounce/collision/collide/collide.h>
+#include <bounce/collision/gjk/gjk_proxy.h>
+#include <bounce/collision/gjk/gjk.h>
 
 class Distance : public Test
 {
 public:
 	Distance()
-	{	
+	{
+		m_box.SetIdentity();
+
 		m_xfA.translation.Set(-5.0f, 0.0f, 0.0f);
 		m_xfA.rotation.SetIdentity();
-		m_shapeA.m_hull = &b3BoxHull_identity;
+		m_shapeA.m_hull = &m_box;
 
 		m_xfB.translation.Set(5.0f, 0.0f, 0.0f);
 		m_xfB.rotation.SetIdentity();
-		m_shapeB.m_hull = &b3BoxHull_identity;
+		m_shapeB.m_hull = &m_box;
 
 		m_proxyA.Set(&m_shapeA, 0);
 		m_proxyB.Set(&m_shapeB, 0);
@@ -122,13 +125,15 @@ public:
 		return new Distance();
 	}
 
+	b3BoxHull m_box;
+
 	b3HullShape m_shapeA;
 	b3Transform m_xfA;
-	b3ShapeGJKProxy m_proxyA;
+	b3GJKProxy m_proxyA;
 
 	b3HullShape m_shapeB;
 	b3Transform m_xfB;
-	b3ShapeGJKProxy m_proxyB;
+	b3GJKProxy m_proxyB;
 	
 	b3SimplexCache m_cache;
 };

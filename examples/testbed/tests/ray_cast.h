@@ -24,6 +24,8 @@ class RayCast : public Test
 public:
 	RayCast()
 	{
+		m_boxHull.SetIdentity();
+
 		{
 			b3BodyDef bd;
 			b3Body* body = m_world.CreateBody(bd);
@@ -45,7 +47,7 @@ public:
 			b3Body* body = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &b3BoxHull_identity;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef fd;
 			fd.shape = &hs;
@@ -79,7 +81,7 @@ public:
 			b3Body* body = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &b3BoxHull_identity;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef fd;
 			fd.shape = &hs;
@@ -95,7 +97,7 @@ public:
 			b3Body* body = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &b3BoxHull_identity;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef fd;
 			fd.shape = &hs;
@@ -111,7 +113,7 @@ public:
 			b3Body* body = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &b3BoxHull_identity;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef fd;
 			fd.shape = &hs;
@@ -127,7 +129,7 @@ public:
 			b3Body* body = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &b3BoxHull_identity;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef fd;
 			fd.shape = &hs;
@@ -224,6 +226,7 @@ public:
 		return new RayCast();
 	}
 
+	b3BoxHull m_boxHull;
 	b3Vec3 m_p1, m_p2;
 	b3Vec3 m_p12, m_p22;
 };

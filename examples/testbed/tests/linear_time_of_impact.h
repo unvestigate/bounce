@@ -20,17 +20,19 @@
 #define LINEAR_TIME_OF_IMPACT_H
 
 #include <bounce/collision/time_of_impact.h>
-#include <bounce/collision/collide/collide.h>
+#include <bounce/collision/gjk/gjk.h>
 
 class LinearTimeOfImpact : public Test
 {
 public:
 	LinearTimeOfImpact()
 	{
-		m_shapeA.m_hull = &b3BoxHull_identity;
+		m_box.SetIdentity();
+
+		m_shapeA.m_hull = &m_box;
 		m_shapeA.m_radius = 0.0f;
 
-		m_shapeB.m_hull = &b3BoxHull_identity;
+		m_shapeB.m_hull = &m_box;
 		m_shapeB.m_radius = 0.0f;
 
 		m_xfA.translation.Set(0.0f, 0.0f, 0.0f);
@@ -162,13 +164,15 @@ public:
 		return new LinearTimeOfImpact();
 	}
 
+	b3BoxHull m_box;
+
 	b3HullShape m_shapeA;
 	b3Transform m_xfA;
-	b3ShapeGJKProxy m_proxyA;
+	b3GJKProxy m_proxyA;
 
 	b3HullShape m_shapeB;
 	b3Transform m_xfB;
-	b3ShapeGJKProxy m_proxyB;
+	b3GJKProxy m_proxyB;
 };
 
 #endif

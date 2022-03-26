@@ -48,8 +48,8 @@ void b3FrictionJoint::InitializeVelocityConstraints(const b3SolverData& data)
 	m_indexB = m_bodyB->m_islandIndex;
 	m_mA = m_bodyA->m_invMass;
 	m_mB = m_bodyB->m_invMass;
-	m_iA = data.invInertias[m_indexA];
-	m_iB = data.invInertias[m_indexB];
+	m_iA = data.positions[m_indexA].I;
+	m_iB = data.positions[m_indexB].I;
 
 	b3Vec3 localCenterA = m_bodyA->m_sweep.localCenter;
 	b3Vec3 localCenterB = m_bodyB->m_sweep.localCenter;

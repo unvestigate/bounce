@@ -49,8 +49,10 @@ public:
 
 			b3Body* body = m_world.CreateBody(bd);
 
+			m_boxHull.SetIdentity();
+
 			b3HullShape hs;
-			hs.m_hull = &b3BoxHull_identity;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef fd;
 			fd.density = 0.1f;
@@ -65,6 +67,8 @@ public:
 	{
 		return new TriangleContactTest();
 	}
+
+	b3BoxHull m_boxHull;
 };
 
 #endif

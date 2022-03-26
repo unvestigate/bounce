@@ -121,6 +121,4 @@ struct b3BoxHull : public b3Hull
 	}
 };
 
-extern const b3BoxHull b3BoxHull_identity;
-
 #endif

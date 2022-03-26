@@ -87,8 +87,10 @@ public:
 			bd.position.Set(10.0f, y, 0.0f);
 			b3Body* body = m_world.CreateBody(bd);
 
+			m_boxHull.SetIdentity();
+
 			b3HullShape hull;
-			hull.m_hull = &b3BoxHull_identity;
+			hull.m_hull = &m_boxHull;
 			
 			b3FixtureDef sd;
 			sd.shape = &hull;
@@ -103,6 +105,8 @@ public:
 	{
 		return new ShapeStack();
 	}
+
+	b3BoxHull m_boxHull;
 };
 
 #endif

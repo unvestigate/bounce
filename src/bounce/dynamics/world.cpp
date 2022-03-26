@@ -24,7 +24,7 @@
 #include <bounce/dynamics/contacts/contact.h>
 #include <bounce/dynamics/joints/joint.h>
 #include <bounce/dynamics/time_step.h>
-#include <bounce/collision/collide/collide.h>
+#include <bounce/collision/collision.h>
 #include <bounce/collision/time_of_impact.h>
 #include <bounce/collision/gjk/gjk.h>
 #include <bounce/collision/gjk/gjk_proxy.h>
@@ -577,7 +577,7 @@ struct b3WorldShapeCastQueryWrapper
 
 			b3Body* bodyB = wrapper->fixtureB->GetBody();
 			b3Transform xfB = bodyB->GetTransform();
-			b3ShapeGJKProxy proxyB(wrapper->meshB, triangleIndex);
+			b3GJKProxy proxyB(wrapper->meshB, triangleIndex);
 
 			b3TOIOutput toi = b3TimeOfImpact(wrapper->xfA, *wrapper->proxyA, wrapper->dA, xfB, proxyB, b3Vec3_zero);
 
@@ -675,7 +675,7 @@ struct b3WorldShapeCastQueryWrapper
 		}
 
 		// The shape B is convex.
-		b3ShapeGJKProxy proxyB(shapeB, 0);
+		b3GJKProxy proxyB(shapeB, 0);
 
 		b3TOIOutput toi = b3TimeOfImpact(xfA, *proxyA, dA, xfB, proxyB, b3Vec3_zero);
 
@@ -729,7 +729,7 @@ struct b3WorldShapeCastQueryWrapper
 		
 		b3Vec3 normal = b3Normalize(pA - pB);
 
-		*pointB = pB + proxyB.radius * normal;
+		*pointB = pB + proxyB.m_radius * normal;
 		*normalB = normal;
 	}
 
@@ -739,7 +739,7 @@ struct b3WorldShapeCastQueryWrapper
 
 	const b3Shape* shapeA;
 	b3Transform xfA, xfA2;
-	const b3ShapeGJKProxy* proxyA;
+	const b3GJKProxy* proxyA;
 	b3Vec3 dA;
 	scalar maxFraction;
 
@@ -761,7 +761,7 @@ void b3World::ShapeCast(b3ShapeCastListener* listener, b3ShapeCastFilter* filter
 		return;
 	}
 
-	b3ShapeGJKProxy proxyA(shape, 0);
+	b3GJKProxy proxyA(shape, 0);
 
 	// Compute a AABB that covers the swept shape
 	b3Transform xf2 = xf;
@@ -800,7 +800,7 @@ bool b3World::ShapeCastSingle(b3ShapeCastSingleOutput* output, b3ShapeCastFilter
 		return false;
 	}
 
-	b3ShapeGJKProxy proxyA(shape, 0);
+	b3GJKProxy proxyA(shape, 0);
 	
 	b3Transform xf2 = xf;
 	xf2.translation += displacement;
@@ -833,7 +833,7 @@ bool b3World::ShapeCastSingle(b3ShapeCastSingleOutput* output, b3ShapeCastFilter
 		return false;
 	}
 
-	b3ShapeGJKProxy proxyB(wrapper.fixture0->GetShape(), wrapper.childIndex0);
+	b3GJKProxy proxyB(wrapper.fixture0->GetShape(), wrapper.childIndex0);
 
 	b3Body* bodyB = wrapper.fixture0->GetBody();
 	b3Transform xfB = bodyB->GetTransform();

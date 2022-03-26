@@ -576,7 +576,7 @@ b3TOIOutput b3TimeOfImpact(const b3TOIInput& input)
 
 	scalar tMax = input.tMax;
 
-	scalar totalRadius = proxyA.radius + proxyB.radius;
+	scalar totalRadius = proxyA.m_radius + proxyB.m_radius;
 	scalar target = b3Max(B3_LINEAR_SLOP, totalRadius - scalar(3) * B3_LINEAR_SLOP);
 	scalar tolerance = scalar(0.25) * B3_LINEAR_SLOP;
 	B3_ASSERT(target > tolerance);
@@ -764,8 +764,8 @@ b3TOIOutput b3TimeOfImpact(
 	const b3Transform& xf1, const b3GJKProxy& proxy1, const b3Vec3& d1,
 	const b3Transform& xf2, const b3GJKProxy& proxy2, const b3Vec3& d2, uint32 maxIterations)
 {
-	scalar r1 = proxy1.radius;
-	scalar r2 = proxy2.radius;
+	scalar r1 = proxy1.m_radius;
+	scalar r2 = proxy2.m_radius;
 	scalar totalRadius = r1 + r2;
 
 	scalar target = b3Max(B3_LINEAR_SLOP, totalRadius - scalar(3) * B3_LINEAR_SLOP);

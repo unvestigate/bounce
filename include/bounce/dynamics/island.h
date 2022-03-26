@@ -88,7 +88,6 @@ public:
 	
 	b3Position* m_positions;
 	b3Velocity* m_velocities;
-	b3Mat33* m_invInertias;
 };
 
 #endif

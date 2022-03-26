@@ -16,10 +16,10 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <bounce/collision/collide/collide.h>
-#include <bounce/collision/collide/manifold.h>
+#include <bounce/collision/collision.h>
 #include <bounce/collision/shapes/triangle_shape.h>
 #include <bounce/collision/shapes/sphere_shape.h>
+#include <bounce/collision/geometry/geometry.h>
 
 void b3CollideTriangleAndSphere(b3Manifold& manifold,
 	const b3Transform& xf1, const b3TriangleShape* triangle1,

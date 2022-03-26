@@ -317,6 +317,4 @@ struct b3CylinderHull : public b3Hull
 	}
 };
 
-extern const b3CylinderHull b3CylinderHull_identity;
-
 #endif

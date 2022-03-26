@@ -16,8 +16,8 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef B3_HULL_AND_EDGE_SAT_H
-#define B3_HULL_AND_EDGE_SAT_H
+#ifndef B3_SAT_HULL_AND_EDGE_H
+#define B3_SAT_HULL_AND_EDGE_H
 
 #include <bounce/collision/sat/sat.h>
 

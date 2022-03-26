@@ -16,9 +16,9 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <bounce/collision/collide/cluster.h>
-#include <bounce/collision/geometry/geometry.h>
+#include <bounce/collision/cluster.h>
 #include <bounce/collision/collision.h>
+#include <bounce/collision/geometry/geometry.h>
 
 static B3_FORCE_INLINE bool b3IsCCW(const b3Vec3& A, const b3Vec3& B, const b3Vec3& C, const b3Vec3& N)
 {
@@ -42,11 +42,11 @@ void b3SortPolygon(b3ClusterPolygon& pOut,
 	b3Vec3 A = pOut[0].position;
 	for (uint32 i = 1; i < pOut.Count(); ++i)
 	{
-		b3ClusterPolygonVertex& vi = pOut[i];
+		b3ClusterVertex& vi = pOut[i];
 		b3Vec3 B = vi.position;
 		for (uint32 j = i + 1; j < pOut.Count(); ++j)
 		{
-			b3ClusterPolygonVertex& vj = pOut[j];
+			b3ClusterVertex& vj = pOut[j];
 			b3Vec3 C = vj.position;
 			if (b3IsCCW(A, B, C, pNormal) == false)
 			{
@@ -192,7 +192,7 @@ void b3ReducePolygon(b3ClusterPolygon& pOut,
 	// Sort output polygon
 	B3_ASSERT(pOut.Count() <= B3_MAX_MANIFOLD_POINTS);
 	
-	b3StackArray<b3ClusterPolygonVertex, B3_MAX_MANIFOLD_POINTS> quad;
+	b3StackArray<b3ClusterVertex, B3_MAX_MANIFOLD_POINTS> quad;
 	b3SortPolygon(quad, pOut, pNormal);
 	
 	// Output polygon
@@ -505,7 +505,7 @@ void b3ClusterSolver::Run(b3Manifold outManifolds[3], uint32& numOut,
 		b3Vec3 normal;
 		normal.SetZero();
 
-		b3StackArray<b3ClusterPolygonVertex, 256> polygonB;
+		b3StackArray<b3ClusterVertex, 64> polygonB;
 		for (uint32 j = 0; j < m_observations.Count(); ++j)
 		{
 			b3Observation& o = m_observations[j];
@@ -520,7 +520,7 @@ void b3ClusterSolver::Run(b3Manifold outManifolds[3], uint32& numOut,
 			b3WorldManifoldPoint wmp;
 			wmp.Initialize(mp, radiusA, xfA, radiusB, xfB);
 
-			b3ClusterPolygonVertex cv;
+			b3ClusterVertex cv;
 			cv.position = wmp.point;
 			cv.clipIndex = j;
 			polygonB.PushBack(cv);
@@ -564,11 +564,11 @@ void b3ClusterSolver::Run(b3Manifold outManifolds[3], uint32& numOut,
 			polygonB[j].position = polygonB[j].position + separation * normal;
 		}
 		
-		b3StackArray<b3ClusterPolygonVertex, B3_MAX_MANIFOLD_POINTS> quadB;
+		b3StackArray<b3ClusterVertex, B3_MAX_MANIFOLD_POINTS> quadB;
 		b3ReducePolygon(quadB, polygonB, normal, minIndex);
 		for (uint32 j = 0; j < quadB.Count(); ++j)
 		{
-			b3ClusterPolygonVertex v = quadB[j];
+			b3ClusterVertex v = quadB[j];
 			uint32 inIndex = v.clipIndex;
 
 			const b3Observation* o = m_observations.Get(inIndex);

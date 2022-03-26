@@ -30,7 +30,6 @@ b3ContactSolver::b3ContactSolver(const b3ContactSolverDef* def)
 	m_step = def->step;
 	m_positions = def->positions;
 	m_velocities = def->velocities;
-	m_invInertias = def->invInertias;
 	m_contacts = def->contacts;
 	m_count = def->count;
 	m_allocator = def->allocator;
@@ -73,11 +72,11 @@ b3ContactSolver::b3ContactSolver(const b3ContactSolverDef* def)
 
 		vc->indexA = bodyA->m_islandIndex;
 		vc->invMassA = bodyA->m_invMass;
-		vc->invIA = m_invInertias[vc->indexA];
+		vc->invIA = m_positions[vc->indexA].I;
 
 		vc->indexB = bodyB->m_islandIndex;
 		vc->invMassB = bodyB->m_invMass;
-		vc->invIB = m_invInertias[vc->indexB];
+		vc->invIB = m_positions[vc->indexB].I;
 
 		vc->friction = b3MixFriction(fixtureA->m_friction, fixtureB->m_friction);
 		vc->restitution = b3MixRestitution(fixtureA->m_restitution, fixtureB->m_restitution);
@@ -549,11 +548,11 @@ bool b3ContactSolver::SolvePositionConstraints()
 
 		b3Vec3 cA = m_positions[indexA].x;
 		b3Quat qA = m_positions[indexA].q;
-		b3Mat33 iA = m_invInertias[indexA];
+		b3Mat33 iA = m_positions[indexA].I;
 
 		b3Vec3 cB = m_positions[indexB].x;
 		b3Quat qB = m_positions[indexB].q;
-		b3Mat33 iB = m_invInertias[indexB];
+		b3Mat33 iB = m_positions[indexB].I;
 
 		uint32 manifoldCount = pc->manifoldCount;
 
@@ -614,11 +613,11 @@ bool b3ContactSolver::SolvePositionConstraints()
 
 		m_positions[indexA].x = cA;
 		m_positions[indexA].q = qA;
-		m_invInertias[indexA] = iA;
+		m_positions[indexA].I = iA;
 
 		m_positions[indexB].x = cB;
 		m_positions[indexB].q = qB;
-		m_invInertias[indexB] = iB;
+		m_positions[indexB].I = iB;
 	}
 
 	return minSeparation >= scalar(-3) * B3_LINEAR_SLOP;

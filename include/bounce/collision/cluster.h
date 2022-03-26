@@ -21,17 +21,20 @@
 
 #include <bounce/common/template/array.h>
 #include <bounce/collision/geometry/plane.h>
-#include <bounce/collision/collide/manifold.h>
+
+#define B3_NULL_CLUSTER B3_MAX_U32
+
+struct b3Manifold;
 
 // Used for contact cluster reduction.
-struct b3ClusterPolygonVertex
+struct b3ClusterVertex
 {
 	b3Vec3 position; // point on the cluster plane
 	uint32 clipIndex; // where did this vertex came from 
 };
 
 // Used for contact cluster reduction.
-typedef b3Array<b3ClusterPolygonVertex> b3ClusterPolygon;
+typedef b3Array<b3ClusterVertex> b3ClusterPolygon;
 
 // Sort a convex polygon such that the polygon normal points to a given normal.
 void b3SortPolygon(b3ClusterPolygon& pOut, 
@@ -41,8 +44,6 @@ void b3SortPolygon(b3ClusterPolygon& pOut,
 // All points must lie in a common plane and an initial point must be given.
 void b3ReducePolygon(b3ClusterPolygon& pOut, 
 	const b3ClusterPolygon& pIn, const b3Vec3& pNormal, uint32 initialPoint);
-
-#define B3_NULL_CLUSTER (0xFFFFFFFF)
 
 // An observation represents a contact normal.	
 struct b3Observation
@@ -100,10 +101,10 @@ private:
 	uint32 m_iterations;
 
 	// Observations.
-	b3StackArray<b3Observation, 256> m_observations;
+	b3StackArray<b3Observation, 64> m_observations;
 	
 	// Clusters.
-	b3StackArray<b3Cluster, 256> m_clusters;
+	b3StackArray<b3Cluster, 32> m_clusters;
 };
 
 inline void b3ClusterSolver::AddObservation(const b3Observation& observation)

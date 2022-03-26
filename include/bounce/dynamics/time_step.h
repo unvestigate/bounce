@@ -39,6 +39,7 @@ struct b3Position
 {
 	b3Vec3 x;
 	b3Quat q;
+	b3Mat33 I;
 };
 
 // This is an internal structure.
@@ -54,7 +55,6 @@ struct b3SolverData
 	b3TimeStep step;
 	b3Position* positions;
 	b3Velocity* velocities;
-	b3Mat33* invInertias;
 };	
 
 enum b3LimitState
@@ -78,21 +78,21 @@ inline b3Mat33 b3RotateToFrame(const b3Mat33& inertia, const b3Quat& rotation)
 
 // Compute the time derivative of an orientation given
 // the angular velocity of the rotating frame represented by the orientation.
-inline b3Quat b3Derivative(const b3Quat& orientation, const b3Vec3& velocity)
+inline b3Quat b3Derivative(const b3Quat& q, const b3Vec3& omega)
 {
-	b3Quat qw(velocity, scalar(0));
-	return scalar(0.5) * qw * orientation;
+	b3Quat w(omega, scalar(0));
+	return scalar(0.5) * w * q;
 }
 
 // Integrate an orientation over a time step given
 // the current orientation, angular velocity of the rotating frame
 // represented by the orientation, and the time step dt.
-inline b3Quat b3Integrate(const b3Quat& orientation, const b3Vec3& velocity, scalar dt)
+inline b3Quat b3Integrate(const b3Quat& q, const b3Vec3& omega, scalar dt)
 {
-	b3Quat qdot = b3Derivative(orientation, velocity);
-	b3Quat q = orientation + dt * qdot;
-	q.Normalize();
-	return q;
+	b3Quat qdot = b3Derivative(q, omega);
+	b3Quat q2 = q + dt * qdot;
+	q2.Normalize();
+	return q2;
 }
 
 #endif

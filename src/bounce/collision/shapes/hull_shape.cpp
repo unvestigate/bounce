@@ -166,17 +166,19 @@ void b3HullShape::ComputeAABB(b3AABB* aabb, const b3Transform& xf) const
 bool b3HullShape::TestSphere(const b3Sphere& sphere, const b3Transform& xf) const
 {
 	b3GJKProxy proxy1;
-	proxy1.vertexCount = m_hull->vertexCount;
-	proxy1.vertices = m_hull->vertices;
+	proxy1.m_count = m_hull->vertexCount;
+	proxy1.m_vertices = m_hull->vertices;
+	proxy1.m_radius = m_radius;
 
 	b3GJKProxy proxy2;
-	proxy2.vertexBuffer[0] = b3MulT(xf, sphere.vertex);
-	proxy2.vertexCount = 1;
-	proxy2.vertices = proxy2.vertexBuffer;
+	proxy2.m_buffer[0] = b3MulT(xf, sphere.center);
+	proxy2.m_count = 1;
+	proxy2.m_vertices = proxy2.m_buffer;
+	proxy2.m_radius = sphere.radius;
 
-	b3GJKOutput gjk = b3GJK(b3Transform_identity, proxy1, b3Transform_identity, proxy2, false);
+	b3GJKOutput query = b3GJK(b3Transform_identity, proxy1, b3Transform_identity, proxy2, false);
 
-	if (gjk.distance <= m_radius + sphere.radius)
+	if (query.distance <= m_radius + sphere.radius)
 	{
 		return true;
 	}

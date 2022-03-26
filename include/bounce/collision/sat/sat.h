@@ -55,14 +55,14 @@ b3EdgeQuery b3QueryEdgeSeparation(const b3Transform& xf1, const b3Hull* hull1,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-enum b3SATCacheType
+enum b3CacheType
 {
+	e_empty,
 	e_separation,
 	e_overlap,
-	e_empty,
 };
 
-enum b3SATFeatureType
+enum b3FeatureType
 {
 	e_edges, // an edge on hull 1 and an edge on hull 2
 	e_face1, // a face on hull 1 and a vertex/edge/face on hull 2
@@ -71,44 +71,35 @@ enum b3SATFeatureType
 
 // A cached feature pair is used to improve the performance 
 // of the SAT when called more than once. 
-struct b3SATFeaturePair
+struct b3FeatureCache
 {
-	b3SATCacheType state; // sat result
-	b3SATFeatureType type; // feature pair type
+	b3FeatureCache() : cacheType(e_empty) { } 
+
+	// Read the current state of the cache.
+	// Return b3CacheType::e_empty if neither a separation or penetration was detected.
+	b3CacheType ReadState(const b3Transform& xf1, const b3Hull* hull1,
+		const b3Transform& xf2, const b3Hull* hull2, scalar totalRadius);
+
+	b3CacheType ReadEdge(const b3Transform& xf1, const b3Hull* hull1,
+		const b3Transform& xf2, const b3Hull* hull2, scalar totalRadius);
+
+	b3CacheType ReadFace(const b3Transform& xf1, const b3Hull* hull1,
+		const b3Transform& xf2, const b3Hull* hull2, scalar totalRadius);
+
+	b3CacheType cacheType; // sat result
+	b3FeatureType featureType; // feature type
 	uint32 index1; // feature index on hull 1
 	uint32 index2; // feature index on hull 2
 };
 
-inline b3SATFeaturePair b3MakeFeaturePair(b3SATCacheType state, b3SATFeatureType type, uint32 index1, uint32 index2)
+inline b3FeatureCache b3MakeCache(b3CacheType cacheType, b3FeatureType featureType, uint32 index1, uint32 index2)
 {
-	b3SATFeaturePair pair;
-	pair.state = state;
-	pair.type = type;
-	pair.index1 = index1;
-	pair.index2 = index2;
-	return pair;
+	b3FeatureCache cache;
+	cache.cacheType = cacheType;
+	cache.featureType = featureType;
+	cache.index1 = index1;
+	cache.index2 = index2;
+	return cache;
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct b3FeatureCache
-{
-	// Default ctor does nothing for performance.
-	b3FeatureCache() { }
-
-	// Read the current state of the cache.
-	// Return e_empty if neither a separation or penetration was detected.
-	b3SATCacheType ReadState(const b3Transform& xf1, const b3Hull* hull1,
-		const b3Transform& xf2, const b3Hull* hull2, scalar totalRadius);
-
-	b3SATCacheType ReadEdge(const b3Transform& xf1, const b3Hull* hull1,
-		const b3Transform& xf2, const b3Hull* hull2, scalar totalRadius);
-
-	b3SATCacheType ReadFace(const b3Transform& xf1, const b3Hull* hull1,
-		const b3Transform& xf2, const b3Hull* hull2, scalar totalRadius);
-	
-	// The feature pair.
-	b3SATFeaturePair featurePair;
-};
 
 #endif

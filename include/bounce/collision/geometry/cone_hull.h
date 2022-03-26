@@ -235,6 +235,4 @@ struct b3ConeHull : public b3Hull
 	}
 };
 
-extern const b3ConeHull b3ConeHull_identity;
-
 #endif

@@ -20,8 +20,6 @@
 #define B3_CONVEX_CONTACT_H
 
 #include <bounce/dynamics/contacts/contact.h>
-#include <bounce/collision/collide/manifold.h>
-#include <bounce/collision/collide/collide.h>
 
 class b3ConvexContact : public b3Contact 
 {
@@ -36,7 +34,6 @@ public:
 	virtual void Evaluate(b3Manifold& manifold, const b3Transform& xfA, const b3Transform& xfB) = 0;
 
 	b3Manifold m_manifold;
-	b3ConvexCache m_cache;
 };
 
 #endif

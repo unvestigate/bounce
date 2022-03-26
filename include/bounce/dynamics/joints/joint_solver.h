@@ -37,7 +37,6 @@ struct b3JointSolverDef
 	b3TimeStep step;
 	b3Position* positions;
 	b3Velocity* velocities;
-	b3Mat33* invInertias;
 	b3Joint** joints;
 	uint32 count;
 };

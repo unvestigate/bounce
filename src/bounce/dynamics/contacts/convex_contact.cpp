@@ -28,9 +28,6 @@ b3ConvexContact::b3ConvexContact(b3Fixture* fixtureA, b3Fixture* fixtureB) : b3C
 	m_manifoldCapacity = 1;
 	m_manifolds = &m_manifold;
 	m_manifoldCount = 0;
-
-	m_cache.simplexCache.count = 0;
-	m_cache.featureCache.featurePair.state = b3SATCacheType::e_empty;
 }
 
 bool b3ConvexContact::TestOverlap()
@@ -41,7 +38,7 @@ bool b3ConvexContact::TestOverlap()
 	b3Shape* shapeB = m_fixtureB->GetShape();
 	b3Transform xfB = m_fixtureB->GetBody()->GetTransform();
 
-	return b3TestOverlap(xfA, 0, shapeA, xfB, 0, shapeB, &m_cache);
+	return b3TestOverlap(xfA, 0, shapeA, xfB, 0, shapeB);
 }
 
 void b3ConvexContact::Collide() 

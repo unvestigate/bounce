@@ -20,9 +20,9 @@
 #include <bounce/dynamics/fixture.h>
 #include <bounce/dynamics/body.h>
 #include <bounce/dynamics/world.h>
+#include <bounce/collision/cluster.h>
 #include <bounce/collision/shapes/mesh_shape.h>
 #include <bounce/collision/geometry/mesh.h>
-#include <bounce/collision/collide/cluster.h>
 
 b3MeshContact::b3MeshContact(b3Fixture* fixtureA, b3Fixture* fixtureB) : b3Contact(fixtureA, fixtureB)
 {
@@ -207,8 +207,7 @@ bool b3MeshContact::Report(uint32 proxyId)
 
 	b3TriangleCache* cache = m_triangles + m_triangleCount;
 	cache->index = triangle->index;
-	cache->cache.simplexCache.count = 0;
-	cache->cache.featureCache.featurePair.state = b3SATCacheType::e_empty;
+	cache->cache.cacheType = b3CacheType::e_empty;
 
 	++m_triangleCount;
 
@@ -231,7 +230,7 @@ bool b3MeshContact::TestOverlap()
 	{
 		b3TriangleCache* cache = m_triangles + i;
 		uint32 indexA = cache->index;
-		bool overlap = b3TestOverlap(xfA, indexA, shapeA, xfB, 0, shapeB, &cache->cache);
+		bool overlap = b3TestOverlap(xfA, indexA, shapeA, xfB, 0, shapeB);
 		if (overlap == true)
 		{
 			return true;

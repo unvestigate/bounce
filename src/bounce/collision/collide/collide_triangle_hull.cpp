@@ -16,8 +16,7 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <bounce/collision/collide/collide.h>
-#include <bounce/collision/collide/manifold.h>
+#include <bounce/collision/collision.h>
 #include <bounce/collision/shapes/triangle_shape.h>
 #include <bounce/collision/shapes/hull_shape.h>
 #include <bounce/collision/geometry/triangle_hull.h>
@@ -25,7 +24,7 @@
 void b3CollideTriangleAndHull(b3Manifold& manifold,
 	const b3Transform& xf1, const b3TriangleShape* triangle1,
 	const b3Transform& xf2, const b3HullShape* hull2,
-	b3ConvexCache* cache,
+	b3FeatureCache& cache,
 	const b3Transform& xf01, const b3Transform& xf02)
 {
 	b3TriangleHull h1(triangle1->m_vertex1, triangle1->m_vertex2, triangle1->m_vertex3);

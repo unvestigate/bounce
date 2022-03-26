@@ -53,7 +53,7 @@ void b3MouseJoint::InitializeVelocityConstraints(const b3SolverData& data)
 {
 	m_indexB = m_bodyB->m_islandIndex;
 	m_mB = m_bodyB->m_invMass;
-	m_iB = data.invInertias[m_indexB];
+	m_iB = data.positions[m_indexB].I;
 	m_localCenterB = m_bodyB->m_sweep.localCenter;
 
 	b3Vec3 xB = data.positions[m_indexB].x;

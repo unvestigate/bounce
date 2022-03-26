@@ -24,6 +24,8 @@ class MeshContactTest : public Test
 public:
 	MeshContactTest()
 	{
+		m_boxHull.SetIdentity();
+
 		m_gridMesh.BuildTree();
 		m_gridMesh.BuildAdjacency();
 
@@ -118,7 +120,7 @@ public:
 			if (key == GLFW_KEY_H)
 			{
 				b3HullShape hull;
-				hull.m_hull = &b3BoxHull_identity;
+				hull.m_hull = &m_boxHull;
 
 				b3FixtureDef sd;
 				sd.shape = &hull;
@@ -181,6 +183,7 @@ public:
 
 	b3GridMesh<25, 25> m_terrainMesh;
 	b3GridMesh<25, 25> m_gridMesh;
+	b3BoxHull m_boxHull;
 
 	b3Fixture* m_groundFixture;
 	b3Fixture* m_bodyFixture;

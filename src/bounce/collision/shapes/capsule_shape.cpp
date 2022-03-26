@@ -133,7 +133,7 @@ void b3CapsuleShape::ComputeAABB(b3AABB* aabb, const b3Transform& xf) const
 bool b3CapsuleShape::TestSphere(const b3Sphere& sphere, const b3Transform& xf) const
 {
 	// The point in the frame of the capsule
-	b3Vec3 Q = b3MulT(xf, sphere.vertex);
+	b3Vec3 Q = b3MulT(xf, sphere.center);
 
 	b3Vec3 A = m_vertex1;
 	b3Vec3 B = m_vertex2;

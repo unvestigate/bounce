@@ -38,7 +38,8 @@ public:
 	bool TestSphere(const b3Sphere& sphere, const b3Transform& xf) const;
 
 	bool RayCast(b3RayCastOutput* output, const b3RayCastInput& input, const b3Transform& xf) const;
-
+	
+	// The shared hull pointer. This must remain in scope while the shape is in use.
 	const b3Hull* m_hull;
 };
 

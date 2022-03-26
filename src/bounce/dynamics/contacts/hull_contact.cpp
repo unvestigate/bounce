@@ -43,5 +43,5 @@ void b3HullContact::Evaluate(b3Manifold& manifold, const b3Transform& xfA, const
 	b3Transform xf0A = m_fixtureA->GetBody()->GetSweep().GetTransform(scalar(0));
 	b3Transform xf0B = m_fixtureB->GetBody()->GetSweep().GetTransform(scalar(0));
 
-	b3CollideHulls(m_manifold, xfA, (b3HullShape*)m_fixtureA->GetShape(), xfB, (b3HullShape*)m_fixtureB->GetShape(), &m_cache, xf0A, xf0B);
+	b3CollideHulls(m_manifold, xfA, (b3HullShape*)m_fixtureA->GetShape(), xfB, (b3HullShape*)m_fixtureB->GetShape(), m_cache, xf0A, xf0B);
 }

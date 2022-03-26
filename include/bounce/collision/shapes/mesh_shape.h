@@ -46,6 +46,7 @@ public:
 
 	void GetChildTriangle(b3TriangleShape* triangle, uint32 childIndex) const;
 	
+	// The shared mesh pointer. This must remain in scope while the shape is in use.
 	const b3Mesh* m_mesh;
 
 	// The mesh shape scale. It can be non-uniform and negative.

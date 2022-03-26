@@ -24,6 +24,9 @@ class VaryingFriction : public Test
 public:
 	VaryingFriction()
 	{
+		m_rampHull.SetExtents(25.0f, 0.5f, 25.0f);
+		m_boxHull.SetIdentity();
+
 		{
 			b3BodyDef bd;	
 			b3Body* ground = m_world.CreateBody(bd);
@@ -36,7 +39,6 @@ public:
 			ground->CreateFixture(sd);
 		}
 
-		static b3BoxHull rampHull(25.0f, 0.5f, 25.0f);
 
 		{
 			b3BodyDef bd;
@@ -46,7 +48,7 @@ public:
 			b3Body* ramp = m_world.CreateBody(bd);
 			
 			b3HullShape hs;
-			hs.m_hull = &rampHull;
+			hs.m_hull = &m_rampHull;
 
 			b3FixtureDef sd;
 			sd.shape = &hs;
@@ -62,7 +64,7 @@ public:
 			b3Body* ramp = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &rampHull;
+			hs.m_hull = &m_rampHull;
 
 			b3FixtureDef sd;
 			sd.shape = &hs;
@@ -78,7 +80,7 @@ public:
 			b3Body* ramp = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &rampHull;
+			hs.m_hull = &m_rampHull;
 
 			b3FixtureDef sd;
 			sd.shape = &hs;
@@ -94,7 +96,7 @@ public:
 			b3Body* ramp = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &rampHull;
+			hs.m_hull = &m_rampHull;
 
 			b3FixtureDef sd;
 			sd.shape = &hs;
@@ -109,7 +111,7 @@ public:
 			b3Body* body = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &b3BoxHull_identity;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef sd;
 			sd.density = 1.0f;
@@ -126,7 +128,7 @@ public:
 			b3Body* body = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &b3BoxHull_identity;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef sd;
 			sd.density = 1.0f;
@@ -143,7 +145,7 @@ public:
 			b3Body* body = m_world.CreateBody(bd);
 
 			b3HullShape hs;
-			hs.m_hull = &b3BoxHull_identity;
+			hs.m_hull = &m_boxHull;
 
 			b3FixtureDef sd;
 			sd.density = 1.0f;
@@ -158,6 +160,9 @@ public:
 	{
 		return new VaryingFriction();
 	}
+
+	b3BoxHull m_rampHull;
+	b3BoxHull m_boxHull;
 };
 
 #endif
