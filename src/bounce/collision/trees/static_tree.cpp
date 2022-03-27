@@ -41,8 +41,8 @@ struct b3SortPredicate
 		return c1[axis] < c2[axis];
 	}
 
-	uint32 axis;
 	const b3AABB* aabbs;
+	uint32 axis;
 };
 
 static uint32 b3Partition(const b3AABB& aabb, uint32* indices, uint32 count, const b3AABB* aabbs)
