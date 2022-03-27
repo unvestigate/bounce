@@ -19,7 +19,7 @@
 #ifndef B3_MESH_H
 #define B3_MESH_H
 
-#include <bounce/collision/trees/dynamic_tree.h>
+#include <bounce/collision/trees/static_tree.h>
 
 #define B3_NULL_VERTEX B3_MAX_U32
 
@@ -38,24 +38,12 @@ struct b3MeshTriangle
 	// Read an indexed vertex from this triangle.
 	uint32 GetVertex(uint32 i) const { return (&v1)[i]; }
 
-	// Get the triangle index in the mesh.
-	uint32 GetIndex() const { return index; }
-
-	// Get the tree proxy identifier.
-	uint32 GetProxyId() const { return proxyId; }
-
 	// The wing vertex of each edge in this triangle.
 	// An edge is a boundary if its wing vertex is set to B3_NULL_VERTEX.
 	uint32 u1, u2, u3;
 
 	// The triangle vertices in the mesh.
 	uint32 v1, v2, v3;
-	
-	// The triangle index in the mesh.
-	uint32 index;
-
-	// The tree proxy identifier.
-	uint32 proxyId;
 };
 
 struct b3Mesh 
@@ -64,9 +52,8 @@ struct b3Mesh
 	b3Vec3* vertices;
 	uint32 triangleCount;
 	b3MeshTriangle* triangles;
-	b3DynamicTree tree;
-	bool isTreeBuilt = false;
-
+	b3StaticTree tree;
+	
 	// Build the AABB tree. 
 	void BuildTree();
 
@@ -76,8 +63,7 @@ struct b3Mesh
 
 	const b3Vec3& GetVertex(uint32 index) const;
 	const b3MeshTriangle* GetTriangle(uint32 index) const;
-	const b3DynamicTree& GetTree() const;
-	bool IsTreeBuilt() const;
+	const b3StaticTree& GetTree() const;
 	
 	b3AABB GetTriangleAABB(uint32 index) const;
 
@@ -99,14 +85,9 @@ inline const b3MeshTriangle* b3Mesh::GetTriangle(uint32 index) const
 	return triangles + index;
 }
 
-inline const b3DynamicTree& b3Mesh::GetTree() const
+inline const b3StaticTree& b3Mesh::GetTree() const
 {
 	return tree;
-}
-
-inline bool b3Mesh::IsTreeBuilt() const
-{
-	return isTreeBuilt;
 }
 
 inline b3AABB b3Mesh::GetTriangleAABB(uint32 index) const

@@ -328,4 +328,40 @@ inline void b3ComputeBasis(const b3Vec3& a, b3Vec3& b, b3Vec3& c)
 	c = b3Cross(a, b);
 }
 
+// Return the Steiner's matrix given the displacement vector from the old 
+// center of rotation to the new center of rotation.
+// The result equals to transpose( skew(v) ) * skew(v) or diagonal(v^2) - outer(v, v)
+inline b3Mat33 b3Steiner(const b3Vec3& v)
+{
+	scalar xx = v.x * v.x;
+	scalar yy = v.y * v.y;
+	scalar zz = v.z * v.z;
+
+	b3Mat33 S;
+
+	S.x.x = yy + zz;
+	S.x.y = -v.x * v.y;
+	S.x.z = -v.x * v.z;
+
+	S.y.x = S.x.y;
+	S.y.y = xx + zz;
+	S.y.z = -v.y * v.z;
+
+	S.z.x = S.x.z;
+	S.z.y = S.y.z;
+	S.z.z = xx + yy;
+
+	return S;
+}
+
+// Compute the inertia matrix of a body measured in 
+// inertial frame (variable over time) given the 
+// inertia matrix in body-fixed frame (constant) 
+// and a rotation matrix representing the orientation 
+// of the body frame relative to the inertial frame.
+inline b3Mat33 b3RotateToFrame(const b3Mat33& I, const b3Mat33& R)
+{
+	return R * I * b3Transpose(R);
+}
+
 #endif

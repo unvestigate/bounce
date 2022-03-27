@@ -426,4 +426,34 @@ inline b3Quat b3QuatRotationBetween(const b3Vec3& a, const b3Vec3& b)
 	return q;
 }
 
+// Compute the inertia matrix of a body measured in 
+// inertial frame (variable over time) given the 
+// inertia matrix in body-fixed frame (constant) 
+// and a rotation matrix representing the orientation 
+// of the body frame relative to the inertial frame.
+inline b3Mat33 b3RotateToFrame(const b3Mat33& I, const b3Quat& q)
+{
+	b3Mat33 R = q.GetRotationMatrix();
+	return R * I * b3Transpose(R);
+}
+
+// Compute the time derivative of an orientation given
+// the angular velocity of the rotating frame represented by the orientation.
+inline b3Quat b3Derivative(const b3Quat& q, const b3Vec3& omega)
+{
+	b3Quat w(omega, scalar(0));
+	return scalar(0.5) * w * q;
+}
+
+// Integrate an orientation over a time step given
+// the current orientation, angular velocity of the rotating frame
+// represented by the orientation, and the time step dt.
+inline b3Quat b3Integrate(const b3Quat& q, const b3Vec3& omega, scalar dt)
+{
+	b3Quat qdot = b3Derivative(q, omega);
+	b3Quat q2 = q + dt * qdot;
+	q2.Normalize();
+	return q2;
+}
+
 #endif

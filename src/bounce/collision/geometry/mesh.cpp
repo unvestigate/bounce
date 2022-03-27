@@ -21,18 +21,16 @@
 void b3Mesh::BuildTree()
 {
 	// This function must be called once.
-	B3_ASSERT(isTreeBuilt == false);
-	
+	b3AABB* aabbs = (b3AABB*)b3Alloc(triangleCount * sizeof(b3AABB));
 	for (uint32 i = 0; i < triangleCount; ++i)
 	{
-		b3AABB aabb = GetTriangleAABB(i);
-		b3MeshTriangle* triangle = triangles + i;
-
-		triangle->index = i;
-		triangle->proxyId = tree.CreateProxy(aabb, triangle);
+		aabbs[i] = GetTriangleAABB(i);
 	}
-
-	isTreeBuilt = true;
+	
+	// Build the tree. 
+	tree.Build(aabbs, triangleCount);
+	
+	b3Free(aabbs);
 }
 
 void b3Mesh::BuildAdjacency()

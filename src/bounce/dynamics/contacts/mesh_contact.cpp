@@ -179,7 +179,7 @@ void b3MeshContact::FindPairs()
 
 	const b3MeshShape* meshShapeA = (b3MeshShape*)m_fixtureA->GetShape();
 	const b3Mesh* meshA = meshShapeA->m_mesh;
-	const b3DynamicTree* treeA = &meshA->tree;
+	const b3StaticTree* treeA = &meshA->tree;
 
 	// Query and update the overlapping buffer.
 	treeA->QueryAABB(this, m_aabbB);
@@ -189,9 +189,7 @@ bool b3MeshContact::Report(uint32 proxyId)
 {
 	b3MeshShape* meshShapeA = (b3MeshShape*)m_fixtureA->GetShape();
 	const b3Mesh* meshA = meshShapeA->m_mesh;
-	const b3DynamicTree* treeA = &meshA->tree;
-
-	b3MeshTriangle* triangle = (b3MeshTriangle*)treeA->GetUserData(proxyId);
+	const b3StaticTree* treeA = &meshA->tree;
 
 	// Add the triangle to the overlapping buffer.
 	if (m_triangleCount == m_triangleCapacity)
@@ -206,7 +204,7 @@ bool b3MeshContact::Report(uint32 proxyId)
 	B3_ASSERT(m_triangleCount < m_triangleCapacity);
 
 	b3TriangleCache* cache = m_triangles + m_triangleCount;
-	cache->index = triangle->index;
+	cache->index = treeA->GetIndex(proxyId);
 	cache->cache.cacheType = b3CacheType::e_empty;
 
 	++m_triangleCount;
