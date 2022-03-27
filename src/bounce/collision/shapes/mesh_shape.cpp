@@ -48,7 +48,7 @@ void b3MeshShape::ComputeMass(b3MassData* massData, scalar density) const
 void b3MeshShape::ComputeAABB(b3AABB* output, const b3Transform& xf) const 
 {
 	b3AABB aabb;
-	aabb.Set(m_mesh->vertices, m_mesh->vertexCount, m_scale, xf);
+	aabb.Compute(m_mesh->vertices, m_mesh->vertexCount, m_scale, xf);
 	aabb.Extend(m_radius);
 
 	*output = aabb;

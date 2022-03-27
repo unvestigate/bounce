@@ -159,7 +159,7 @@ void b3HullShape::ComputeMass(b3MassData* massData, scalar density) const
 
 void b3HullShape::ComputeAABB(b3AABB* aabb, const b3Transform& xf) const
 {
-	aabb->Set(m_hull->vertices, m_hull->vertexCount, xf);
+	aabb->Compute(m_hull->vertices, m_hull->vertexCount, xf);
 	aabb->Extend(m_radius);
 }
 

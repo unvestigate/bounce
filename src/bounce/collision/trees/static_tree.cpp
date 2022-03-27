@@ -48,7 +48,7 @@ struct b3SortPredicate
 static uint32 b3Partition(const b3AABB& aabb, uint32* indices, uint32 count, const b3AABB* aabbs)
 {
 	// Choose a partitioning axis.
-	uint32 splitAxis = aabb.GetLongestAxisIndex();
+	uint32 splitAxis = aabb.GetLongestAxis();
 
 	// Choose a split point.
 	scalar splitPos = aabb.GetCenter()[splitAxis];
