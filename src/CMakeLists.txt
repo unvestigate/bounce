@@ -67,6 +67,7 @@ ${BOUNCE_INCLUDE_DIR}/bounce/collision/shapes/mesh_shape.h
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/shapes/shape.h
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/shapes/triangle_shape.h
 
+${BOUNCE_INCLUDE_DIR}/bounce/collision/trees/static_tree.h
 ${BOUNCE_INCLUDE_DIR}/bounce/collision/trees/dynamic_tree.h
 
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/body.h
@@ -148,6 +149,7 @@ set(BOUNCE_SOURCE_FILES
 	bounce/collision/shapes/sphere_shape.cpp
 	bounce/collision/shapes/triangle_shape.cpp
 
+	bounce/collision/trees/static_tree.cpp
 	bounce/collision/trees/dynamic_tree.cpp
 
 	bounce/collision/collide/collide_capsules.cpp
