@@ -57,12 +57,4 @@ struct b3SolverData
 	b3Velocity* velocities;
 };	
 
-enum b3LimitState
-{
-	e_inactiveLimit,
-	e_atLowerLimit,
-	e_atUpperLimit,
-	e_equalLimits
-};
-
 #endif

@@ -23,15 +23,6 @@
 
 class b3Joint;
 
-// A 1x12 Jacobian row.
-struct b3Jacobian
-{
-	b3Vec3 linearA;
-	b3Vec3 angularA;
-	b3Vec3 linearB;
-	b3Vec3 angularB;
-};
-
 struct b3JointSolverDef 
 {
 	b3TimeStep step;
@@ -47,9 +38,9 @@ public :
 	b3JointSolver(const b3JointSolverDef* def);
 
 	void InitializeVelocityConstraints();
-	
 	void WarmStart();
-	void SolveVelocityConstraints();	
+	void SolveVelocityConstraints();
+
 	bool SolvePositionConstraints();
 private :
 	b3SolverData m_solverData;

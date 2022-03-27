@@ -114,18 +114,6 @@ struct b3ContactSolverDef
 	b3StackAllocator* allocator;
 };
 
-// The idea is to allow anything to bounce off an inelastic surface.
-inline scalar b3MixRestitution(scalar e1, scalar e2)
-{
-	return b3Max(e1, e2);
-}
-
-// The idea is to drive the restitution to zero. 
-inline scalar b3MixFriction(scalar u1, scalar u2)
-{
-	return b3Sqrt(u1 * u2);
-}
-
 class b3ContactSolver 
 {
 public:
@@ -133,7 +121,6 @@ public:
 	~b3ContactSolver();
 
 	void InitializeVelocityConstraints();
-	
 	void WarmStart();
 	void SolveVelocityConstraints();
 	void StoreImpulses();

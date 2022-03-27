@@ -23,12 +23,24 @@
 #include <bounce/collision/collision.h>
 #include <bounce/dynamics/fixture.h>
 
-class b3BlockPool;
-
 class b3Body;
 class b3Contact;
 class b3ContactListener;
 class b3BlockAllocator;
+
+// Friction mixing law. The idea is to allow either fixture to drive the friction to zero.
+// For example, anything slides on ice.
+inline scalar b3MixFriction(scalar u1, scalar u2)
+{
+	return b3Sqrt(u1 * u2);
+}
+
+// Restitution mixing law. The idea is allow for anything to bounce off an inelastic surface.
+// For example, a superball bounces on anything.
+inline scalar b3MixRestitution(scalar e1, scalar e2)
+{
+	return b3Max(e1, e2);
+}
 
 // A contact edge to a contact graph, where a body is a vertex and a contact an edge.
 // A contact edge belongs to a doubly linked list maintained in each attached fixture.

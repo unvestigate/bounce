@@ -45,6 +45,22 @@ enum b3JointType
 	e_wheelJoint
 };
 
+enum b3LimitState
+{
+	e_inactiveLimit,
+	e_atLowerLimit,
+	e_atUpperLimit,
+	e_equalLimits
+};
+
+struct b3Jacobian
+{
+	b3Vec3 linearA;
+	b3Vec3 angularA;
+	b3Vec3 linearB;
+	b3Vec3 angularB;
+};
+
 // Joint definitions used to construct joints.
 struct b3JointDef
 {
