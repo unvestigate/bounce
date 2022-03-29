@@ -337,10 +337,27 @@ inline b3AABB b3Combine(const b3AABB& a, const b3AABB& b)
 }
 
 // Test if two AABBs are overlapping.
-inline bool b3TestOverlap(const b3AABB& a, const b3AABB& b) 
+// From Real-time Collision Detection, p79.
+inline bool b3TestOverlap(const b3AABB& a, const b3AABB& b)
 {
-	return (a.lowerBound.x <= b.upperBound.x) && (a.lowerBound.y <= b.upperBound.y) &&	(a.lowerBound.z <= b.upperBound.z) &&
-		   (a.upperBound.x >= b.lowerBound.x) && (a.upperBound.y >= b.lowerBound.y) &&	(a.upperBound.z >= b.lowerBound.z);
+	// Exit with no intersection if separated along an axis.
+	if (a.upperBound.x < b.lowerBound.x || a.lowerBound.x > b.upperBound.x)
+	{
+		return false;
+	}
+
+	if (a.upperBound.y < b.lowerBound.y || a.lowerBound.y > b.upperBound.y)
+	{
+		return false;
+	}
+
+	if (a.upperBound.z < b.lowerBound.z || a.lowerBound.z > b.upperBound.z)
+	{
+		return false;
+	}
+
+	// Overlapping on all axes means AABBs are intersecting.
+	return true;
 }
 
 #endif
