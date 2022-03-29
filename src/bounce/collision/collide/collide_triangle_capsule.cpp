@@ -67,8 +67,8 @@ static void b3BuildEdgeContact(b3Manifold& manifold,
 	scalar s = inv_den * (b * e - d);
 	scalar t = inv_den * (e - b * d);
 
-	b3Vec3 x1 = P1 + s * N1;
-	b3Vec3 x2 = P2 + t * N2;
+	b3Vec3 point1 = P1 + s * N1;
+	b3Vec3 point2 = P2 + t * N2;
 
 	// Ensure normal orientation to capsule.
 	b3Vec3 N = b3Cross(E1, E2);
@@ -83,8 +83,8 @@ static void b3BuildEdgeContact(b3Manifold& manifold,
 
 	manifold.pointCount = 1;
 	manifold.points[0].localNormal1 = b3MulC(xf1.rotation, N);
-	manifold.points[0].localPoint1 = b3MulT(xf1, x1);
-	manifold.points[0].localPoint2 = b3MulT(xf2, x2);
+	manifold.points[0].localPoint1 = b3MulT(xf1, point1);
+	manifold.points[0].localPoint2 = b3MulT(xf2, point2);
 	manifold.points[0].id = b3MakeID(pair);
 }
 

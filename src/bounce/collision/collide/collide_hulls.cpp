@@ -73,8 +73,8 @@ static void b3BuildEdgeContact(b3Manifold& manifold,
 	scalar s = inv_den * (b * e - d);
 	scalar t = inv_den * (e - b * d);
 
-	b3Vec3 x1 = P1 + s * N1;
-	b3Vec3 x2 = P2 + t * N2;
+	b3Vec3 point1 = P1 + s * N1;
+	b3Vec3 point2 = P2 + t * N2;
 
 	// Ensure normal orientation to hull 2.
 	b3Vec3 N = b3Cross(E1, E2);
@@ -89,8 +89,8 @@ static void b3BuildEdgeContact(b3Manifold& manifold,
 
 	manifold.pointCount = 1;
 	manifold.points[0].localNormal1 = b3MulC(xf1.rotation, N);
-	manifold.points[0].localPoint1 = b3MulT(xf1, x1);
-	manifold.points[0].localPoint2 = b3MulT(xf2, x2);
+	manifold.points[0].localPoint1 = b3MulT(xf1, point1);
+	manifold.points[0].localPoint2 = b3MulT(xf2, point2);
 	manifold.points[0].id = b3MakeID(pair);
 	manifold.points[0].edgeContact = true;
 }
@@ -330,16 +330,16 @@ static void b3RebuildEdgeContact(b3Manifold& manifold,
 	scalar s = inv_den * (b * e - d);
 	scalar t = inv_den * (e - b * d);
 
-	b3Vec3 x1 = P1 + s * N1;
-	b3Vec3 x2 = P2 + t * N2;
+	b3Vec3 point1 = P1 + s * N1;
+	b3Vec3 point2 = P2 + t * N2;
 
 	// Check if the closest points are still lying on the opposite segments 
 	// using Barycentric coordinates.
 	scalar w2[3];
-	b3BarycentricCoordinates(w2, P1, Q1, x2);
+	b3BarycentricCoordinates(w2, P1, Q1, point2);
 
 	scalar w1[3];
-	b3BarycentricCoordinates(w1, P2, Q2, x1);
+	b3BarycentricCoordinates(w1, P2, Q2, point1);
 
 	if (w2[1] > scalar(0) && w2[1] <= w2[2] &&
 		w1[1] > scalar(0) && w1[1] <= w1[2])
@@ -356,8 +356,8 @@ static void b3RebuildEdgeContact(b3Manifold& manifold,
 
 		manifold.pointCount = 1;
 		manifold.points[0].localNormal1 = b3MulC(xf1.rotation, N);
-		manifold.points[0].localPoint1 = b3MulT(xf1, x1);
-		manifold.points[0].localPoint2 = b3MulT(xf2, x2);
+		manifold.points[0].localPoint1 = b3MulT(xf1, point1);
+		manifold.points[0].localPoint2 = b3MulT(xf2, point2);
 		manifold.points[0].id = b3MakeID(pair);
 		manifold.points[0].edgeContact = true;
 	}
