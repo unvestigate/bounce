@@ -51,7 +51,7 @@ public:
 	bool MoveAABB(const b3AABB& aabb, const b3Vec3& displacement);
 
 	// Static tree callback. There is no midphase. 
-	bool Report(uint32 proxyId);
+	bool Report(uint32 nodeId);
 
 	// Did the AABB move significantly?
 	bool m_aabbBMoved;

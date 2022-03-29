@@ -185,7 +185,7 @@ void b3MeshContact::FindPairs()
 	treeA->QueryAABB(this, m_aabbB);
 }
 
-bool b3MeshContact::Report(uint32 proxyId)
+bool b3MeshContact::Report(uint32 nodeId)
 {
 	b3MeshShape* meshShapeA = (b3MeshShape*)m_fixtureA->GetShape();
 	const b3Mesh* meshA = meshShapeA->m_mesh;
@@ -204,7 +204,7 @@ bool b3MeshContact::Report(uint32 proxyId)
 	B3_ASSERT(m_triangleCount < m_triangleCapacity);
 
 	b3TriangleCache* cache = m_triangles + m_triangleCount;
-	cache->index = treeA->GetIndex(proxyId);
+	cache->index = treeA->GetIndex(nodeId);
 	cache->cache.cacheType = b3CacheType::e_empty;
 
 	++m_triangleCount;

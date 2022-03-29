@@ -25,6 +25,8 @@ b3StaticTree::b3StaticTree()
 	m_root = B3_NULL_STATIC_NODE;
 	m_nodes = nullptr;
 	m_nodeCount = 0;
+	m_leafCount = 0;
+	m_internalCount = 0;
 }
 
 b3StaticTree::~b3StaticTree()
@@ -87,7 +89,7 @@ static uint32 b3Partition(const b3AABB& aabb, uint32* indices, uint32 count, con
 	return k;
 }
 
-void b3StaticTree::BuildNode(b3StaticNode* node, const b3AABB* aabbs, uint32* indices, uint32 count, uint32 nodeCapacity, uint32& leafCount, uint32& internalCount)
+void b3StaticTree::BuildNode(b3StaticNode* node, const b3AABB* aabbs, uint32* indices, uint32 count, uint32 nodeCapacity)
 {
 	B3_ASSERT(count > 0);
 
@@ -102,7 +104,7 @@ void b3StaticTree::BuildNode(b3StaticNode* node, const b3AABB* aabbs, uint32* in
 
 	if (count <= 1)
 	{
-		++leafCount;
+		++m_leafCount;
 		
 		// Set node as leaf
 		node->child1 = B3_NULL_STATIC_NODE;
@@ -110,7 +112,10 @@ void b3StaticTree::BuildNode(b3StaticNode* node, const b3AABB* aabbs, uint32* in
 	}
 	else
 	{
-		++internalCount;
+		++m_internalCount;
+
+		// Partition node
+		uint32 k = b3Partition(aabb, indices, count, aabbs);
 
 		// Allocate left node
 		B3_ASSERT(m_nodeCount < nodeCapacity);
@@ -122,12 +127,9 @@ void b3StaticTree::BuildNode(b3StaticNode* node, const b3AABB* aabbs, uint32* in
 		node->child2 = m_nodeCount;
 		++m_nodeCount;
 
-		// Partition node
-		uint32 k = b3Partition(aabb, indices, count, aabbs);
-
 		// Build left and right nodes
-		BuildNode(m_nodes + node->child1, aabbs, indices, k, nodeCapacity, leafCount, internalCount);
-		BuildNode(m_nodes + node->child2, aabbs, indices + k, count - k, nodeCapacity, leafCount, internalCount);
+		BuildNode(m_nodes + node->child1, aabbs, indices, k, nodeCapacity);
+		BuildNode(m_nodes + node->child2, aabbs, indices + k, count - k, nodeCapacity);
 	}
 }
 
@@ -153,14 +155,12 @@ void b3StaticTree::Build(const b3AABB* aabbs, uint32 count)
 		indices[i] = i;
 	}
 
-	uint32 leafCount = 0;
-	uint32 internalCount = 0;
-	BuildNode(m_nodes, aabbs, indices, count, nodeCapacity, leafCount, internalCount);
+	BuildNode(m_nodes, aabbs, indices, count, nodeCapacity);
 
 	b3Free(indices);
 
-	B3_ASSERT(leafCount == leafCapacity);
-	B3_ASSERT(internalCount == internalCapacity);
+	B3_ASSERT(m_leafCount == leafCapacity);
+	B3_ASSERT(m_internalCount == internalCapacity);
 	B3_ASSERT(m_nodeCount == nodeCapacity);
 }
 

@@ -53,52 +53,58 @@ public:
 	b3StaticTree();
 	~b3StaticTree();
 
-	// Build this tree from a list of AABBs.
+	// Build this tree from an array of AABBs.
 	void Build(const b3AABB* aabbs, uint32 count);
 
-	// Get the AABB of a given proxy.
-	const b3AABB& GetAABB(uint32 proxyId) const;
+	// Get the AABB of a given node.
+	const b3AABB& GetAABB(uint32 nodeId) const;
 
-	// Get the user index associated with a given proxy.
-	uint32 GetIndex(uint32 proxyId) const;
+	// Get the user index associated with a given node.
+	uint32 GetIndex(uint32 nodeId) const;
 
 	// Report the client callback all AABBs that are overlapping with
-	// the given AABB. The client callback must return true if the query 
-	// must be stopped or false to continue looking for more overlapping pairs.
+	// the given AABB. 
 	template<class T>
 	void QueryAABB(T* callback, const b3AABB& aabb) const;
 
 	// Report the client callback all AABBs that are overlapping with
 	// the given ray. The client callback must return the new intersection fraction. 
-	// If fraction == 0 then the query is cancelled immediatly.
+	// If fraction == 0 then the ray-cast is cancelled immediatly. Otherwise the ray is clipped 
+	// to the new fraction.
 	template<class T>
 	void RayCast(T* callback, const b3RayCastInput& input) const;
 
 	// Draw this tree.
 	void Draw(b3Draw* draw) const;
 private:
-	// Build a tree node recursively.
-	void BuildNode(b3StaticNode* node, const b3AABB* aabbs, uint32* indices, uint32 count, uint32 nodeCapacity, uint32& leafCount, uint32& internalCount);
+	// Build a tree node.
+	void BuildNode(b3StaticNode* node, const b3AABB* aabbs, uint32* indices, uint32 count, uint32 nodeCapacity);
 
 	// The root of this tree.
 	uint32 m_root;
 
+	// Number of leaf nodes.
+	uint32 m_leafCount;
+
+	// Number of internal nodes.
+	uint32 m_internalCount;
+	
 	// The array of tree nodes.
 	uint32 m_nodeCount;
 	b3StaticNode* m_nodes;
 };
 
-inline const b3AABB& b3StaticTree::GetAABB(uint32 proxyId) const
+inline const b3AABB& b3StaticTree::GetAABB(uint32 nodeId) const
 {
-	B3_ASSERT(proxyId < m_nodeCount);
-	return m_nodes[proxyId].aabb;
+	B3_ASSERT(nodeId < m_nodeCount);
+	return m_nodes[nodeId].aabb;
 }
 
-inline uint32 b3StaticTree::GetIndex(uint32 proxyId) const
+inline uint32 b3StaticTree::GetIndex(uint32 nodeId) const
 {
-	B3_ASSERT(proxyId < m_nodeCount);
-	B3_ASSERT(m_nodes[proxyId].IsLeaf());
-	return m_nodes[proxyId].index;
+	B3_ASSERT(nodeId < m_nodeCount);
+	B3_ASSERT(m_nodes[nodeId].IsLeaf());
+	return m_nodes[nodeId].index;
 }
 
 template<class T>

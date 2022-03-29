@@ -87,11 +87,11 @@ bool b3MeshShape::RayCast(b3RayCastOutput* output, const b3RayCastInput& input, 
 
 struct b3MeshShapeRayCastCallback
 {
-	scalar Report(const b3RayCastInput& subInput, uint32 proxyId)
+	scalar Report(const b3RayCastInput& subInput, uint32 nodeId)
 	{
 		B3_NOT_USED(subInput);
 
-		uint32 childIndex = mesh->m_mesh->tree.GetIndex(proxyId);
+		uint32 childIndex = mesh->m_mesh->tree.GetIndex(nodeId);
 		
 		b3RayCastOutput childOutput;
 		if (mesh->RayCast(&childOutput, input, xf, childIndex))

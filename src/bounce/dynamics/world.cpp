@@ -569,9 +569,9 @@ struct b3WorldShapeCastQueryWrapper
 {
 	struct MeshQueryWrapper
 	{
-		bool Report(uint32 proxyId)
+		bool Report(uint32 nodeId)
 		{
-			uint32 triangleIndex = wrapper->meshB->m_mesh->tree.GetIndex(proxyId);
+			uint32 triangleIndex = wrapper->meshB->m_mesh->tree.GetIndex(nodeId);
 
 			b3Body* bodyB = wrapper->fixtureB->GetBody();
 			b3Transform xfB = bodyB->GetTransform();
