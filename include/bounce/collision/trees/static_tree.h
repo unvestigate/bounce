@@ -38,6 +38,8 @@ struct b3StaticNode
 
 	b3AABB aabb;
 	
+	uint32 parent;
+
 	uint32 child1;
 	union
 	{
@@ -63,7 +65,8 @@ public:
 	uint32 GetIndex(uint32 nodeId) const;
 
 	// Report the client callback all AABBs that are overlapping with
-	// the given AABB. 
+	// the given AABB. The client must return false to cancel the query 
+	// or true to continue the query.
 	template<class T>
 	void QueryAABB(T* callback, const b3AABB& aabb) const;
 
@@ -78,20 +81,16 @@ public:
 	void Draw(b3Draw* draw) const;
 private:
 	// Build a tree node.
-	void BuildNode(b3StaticNode* node, const b3AABB* aabbs, uint32* indices, uint32 count, uint32 nodeCapacity);
+	void BuildNode(uint32 nodeId, uint32 parentId, const b3AABB* aabbs, uint32* indices, uint32 count);
 
-	// The root of this tree.
-	uint32 m_root;
-
-	// Number of leaf nodes.
-	uint32 m_leafCount;
-
-	// Number of internal nodes.
-	uint32 m_internalCount;
-	
-	// The array of tree nodes.
-	uint32 m_nodeCount;
 	b3StaticNode* m_nodes;
+	uint32 m_leafCapacity;
+	uint32 m_leafCount;
+	uint32 m_internalCapacity;
+	uint32 m_internalCount;
+	uint32 m_nodeCapacity;
+	uint32 m_nodeCount;
+	uint32 m_root;
 };
 
 inline const b3AABB& b3StaticTree::GetAABB(uint32 nodeId) const

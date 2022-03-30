@@ -24,9 +24,12 @@ b3StaticTree::b3StaticTree()
 {
 	m_root = B3_NULL_STATIC_NODE;
 	m_nodes = nullptr;
-	m_nodeCount = 0;
+	m_leafCapacity = 0;
 	m_leafCount = 0;
+	m_internalCapacity = 0;
 	m_internalCount = 0;
+	m_nodeCapacity = 0;
+	m_nodeCount = 0;
 }
 
 b3StaticTree::~b3StaticTree()
@@ -47,7 +50,7 @@ struct b3SortPredicate
 	uint32 axis;
 };
 
-static uint32 b3Partition(const b3AABB& aabb, uint32* indices, uint32 count, const b3AABB* aabbs)
+static uint32 b3Partition(const b3AABB& aabb, const b3AABB* aabbs, uint32* indices, uint32 count)
 {
 	// Choose a partitioning axis.
 	uint32 splitAxis = aabb.GetLongestAxis();
@@ -89,9 +92,14 @@ static uint32 b3Partition(const b3AABB& aabb, uint32* indices, uint32 count, con
 	return k;
 }
 
-void b3StaticTree::BuildNode(b3StaticNode* node, const b3AABB* aabbs, uint32* indices, uint32 count, uint32 nodeCapacity)
+void b3StaticTree::BuildNode(uint32 nodeId, uint32 parentId, const b3AABB* aabbs, uint32* indices, uint32 count)
 {
 	B3_ASSERT(count > 0);
+
+	B3_ASSERT(nodeId < m_nodeCount);
+	b3StaticNode* node = m_nodes + nodeId;
+
+	node->parent = parentId;
 
 	// Compute the node AABB.
 	b3AABB aabb = aabbs[indices[0]];
@@ -104,6 +112,7 @@ void b3StaticTree::BuildNode(b3StaticNode* node, const b3AABB* aabbs, uint32* in
 
 	if (count <= 1)
 	{
+		B3_ASSERT(m_leafCount < m_leafCapacity);
 		++m_leafCount;
 		
 		// Set node as leaf
@@ -112,24 +121,25 @@ void b3StaticTree::BuildNode(b3StaticNode* node, const b3AABB* aabbs, uint32* in
 	}
 	else
 	{
+		B3_ASSERT(m_internalCount < m_internalCapacity);
 		++m_internalCount;
 
-		// Partition node
-		uint32 k = b3Partition(aabb, indices, count, aabbs);
+		// Partition boxes
+		uint32 k = b3Partition(aabb, aabbs, indices, count);
 
-		// Allocate left node
-		B3_ASSERT(m_nodeCount < nodeCapacity);
+		B3_ASSERT(m_nodeCount < m_nodeCapacity);
 		node->child1 = m_nodeCount;
 		++m_nodeCount;
 
-		// Allocate right node
-		B3_ASSERT(m_nodeCount < nodeCapacity);
+		// Build left node
+		BuildNode(node->child1, nodeId, aabbs, indices, k);
+		
+		B3_ASSERT(m_nodeCount < m_nodeCapacity);
 		node->child2 = m_nodeCount;
 		++m_nodeCount;
 
-		// Build left and right nodes
-		BuildNode(m_nodes + node->child1, aabbs, indices, k, nodeCapacity);
-		BuildNode(m_nodes + node->child2, aabbs, indices + k, count - k, nodeCapacity);
+		// Build right node
+		BuildNode(node->child2, nodeId, aabbs, indices + k, count - k);
 	}
 }
 
@@ -141,13 +151,13 @@ void b3StaticTree::Build(const b3AABB* aabbs, uint32 count)
 
 	// Leafs = n, Internals = n - 1, Total = 2n - 1, if we assume
 	// each leaf node contains exactly 1 object.
-	uint32 leafCapacity = count;
-	uint32 internalCapacity = count - 1;
-	uint32 nodeCapacity = 2 * count - 1;
+	m_leafCapacity = count;
+	m_internalCapacity = count - 1;
+	m_nodeCapacity = 2 * count - 1;
 
-	m_root = 0;
-	m_nodes = (b3StaticNode*)b3Alloc(nodeCapacity * sizeof(b3StaticNode));
+	m_nodes = (b3StaticNode*)b3Alloc(m_nodeCapacity * sizeof(b3StaticNode));
 	m_nodeCount = 1;
+	m_root = 0;
 
 	uint32* indices = (uint32*)b3Alloc(count * sizeof(uint32));
 	for (uint32 i = 0; i < count; ++i)
@@ -155,13 +165,13 @@ void b3StaticTree::Build(const b3AABB* aabbs, uint32 count)
 		indices[i] = i;
 	}
 
-	BuildNode(m_nodes, aabbs, indices, count, nodeCapacity);
+	BuildNode(m_root, B3_NULL_STATIC_NODE, aabbs, indices, count);
 
 	b3Free(indices);
 
-	B3_ASSERT(m_leafCount == leafCapacity);
-	B3_ASSERT(m_internalCount == internalCapacity);
-	B3_ASSERT(m_nodeCount == nodeCapacity);
+	B3_ASSERT(m_leafCount == m_leafCapacity);
+	B3_ASSERT(m_internalCount == m_internalCapacity);
+	B3_ASSERT(m_nodeCount == m_nodeCapacity);
 }
 
 void b3StaticTree::Draw(b3Draw* draw) const
