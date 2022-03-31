@@ -37,7 +37,7 @@ b3StaticTree::~b3StaticTree()
 	b3Free(m_nodes);
 }
 
-struct b3SortPredicate
+struct b3SplitPredicate
 {
 	bool operator()(uint32 i1, uint32 i2)
 	{
@@ -52,42 +52,16 @@ struct b3SortPredicate
 
 static uint32 b3Partition(const b3AABB& aabb, const b3AABB* aabbs, uint32* indices, uint32 count)
 {
-	// Choose a partitioning axis.
-	uint32 splitAxis = aabb.GetLongestAxis();
-
-	// Choose a split point.
-	scalar splitPos = aabb.GetCenter()[splitAxis];
-
-	// Sort indices along the split axis.
-	b3SortPredicate predicate;
+	// Choose a split axis.
+	b3SplitPredicate predicate;
 	predicate.aabbs = aabbs;
-	predicate.axis = splitAxis;
+	predicate.axis = aabb.GetLongestAxis();
 
-	std::sort(indices, indices + count, predicate);
-
-	// Find the AABB that splits the set in two subsets.
-	uint32 k = 0;
-	while (k < count)
-	{
-		uint32 index = indices[k];
-		
-		b3Vec3 center = aabbs[index].GetCenter();
-		
-		if (center[splitAxis] > splitPos)
-		{
-			// Found median.
-			break;
-		}
-		
-		++k;
-	}
-
-	// Ensure nonempty subsets.
-	if (k == 0 || k == count)
-	{
-		// Choose median.
-		k = count / 2;
-	}
+	// Choose median.
+	uint32 k = count / 2;
+	
+	// Split elements around median.
+	std::nth_element(indices, indices + k, indices + count, predicate);
 
 	return k;
 }
@@ -151,8 +125,7 @@ void b3StaticTree::Build(const b3AABB* aabbs, uint32 count)
 	m_nodeCapacity = 2 * count - 1;
 
 	m_nodes = (b3StaticNode*)b3Alloc(m_nodeCapacity * sizeof(b3StaticNode));
-	m_nodeCount = 0;
-
+	
 	uint32* indices = (uint32*)b3Alloc(count * sizeof(uint32));
 	for (uint32 i = 0; i < count; ++i)
 	{
