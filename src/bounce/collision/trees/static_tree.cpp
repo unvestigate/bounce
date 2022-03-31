@@ -118,7 +118,7 @@ uint32 b3StaticTree::BuildNode(uint32 parentId, const b3AABB* aabbs, uint32* ind
 		B3_ASSERT(m_internalCount < m_internalCapacity);
 		++m_internalCount;
 
-		// Compute the node AABB.
+		// Compute node AABB
 		b3AABB aabb = aabbs[indices[0]];
 		for (uint32 i = 1; i < count; ++i)
 		{
