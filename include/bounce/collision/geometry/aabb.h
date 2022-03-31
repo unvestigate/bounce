@@ -110,10 +110,10 @@ struct b3AABB
 	}
 
 	// Combine two AABBs into this one.
-	void Combine(const b3AABB& aabb1, const b3AABB& aabb2)
+	void Combine(const b3AABB& a, const b3AABB& b)
 	{
-		lowerBound = b3Min(aabb1.lowerBound, aabb2.lowerBound);
-		upperBound = b3Max(aabb1.upperBound, aabb2.upperBound);
+		lowerBound = b3Min(a.lowerBound, b.lowerBound);
+		upperBound = b3Max(a.upperBound, b.upperBound);
 	}
 
 	// Get the center of this AABB.

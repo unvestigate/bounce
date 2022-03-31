@@ -80,8 +80,8 @@ public:
 	// Draw this tree.
 	void Draw(b3Draw* draw) const;
 private:
-	// Build a tree node.
-	void BuildNode(uint32 nodeId, uint32 parentId, const b3AABB* aabbs, uint32* indices, uint32 count);
+	// Build a node. Return the node index.
+	uint32 BuildNode(uint32 parentId, const b3AABB* aabbs, uint32* indices, uint32 count);
 
 	b3StaticNode* m_nodes;
 	uint32 m_leafCapacity;
