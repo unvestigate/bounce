@@ -37,7 +37,7 @@ b3StaticTree::~b3StaticTree()
 	b3Free(m_nodes);
 }
 
-struct b3SplitPredicate
+struct b3SortPredicate
 {
 	bool operator()(uint32 i1, uint32 i2)
 	{
@@ -52,16 +52,41 @@ struct b3SplitPredicate
 
 static uint32 b3Partition(const b3AABB& aabb, const b3AABB* aabbs, uint32* indices, uint32 count)
 {
-	// Choose a split axis.
-	b3SplitPredicate predicate;
-	predicate.aabbs = aabbs;
-	predicate.axis = aabb.GetLongestAxis();
+	// Choose a partitioning axis.
+	uint32 splitAxis = aabb.GetLongestAxis();
 
-	// Choose median.
-	uint32 k = count / 2;
-	
-	// Split elements around median.
-	std::nth_element(indices, indices + k, indices + count, predicate);
+	// Sort indices along the split axis.
+	b3SortPredicate predicate;
+	predicate.aabbs = aabbs;
+	predicate.axis = splitAxis;
+
+	std::sort(indices, indices + count, predicate);
+
+	// Choose a split point.
+	scalar splitPos = aabb.GetCenter()[splitAxis];
+
+	// Find the AABB that splits the set in two subsets.
+	uint32 k = 0;
+	while (k < count)
+	{
+		uint32 index = indices[k];
+		
+		b3Vec3 center = aabbs[index].GetCenter();
+		
+		if (center[splitAxis] > splitPos)
+		{
+			break;
+		}
+		
+		++k;
+	}
+
+	// Ensure nonempty subsets.
+	if (k == 0 || k == count)
+	{
+		// Choose median.
+		k = count / 2;
+	}
 
 	return k;
 }
