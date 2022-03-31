@@ -121,7 +121,7 @@ uint32 b3StaticTree::BuildNode(uint32 parentId, const b3AABB* aabbs, uint32* ind
 		b3AABB aabb = aabbs[indices[0]];
 		for (uint32 i = 1; i < count; ++i)
 		{
-			aabb = b3Combine(aabb, aabbs[indices[i]]);
+			aabb.Combine(aabbs[indices[i]]);
 		}
 
 		node->aabb = aabb;
