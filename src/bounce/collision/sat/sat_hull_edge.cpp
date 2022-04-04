@@ -20,7 +20,7 @@
 #include <bounce/collision/geometry/hull.h>
 #include <bounce/collision/geometry/capsule.h>
 
-scalar b3ProjectEdge(const b3Capsule* hull, const b3Plane& plane)
+static B3_FORCE_INLINE scalar b3Project(const b3Capsule* hull, const b3Plane& plane)
 {
 	b3Vec3 support = hull->GetVertex(hull->GetSupportVertex(-plane.normal));
 	return b3Distance(support, plane);
@@ -43,7 +43,7 @@ b3FaceQuery b3QueryFaceSeparation(const b3Transform& xf1, const b3Hull* hull1,
 	for (uint32 i = 0; i < hull1->faceCount; ++i)
 	{
 		b3Plane plane = hull1->GetPlane(i);
-		scalar separation = b3ProjectEdge(&localHull2, plane);
+		scalar separation = b3Project(&localHull2, plane);
 		if (separation > maxSeparation)
 		{
 			maxIndex = i;
@@ -58,12 +58,12 @@ b3FaceQuery b3QueryFaceSeparation(const b3Transform& xf1, const b3Hull* hull1,
 }
 
 // Qualify the two hull normals against the plane of the ring of the capsule.
-bool b3IsMinkowskiFaceEdge(const b3Vec3& N, const b3Vec3& C, const b3Vec3& D)
+static B3_FORCE_INLINE bool b3IsMinkowskiFace(const b3Vec3& N, const b3Vec3& C, const b3Vec3& D)
 {
 	return b3Dot(N, C) * b3Dot(N, D) < scalar(0);
 }
 
-scalar b3ProjectEdge(const b3Vec3& P1, const b3Vec3& E1, const b3Vec3& C1,
+static scalar b3ProjectEdge(const b3Vec3& P1, const b3Vec3& E1, const b3Vec3& C1,
 	const b3Vec3& P2, const b3Vec3& E2)
 {
 	scalar L1 = b3Length(E1);
@@ -127,7 +127,7 @@ b3EdgeQuery b3QueryEdgeSeparation(const b3Transform& xf1, const b3Hull* hull1, c
 		b3Vec3 U1 = hull1->GetPlane(edge1->face).normal;
 		b3Vec3 V1 = hull1->GetPlane(twin1->face).normal;
 
-		if (b3IsMinkowskiFaceEdge(E2, U1, V1))
+		if (b3IsMinkowskiFace(E2, U1, V1))
 		{
 			scalar separation = b3ProjectEdge(P1, E1, C1, P2, E2);
 			if (separation > maxSeparation)

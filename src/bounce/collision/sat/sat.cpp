@@ -23,7 +23,7 @@
 // convex hulls. Thanks to Dirk Gregorius for his presentation 
 // at GDC 2013.
 
-scalar b3Project(const b3Hull* hull, const b3Plane& plane)
+static B3_FORCE_INLINE scalar b3Project(const b3Hull* hull, const b3Plane& plane)
 {
 	b3Vec3 support = hull->GetVertex(hull->GetSupportVertex(-plane.normal));
 	return b3Distance(support, plane);
@@ -57,7 +57,7 @@ b3FaceQuery b3QueryFaceSeparation(const b3Transform& xf1, const b3Hull* hull1,
 	return out;
 }
 
-bool b3IsMinkowskiFace(const b3Vec3& A, const b3Vec3& B, const b3Vec3& B_x_A, const b3Vec3& C, const b3Vec3& D, const b3Vec3& D_x_C)
+static B3_FORCE_INLINE bool b3IsMinkowskiFace(const b3Vec3& A, const b3Vec3& B, const b3Vec3& B_x_A, const b3Vec3& C, const b3Vec3& D, const b3Vec3& D_x_C)
 {
 	scalar ADC = b3Dot(A, D_x_C);
 	scalar BDC = b3Dot(B, D_x_C);
@@ -70,7 +70,7 @@ bool b3IsMinkowskiFace(const b3Vec3& A, const b3Vec3& B, const b3Vec3& B_x_A, co
 		CBA * BDC > scalar(0); // Test if arcs AB and CD are on the same hemisphere.
 }
 
-scalar b3Project(const b3Vec3& P1, const b3Vec3& Q1, const b3Vec3& E1, const b3Vec3& P2, const b3Vec3& E2, const b3Vec3& C1)
+static scalar b3Project(const b3Vec3& P1, const b3Vec3& Q1, const b3Vec3& E1, const b3Vec3& P2, const b3Vec3& E2, const b3Vec3& C1)
 {
 	scalar L1 = b3Length(E1);
 	B3_ASSERT(L1 > B3_LINEAR_SLOP);

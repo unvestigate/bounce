@@ -31,8 +31,6 @@ struct b3FaceQuery
 	scalar separation;
 };
 
-scalar b3Project(const b3Hull* hull, const b3Plane& plane);
-
 b3FaceQuery b3QueryFaceSeparation(const b3Transform& xf1, const b3Hull* hull1,
 	const b3Transform& xf2, const b3Hull* hull2);
 
@@ -45,13 +43,8 @@ struct b3EdgeQuery
 	scalar separation;
 };
 
-bool b3IsMinkowskiFace(const b3Vec3& A, const b3Vec3& B, const b3Vec3& B_x_A, const b3Vec3& C, const b3Vec3& D, const b3Vec3& D_x_C);
-
-scalar b3Project(const b3Vec3& P1, const b3Vec3& E1, const b3Vec3& P2, const b3Vec3& E2, const b3Vec3& C1);
-
 b3EdgeQuery b3QueryEdgeSeparation(const b3Transform& xf1, const b3Hull* hull1,
 	const b3Transform& xf2, const b3Hull* hull2);
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

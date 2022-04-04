@@ -25,14 +25,10 @@ struct b3Capsule;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-scalar b3ProjectEdge(const b3Capsule* hull, const b3Plane& plane);
-
 b3FaceQuery b3QueryFaceSeparation(const b3Transform& xf1, const b3Hull* hull1,
 	const b3Transform& xf2, const b3Capsule* hull2);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-scalar b3ProjectEdge(const b3Vec3& P1, const b3Vec3& E1, const b3Vec3& P2, const b3Vec3& E2, const b3Vec3& C2);
 
 b3EdgeQuery b3QueryEdgeSeparation(const b3Transform& xf1, const b3Hull* hull1,
 	const b3Transform& xf2, const b3Capsule* hull2);
