@@ -213,8 +213,6 @@ static void b3CollideHulls(b3Manifold& manifold,
 	const b3Transform& xf1, const b3HullShape* hull1,
 	const b3Transform& xf2, const b3HullShape* hull2)
 {
-	B3_ASSERT(manifold.pointCount == 0);
-
 	const b3Hull* h1 = hull1->m_hull;
 	scalar r1 = hull1->m_radius;
 
