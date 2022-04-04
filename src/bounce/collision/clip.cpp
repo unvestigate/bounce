@@ -16,7 +16,7 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <bounce/collision/collide/clip.h>
+#include <bounce/collision/clip.h>
 #include <bounce/collision/geometry/capsule.h>
 #include <bounce/collision/geometry/hull.h>
 

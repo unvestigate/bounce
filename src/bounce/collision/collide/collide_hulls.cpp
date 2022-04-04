@@ -402,116 +402,6 @@ static void b3RebuildFaceContact(b3Manifold& manifold,
 static void b3CollideHullsCache(b3Manifold& manifold,
 	const b3Transform& xf1, const b3HullShape* hull1,
 	const b3Transform& xf2, const b3HullShape* hull2,
-	b3FeatureCache& cache)
-{
-	B3_ASSERT(cache.cacheType == b3CacheType::e_empty);
-
-	const b3Hull* h1 = hull1->m_hull;
-	scalar r1 = hull1->m_radius;
-
-	const b3Hull* h2 = hull2->m_hull;
-	scalar r2 = hull2->m_radius;
-
-	scalar totalRadius = r1 + r2;
-
-	b3FaceQuery faceQuery1 = b3QueryFaceSeparation(xf1, h1, xf2, h2);
-	if (faceQuery1.separation > totalRadius)
-	{
-		// Write a separation cache.
-		cache = b3MakeCache(b3CacheType::e_separation, b3FeatureType::e_face1, faceQuery1.index, faceQuery1.index);
-		return;
-	}
-
-	b3FaceQuery faceQuery2 = b3QueryFaceSeparation(xf2, h2, xf1, h1);
-	if (faceQuery2.separation > totalRadius)
-	{
-		// Write a separation cache.
-		cache = b3MakeCache(b3CacheType::e_separation, b3FeatureType::e_face2, faceQuery2.index, faceQuery2.index);
-		return;
-	}
-
-	b3EdgeQuery edgeQuery = b3QueryEdgeSeparation(xf1, h1, xf2, h2);
-	if (edgeQuery.separation > totalRadius)
-	{
-		// Write a separation cache.
-		cache = b3MakeCache(b3CacheType::e_separation, b3FeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
-		return;
-	}
-	
-	// Use hysteresis for jitter reduction.
-	const scalar kRelEdgeTol = scalar(0.90);
-	const scalar kRelFaceTol = scalar(0.98);
-	const scalar kAbsTol = scalar(0.5) * B3_LINEAR_SLOP;
-
-	if (edgeQuery.separation > kRelEdgeTol * b3Max(faceQuery1.separation, faceQuery2.separation) + kAbsTol)
-	{
-		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, hull1, xf2, edgeQuery.index2, hull2);
-
-		// Write an overlap cache.		
-		cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
-		return;
-	}
-	else
-	{
-		if (faceQuery2.separation > kRelFaceTol * faceQuery1.separation + kAbsTol)
-		{
-			b3BuildFaceContact(manifold, xf2, faceQuery2.index, hull2, xf1, hull1, true);
-			if (manifold.pointCount > 0)
-			{
-				// Write an overlap cache.
-				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face2, faceQuery2.index, faceQuery2.index);
-				return;
-			}
-		}
-		else
-		{
-			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
-			if (manifold.pointCount > 0)
-			{
-				// Write an overlap cache.
-				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face1, faceQuery1.index, faceQuery1.index);
-				return;
-			}
-		}
-	}
-
-	// Heuristic failed. Fallback.
-	if (edgeQuery.separation > b3Max(faceQuery1.separation, faceQuery2.separation))
-	{
-		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, hull1, xf2, edgeQuery.index2, hull2);
-		
-		// Write an overlap cache.		
-		cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
-		return;
-	}
-	else
-	{
-		if (faceQuery2.separation > faceQuery1.separation)
-		{
-			b3BuildFaceContact(manifold, xf2, faceQuery2.index, hull2, xf1, hull1, true);
-			if (manifold.pointCount > 0)
-			{
-				// Write an overlap cache.
-				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face2, faceQuery2.index, faceQuery2.index);
-				return;
-			}
-		}
-		else
-		{
-			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
-			if (manifold.pointCount > 0)
-			{
-				// Write an overlap cache.
-				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face1, faceQuery1.index, faceQuery1.index);
-				return;
-			}
-		}
-	}
-}
-
-static void b3CollideHullsCache(b3Manifold& manifold,
-	const b3Transform& xf1, const b3HullShape* hull1,
-	const b3Transform& xf2, const b3HullShape* hull2,
 	b3FeatureCache& cache, 
 	const b3Transform& xf01, const b3Transform& xf02)
 {
@@ -574,7 +464,101 @@ static void b3CollideHullsCache(b3Manifold& manifold,
 	// Overlap cache miss.
 	// Flush the cache.
 	cache.cacheType = b3CacheType::e_empty;
-	b3CollideHullsCache(manifold, xf1, hull1, xf2, hull2, cache);
+	
+	// Rerun SAT.
+	b3FaceQuery faceQuery1 = b3QueryFaceSeparation(xf1, h1, xf2, h2);
+	if (faceQuery1.separation > totalRadius)
+	{
+		// Write a separation cache.
+		cache = b3MakeCache(b3CacheType::e_separation, b3FeatureType::e_face1, faceQuery1.index, faceQuery1.index);
+		return;
+	}
+
+	b3FaceQuery faceQuery2 = b3QueryFaceSeparation(xf2, h2, xf1, h1);
+	if (faceQuery2.separation > totalRadius)
+	{
+		// Write a separation cache.
+		cache = b3MakeCache(b3CacheType::e_separation, b3FeatureType::e_face2, faceQuery2.index, faceQuery2.index);
+		return;
+	}
+
+	b3EdgeQuery edgeQuery = b3QueryEdgeSeparation(xf1, h1, xf2, h2);
+	if (edgeQuery.separation > totalRadius)
+	{
+		// Write a separation cache.
+		cache = b3MakeCache(b3CacheType::e_separation, b3FeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
+		return;
+	}
+
+	// Use hysteresis for jitter reduction.
+	const scalar kRelEdgeTol = scalar(0.90);
+	const scalar kRelFaceTol = scalar(0.98);
+	const scalar kAbsTol = scalar(0.5) * B3_LINEAR_SLOP;
+
+	if (edgeQuery.separation > kRelEdgeTol * b3Max(faceQuery1.separation, faceQuery2.separation) + kAbsTol)
+	{
+		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, hull1, xf2, edgeQuery.index2, hull2);
+
+		// Write an overlap cache.		
+		cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
+		return;
+	}
+	else
+	{
+		if (faceQuery2.separation > kRelFaceTol * faceQuery1.separation + kAbsTol)
+		{
+			b3BuildFaceContact(manifold, xf2, faceQuery2.index, hull2, xf1, hull1, true);
+			if (manifold.pointCount > 0)
+			{
+				// Write an overlap cache.
+				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face2, faceQuery2.index, faceQuery2.index);
+				return;
+			}
+		}
+		else
+		{
+			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
+			if (manifold.pointCount > 0)
+			{
+				// Write an overlap cache.
+				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face1, faceQuery1.index, faceQuery1.index);
+				return;
+			}
+		}
+	}
+
+	// Heuristic failed. Fallback.
+	if (edgeQuery.separation > b3Max(faceQuery1.separation, faceQuery2.separation))
+	{
+		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, hull1, xf2, edgeQuery.index2, hull2);
+
+		// Write an overlap cache.		
+		cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
+		return;
+	}
+	else
+	{
+		if (faceQuery2.separation > faceQuery1.separation)
+		{
+			b3BuildFaceContact(manifold, xf2, faceQuery2.index, hull2, xf1, hull1, true);
+			if (manifold.pointCount > 0)
+			{
+				// Write an overlap cache.
+				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face2, faceQuery2.index, faceQuery2.index);
+				return;
+			}
+		}
+		else
+		{
+			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
+			if (manifold.pointCount > 0)
+			{
+				// Write an overlap cache.
+				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face1, faceQuery1.index, faceQuery1.index);
+				return;
+			}
+		}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
