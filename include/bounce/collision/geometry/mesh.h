@@ -101,6 +101,9 @@ inline b3AABB b3Mesh::GetTriangleAABB(uint32 index) const
 	b3AABB aabb;
 	aabb.lowerBound = b3Min(v1, b3Min(v2, v3));
 	aabb.upperBound = b3Max(v1, b3Max(v2, v3));
+	
+	// Ensure axis aligned triangles have volume
+	aabb.Extend(B3_LINEAR_SLOP);
 
 	return aabb;
 }
