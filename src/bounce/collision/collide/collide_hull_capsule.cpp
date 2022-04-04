@@ -199,8 +199,10 @@ void b3CollideHullAndCapsule(b3Manifold& manifold,
 		return;
 	}
 
-	const scalar kTol = scalar(0.1) * B3_LINEAR_SLOP;
-	if (edgeQuery.separation > faceQuery1.separation + kTol)
+	const scalar kRelEdgeTol = scalar(0.90);
+	const scalar kAbsTol = scalar(0.5) * B3_LINEAR_SLOP;
+	
+	if (edgeQuery.separation > kRelEdgeTol * faceQuery1.separation + kAbsTol)
 	{
 		b3BuildEdgeContact(manifold, xf1, h1, edgeQuery.index1, xf2, &h2);
 	}

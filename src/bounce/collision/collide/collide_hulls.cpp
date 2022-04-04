@@ -241,20 +241,24 @@ static void b3CollideHulls(b3Manifold& manifold,
 		return;
 	}
 
-	const scalar kTol = scalar(0.1) * B3_LINEAR_SLOP;
-	if (edgeQuery.separation > b3Max(faceQuery1.separation, faceQuery2.separation) + kTol)
+	// Use hysteresis for jitter reduction.
+	const scalar kRelEdgeTol = scalar(0.90);
+	const scalar kRelFaceTol = scalar(0.98);
+	const scalar kAbsTol = scalar(0.5) * B3_LINEAR_SLOP;
+	
+	if (edgeQuery.separation > kRelEdgeTol * b3Max(faceQuery1.separation, faceQuery2.separation) + kAbsTol)
 	{
 		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, hull1, xf2, edgeQuery.index2, hull2);
 	}
 	else
 	{
-		if (faceQuery1.separation + kTol > faceQuery2.separation)
+		if (faceQuery2.separation > kRelFaceTol * faceQuery1.separation + kAbsTol)
 		{
-			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
+			b3BuildFaceContact(manifold, xf2, faceQuery2.index, hull2, xf1, hull1, true);
 		}
 		else
 		{
-			b3BuildFaceContact(manifold, xf2, faceQuery2.index, hull2, xf1, hull1, true);
+			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
 		}
 	}
 
@@ -271,13 +275,13 @@ static void b3CollideHulls(b3Manifold& manifold,
 	}
 	else
 	{
-		if (faceQuery1.separation > faceQuery2.separation)
+		if (faceQuery2.separation > faceQuery1.separation)
 		{
-			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
+			b3BuildFaceContact(manifold, xf2, faceQuery2.index, hull2, xf1, hull1, true);
 		}
 		else
 		{
-			b3BuildFaceContact(manifold, xf2, faceQuery2.index, hull2, xf1, hull1, true);
+			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
 		}
 	}
 }
@@ -335,14 +339,14 @@ static void b3RebuildEdgeContact(b3Manifold& manifold,
 
 	// Check if the closest points are still lying on the opposite segments 
 	// using Barycentric coordinates.
+	scalar w1[3];
+	b3BarycentricCoordinates(w1, P2, Q2, point1);
+	
 	scalar w2[3];
 	b3BarycentricCoordinates(w2, P1, Q1, point2);
 
-	scalar w1[3];
-	b3BarycentricCoordinates(w1, P2, Q2, point1);
-
-	if (w2[1] > scalar(0) && w2[1] <= w2[2] &&
-		w1[1] > scalar(0) && w1[1] <= w1[2])
+	if (w1[1] > scalar(0) && w1[1] <= w1[2] && 
+		w2[1] > scalar(0) && w2[1] <= w2[2])
 	{
 		b3Vec3 N = b3Cross(E1, E2);
 		scalar LN = N.Normalize();
@@ -433,9 +437,13 @@ static void b3CollideHullsCache(b3Manifold& manifold,
 		cache = b3MakeCache(b3CacheType::e_separation, b3FeatureType::e_edges, edgeQuery.index1, edgeQuery.index2);
 		return;
 	}
+	
+	// Use hysteresis for jitter reduction.
+	const scalar kRelEdgeTol = scalar(0.90);
+	const scalar kRelFaceTol = scalar(0.98);
+	const scalar kAbsTol = scalar(0.5) * B3_LINEAR_SLOP;
 
-	const scalar kTol = scalar(0.1) * B3_LINEAR_SLOP;
-	if (edgeQuery.separation > b3Max(faceQuery1.separation, faceQuery2.separation) + kTol)
+	if (edgeQuery.separation > kRelEdgeTol * b3Max(faceQuery1.separation, faceQuery2.separation) + kAbsTol)
 	{
 		b3BuildEdgeContact(manifold, xf1, edgeQuery.index1, hull1, xf2, edgeQuery.index2, hull2);
 
@@ -445,23 +453,23 @@ static void b3CollideHullsCache(b3Manifold& manifold,
 	}
 	else
 	{
-		if (faceQuery1.separation + kTol > faceQuery2.separation)
-		{
-			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
-			if (manifold.pointCount > 0)
-			{
-				// Write an overlap cache.
-				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face1, faceQuery1.index, faceQuery1.index);
-				return;
-			}
-		}
-		else
+		if (faceQuery2.separation > kRelFaceTol * faceQuery1.separation + kAbsTol)
 		{
 			b3BuildFaceContact(manifold, xf2, faceQuery2.index, hull2, xf1, hull1, true);
 			if (manifold.pointCount > 0)
 			{
 				// Write an overlap cache.
 				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face2, faceQuery2.index, faceQuery2.index);
+				return;
+			}
+		}
+		else
+		{
+			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
+			if (manifold.pointCount > 0)
+			{
+				// Write an overlap cache.
+				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face1, faceQuery1.index, faceQuery1.index);
 				return;
 			}
 		}
@@ -478,23 +486,23 @@ static void b3CollideHullsCache(b3Manifold& manifold,
 	}
 	else
 	{
-		if (faceQuery1.separation > faceQuery2.separation)
-		{
-			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
-			if (manifold.pointCount > 0)
-			{
-				// Write an overlap cache.
-				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face1, faceQuery1.index, faceQuery1.index);
-				return;
-			}
-		}
-		else
+		if (faceQuery2.separation > faceQuery1.separation)
 		{
 			b3BuildFaceContact(manifold, xf2, faceQuery2.index, hull2, xf1, hull1, true);
 			if (manifold.pointCount > 0)
 			{
 				// Write an overlap cache.
 				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face2, faceQuery2.index, faceQuery2.index);
+				return;
+			}
+		}
+		else
+		{
+			b3BuildFaceContact(manifold, xf1, faceQuery1.index, hull1, xf2, hull2, false);
+			if (manifold.pointCount > 0)
+			{
+				// Write an overlap cache.
+				cache = b3MakeCache(b3CacheType::e_overlap, b3FeatureType::e_face1, faceQuery1.index, faceQuery1.index);
 				return;
 			}
 		}
@@ -519,7 +527,7 @@ static void b3CollideHullsCache(b3Manifold& manifold,
 	b3CacheType state0 = cache.cacheType;
 	b3CacheType state1 = cache.ReadState(xf1, h1, xf2, h2, totalRadius);
 
-	if (state0 == b3CacheType::e_separation &&
+	if (state0 == b3CacheType::e_separation && 
 		state1 == b3CacheType::e_separation)
 	{
 		// Separation cache hit.

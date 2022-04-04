@@ -182,47 +182,47 @@ void b3CollideCapsules(b3Manifold& manifold,
 		return;
 	}
 
-	if (distance > scalar(0))
+	if (distance > scalar(0) && b3AreParalell(segment1, segment2))
 	{
-		if (b3AreParalell(segment1, segment2))
+		// Clip segment 1 against the side planes of segment 2.
+		b3ClipVertex inSegment1[2];
+		b3BuildSegment(inSegment1, &segment1);
+
+		b3ClipVertex clipSegment1[2];
+		uint32 clipCount = b3ClipSegmentToSegmentSidePlanes(clipSegment1, inSegment1, &segment2);
+
+		if (clipCount == 2)
 		{
-			// Clip segment 1 against the side planes of segment 2.
-			b3ClipVertex inSegment1[2];
-			b3BuildSegment(inSegment1, &segment1);
+			b3Vec3 cp1 = b3ClosestPointOnSegment(clipSegment1[0].position, segment2);
+			b3Vec3 cp2 = b3ClosestPointOnSegment(clipSegment1[1].position, segment2);
 
-			b3ClipVertex clipSegment1[2];
-			uint32 clipCount = b3ClipSegmentToSegmentSidePlanes(clipSegment1, inSegment1, &segment2);
+			scalar d1 = b3Distance(clipSegment1[0].position, cp1);
+			scalar d2 = b3Distance(clipSegment1[1].position, cp2);
 
-			if (clipCount == 2)
+			if (d1 > B3_EPSILON && d1 <= totalRadius && d2 > B3_EPSILON && d2 <= totalRadius)
 			{
-				b3Vec3 cp1 = b3ClosestPointOnSegment(clipSegment1[0].position, segment2);
-				b3Vec3 cp2 = b3ClosestPointOnSegment(clipSegment1[1].position, segment2);
+				b3Vec3 n1 = (cp1 - clipSegment1[0].position) / d1;
+				b3Vec3 n2 = (cp2 - clipSegment1[1].position) / d2;
 
-				scalar d1 = b3Distance(clipSegment1[0].position, cp1);
-				scalar d2 = b3Distance(clipSegment1[1].position, cp2);
+				manifold.pointCount = 2;
 
-				if (d1 > B3_EPSILON && d1 <= totalRadius && d2 > B3_EPSILON && d2 <= totalRadius)
-				{
-					b3Vec3 n1 = (cp1 - clipSegment1[0].position) / d1;
-					b3Vec3 n2 = (cp2 - clipSegment1[1].position) / d2;
+				manifold.points[0].localNormal1 = b3MulC(xf1.rotation, n1);
+				manifold.points[0].localPoint1 = b3MulT(xf1, clipSegment1[0].position);
+				manifold.points[0].localPoint2 = b3MulT(xf2, cp1);
+				manifold.points[0].id = b3MakeID(clipSegment1[0].pair);
 
-					manifold.pointCount = 2;
+				manifold.points[1].localNormal1 = b3MulC(xf1.rotation, n2);
+				manifold.points[1].localPoint1 = b3MulT(xf1, clipSegment1[1].position);
+				manifold.points[1].localPoint2 = b3MulT(xf2, cp2);
+				manifold.points[1].id = b3MakeID(clipSegment1[1].pair);
 
-					manifold.points[0].localNormal1 = b3MulC(xf1.rotation, n1);
-					manifold.points[0].localPoint1 = b3MulT(xf1, clipSegment1[0].position);
-					manifold.points[0].localPoint2 = b3MulT(xf2, cp1);
-					manifold.points[0].id = b3MakeID(clipSegment1[0].pair);
-
-					manifold.points[1].localNormal1 = b3MulC(xf1.rotation, n2);
-					manifold.points[1].localPoint1 = b3MulT(xf1, clipSegment1[1].position);
-					manifold.points[1].localPoint2 = b3MulT(xf2, cp2);
-					manifold.points[1].id = b3MakeID(clipSegment1[1].pair);
-
-					return;
-				}
+				return;
 			}
 		}
+	}
 
+	if (distance > scalar(0))
+	{
 		b3Vec3 normal = (point2 - point1) / distance;
 		
 		manifold.pointCount = 1;
