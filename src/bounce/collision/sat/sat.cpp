@@ -96,11 +96,9 @@ scalar b3Project(const b3Vec3& P1, const b3Vec3& Q1, const b3Vec3& E1, const b3V
 		return -B3_MAX_SCALAR;
 	}
 
-	b3Vec3 E1C = scalar(0.5) * (P1 + Q1);
-
 	// Ensure consistent normal orientation to hull B.
 	b3Vec3 N = (scalar(1) / L) * E1_x_E2;
-	if (b3Dot(N, E1C - C1) < scalar(0))
+	if (b3Dot(N, P1 - C1) < scalar(0))
 	{
 		N = -N;
 	}
