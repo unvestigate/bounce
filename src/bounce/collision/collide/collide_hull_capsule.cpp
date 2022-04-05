@@ -187,8 +187,8 @@ void b3CollideHullAndCapsule(b3Manifold& manifold,
 		return;
 	}
 
-	b3FaceQuery faceQuery1 = b3QueryFaceSeparation(xf1, h1, xf2, &h2);
-	if (faceQuery1.separation > totalRadius)
+	b3FaceQuery faceQuery = b3QueryFaceSeparation(xf1, h1, xf2, &h2);
+	if (faceQuery.separation > totalRadius)
 	{
 		return;
 	}
@@ -202,12 +202,12 @@ void b3CollideHullAndCapsule(b3Manifold& manifold,
 	const scalar kRelEdgeTol = scalar(0.90);
 	const scalar kAbsTol = scalar(0.5) * B3_LINEAR_SLOP;
 	
-	if (edgeQuery.separation > kRelEdgeTol * faceQuery1.separation + kAbsTol)
+	if (edgeQuery.separation > kRelEdgeTol * faceQuery.separation + kAbsTol)
 	{
 		b3BuildEdgeContact(manifold, xf1, h1, edgeQuery.index1, xf2, &h2);
 	}
 	else
 	{
-		b3BuildFaceContact(manifold, xf1, h1, faceQuery1.index, r1, xf2, &h2, r2);
+		b3BuildFaceContact(manifold, xf1, h1, faceQuery.index, r1, xf2, &h2, r2);
 	}
 }
