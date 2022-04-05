@@ -49,7 +49,7 @@ public:
 	// Did the other AABB move significantly?
 	bool m_aabbMoved;
 
-	// The other AABB relative to other shape origin.
+	// The other AABB relative to mesh origin.
 	b3AABB m_aabb; 
 	
 	// Triangles potentially overlapping with the other shape.
