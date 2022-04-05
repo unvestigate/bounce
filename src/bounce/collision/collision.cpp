@@ -113,7 +113,8 @@ bool b3TestOverlap(const b3Transform& xfA, uint32 indexA, const b3Shape* shapeA,
 }
 
 // Compute the closest point on a segment to a point. 
-b3Vec3 b3ClosestPointOnSegment(const b3Vec3& Q, const b3Vec3& A, const b3Vec3& B)
+b3Vec3 b3ClosestPointOnSegment(const b3Vec3& Q, 
+	const b3Vec3& A, const b3Vec3& B)
 {
 	b3Vec3 AB = B - A;
 
