@@ -184,7 +184,7 @@ void b3CollideHullAndCapsule(b3Manifold& manifold,
 	const b3Transform& xf1, const b3HullShape* hull1,
 	const b3Transform& xf2, const b3CapsuleShape* capsule2);
 
-// Compute a manifold for a triangle and a hull.
+// Compute a manifold for a hull and a triangle.
 void b3CollideHullAndTriangle(b3Manifold& manifold,
 	const b3Transform& xf1, const b3HullShape* hull1,
 	const b3Transform& xf2, const b3TriangleShape* triangle2);
