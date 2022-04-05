@@ -269,6 +269,7 @@ bool b3MeshContact::Report(uint32 nodeId)
 	}
 
 	uint32 triangleIndex;
+	
 	if (m_meshIsA)
 	{
 		b3MeshShape* meshShape = (b3MeshShape*)m_fixtureA->GetShape();
