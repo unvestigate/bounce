@@ -59,12 +59,12 @@ inline void b3BarycentricCoordinates(scalar out[4],
 
 	b3Vec3 AB_x_AC = b3Cross(AB, AC);
 
-	//scalar divisor = b3Dot(AB_x_AC, AB_x_AC);
+	scalar divisor = b3Dot(AB_x_AC, AB_x_AC);
 
 	out[0] = b3Dot(QB_x_QC, AB_x_AC);
 	out[1] = b3Dot(QC_x_QA, AB_x_AC);
 	out[2] = b3Dot(QA_x_QB, AB_x_AC);
-	out[3] = out[0] + out[1] + out[2];
+	out[3] = divisor;
 }
 
 // Convert a point Q from Cartesian coordinates to Barycentric coordinates (u, v, w, x) 
