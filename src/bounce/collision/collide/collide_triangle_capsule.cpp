@@ -38,46 +38,23 @@ static void b3BuildEdgeContact(b3Manifold& manifold,
 	b3Vec3 P1 = xf1 * hull1->GetVertex(edge1->origin);
 	b3Vec3 Q1 = xf1 * hull1->GetVertex(twin1->origin);
 	b3Vec3 E1 = Q1 - P1;
-	b3Vec3 N1 = E1;
-	scalar L1 = N1.Normalize();
-	B3_ASSERT(L1 > scalar(0));
 
 	b3Vec3 P2 = xf2 * hull2->vertex1;
 	b3Vec3 Q2 = xf2 * hull2->vertex2;
 	b3Vec3 E2 = Q2 - P2;
-	b3Vec3 N2 = E2;
-	scalar L2 = N2.Normalize();
-	B3_ASSERT(L2 > scalar(0));
 
-	// Compute the closest points on the two lines.
-	scalar b = b3Dot(N1, N2);
-	scalar den = scalar(1) - b * b;
-	if (den == scalar(0))
-	{
-		return;
-	}
-
-	scalar inv_den = scalar(1) / den;
-
-	b3Vec3 E3 = P1 - P2;
-
-	scalar d = b3Dot(N1, E3);
-	scalar e = b3Dot(N2, E3);
-
-	scalar s = inv_den * (b * e - d);
-	scalar t = inv_den * (e - b * d);
-
-	b3Vec3 point1 = P1 + s * N1;
-	b3Vec3 point2 = P2 + t * N2;
-
-	// Ensure normal orientation to capsule.
 	b3Vec3 N = b3Cross(E1, E2);
-	scalar LN = N.Normalize();
-	B3_ASSERT(LN > scalar(0));
+	N.Normalize();
+	
+	// Ensure normal orientation to capsule.
 	if (b3Dot(N, P1 - C1) < scalar(0))
 	{
 		N = -N;
 	}
+
+	// Compute the closest points on the two segments.
+	b3Vec3 point1, point2;
+	b3ClosestPointsOnSegments(point1, point2, P1, Q1, P2, Q2);
 
 	b3FeaturePair pair = b3MakePair(index1, index1 + 1, 0, 1);
 

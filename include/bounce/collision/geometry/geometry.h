@@ -93,26 +93,4 @@ inline void b3BarycentricCoordinates(scalar out[5],
 	out[4] = sign * divisor;
 }
 
-// Project a point onto a segment AB.
-inline b3Vec3 b3ClosestPointOnSegment(const b3Vec3& P, const b3Vec3& A, const b3Vec3& B)
-{
-	scalar wAB[3];
-	b3BarycentricCoordinates(wAB, A, B, P);
-
-	if (wAB[1] <= scalar(0))
-	{
-		return A;
-	}
-
-	if (wAB[0] <= scalar(0))
-	{
-		return B;
-	}
-
-	scalar s = scalar(1) / wAB[2];
-	scalar wA = s * wAB[0];
-	scalar wB = s * wAB[1];
-	return wA * A + wB * B;
-}
-
 #endif

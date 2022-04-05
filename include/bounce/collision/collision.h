@@ -205,4 +205,13 @@ void b3CollideHulls(b3Manifold& manifold,
 bool b3TestOverlap(const b3Transform& xf1, uint32 index1, const b3Shape* shape1,
 	const b3Transform& xf2, uint32 index2, const b3Shape* shape2);
 
+// Compute the closest point on a segment AB to a point Q.
+b3Vec3 b3ClosestPointOnSegment(const b3Vec3& Q, 
+	const b3Vec3& A, const b3Vec3& B);
+
+// Compute the closest points between two line segments.
+void b3ClosestPointsOnSegments(b3Vec3& C1, b3Vec3& C2, 
+	const b3Vec3& P1, const b3Vec3& Q1, 
+	const b3Vec3& P2, const b3Vec3& Q2);
+
 #endif

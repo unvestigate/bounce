@@ -17,108 +17,11 @@
 */
 
 #include <bounce/collision/time_of_impact.h>
+#include <bounce/collision/collision.h>
 #include <bounce/collision/gjk/gjk.h>
 
 uint32 b3_toiCalls = 0;
 uint32 b3_toiMaxIters = 0;
-
-// Compute the closest point on a segment to a point. 
-static b3Vec3 b3ClosestPointOnSegment(const b3Vec3& Q,
-	const b3Vec3& A, const b3Vec3& B)
-{
-	b3Vec3 AB = B - A;
-
-	// Barycentric coordinates for Q
-	scalar u = b3Dot(B - Q, AB);
-	scalar v = b3Dot(Q - A, AB);
-
-	if (v <= scalar(0))
-	{
-		return A;
-	}
-
-	if (u <= scalar(0))
-	{
-		return B;
-	}
-
-	scalar w = b3Dot(AB, AB);
-	if (w <= B3_LINEAR_SLOP * B3_LINEAR_SLOP)
-	{
-		return A;
-	}
-
-	scalar den = scalar(1) / w;
-	b3Vec3 P = den * (u * A + v * B);
-	return P;
-}
-
-// Compute the closest points between two segments.
-static void b3ClosestPoints(b3Vec3& C1, b3Vec3& C2,
-	const b3Vec3& P1, const b3Vec3& Q1, const b3Vec3& E1, scalar L1,
-	const b3Vec3& P2, const b3Vec3& Q2, const b3Vec3& E2, scalar L2)
-{
-	if (L1 < B3_LINEAR_SLOP && L2 < B3_LINEAR_SLOP)
-	{
-		C1 = P1;
-		C2 = P2;
-		return;
-	}
-
-	if (L1 < B3_LINEAR_SLOP)
-	{
-		C1 = P1;
-		C2 = b3ClosestPointOnSegment(P1, P2, Q2);
-		return;
-	}
-
-	if (L2 < B3_LINEAR_SLOP)
-	{
-		C1 = b3ClosestPointOnSegment(P2, P1, Q1);
-		C2 = P2;
-		return;
-	}
-
-	B3_ASSERT(L1 > scalar(0));
-	b3Vec3 N1 = E1 / L1;
-
-	B3_ASSERT(L2 > scalar(0));
-	b3Vec3 N2 = E2 / L2;
-
-	// Solve Ax = b
-	// [1 -dot(n1, n2)][x1] = [-dot(n1, p1 - p2)] 
-	// [dot(n2, n1) -1][x2] = [-dot(n2, p1 - p2)]
-	scalar b = b3Dot(N1, N2);
-	scalar den = scalar(1) - b * b;
-
-	if (den != scalar(0))
-	{
-		scalar inv_den = scalar(1) / den;
-
-		b3Vec3 E3 = P1 - P2;
-
-		scalar d = b3Dot(N1, E3);
-		scalar e = b3Dot(N2, E3);
-
-		scalar s = inv_den * (b * e - d);
-		scalar t = inv_den * (e - b * d);
-
-		C1 = P1 + s * N1;
-		C2 = P2 + t * N2;
-	}
-	else
-	{
-		C1 = P1;
-		C2 = P2;
-	}
-
-	// Clamp C1 to segment 1.
-	C1 = b3ClosestPointOnSegment(C1, P1, Q1);
-
-	// Recompute closest points on segments.
-	C2 = b3ClosestPointOnSegment(C1, P2, Q2);
-	C1 = b3ClosestPointOnSegment(C2, P1, Q1);
-}
 
 // Separation function evaluator
 struct b3SeparationFunction
@@ -284,7 +187,7 @@ struct b3SeparationFunction
 				// Edges are paralell
 				// Use the closest points between the edges as separating axis.
 				b3Vec3 C1, C2;
-				b3ClosestPoints(C1, C2, A, B, E1, L1, C, D, E2, L2);
+				b3ClosestPointsOnSegments(C1, C2, A, B, C, D);
 
 				C1 = xfA * C1;
 				C2 = xfA * C2;

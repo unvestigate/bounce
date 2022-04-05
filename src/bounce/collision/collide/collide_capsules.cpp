@@ -21,119 +21,6 @@
 #include <bounce/collision/shapes/capsule_shape.h>
 #include <bounce/collision/geometry/capsule.h>
 
-// Compute the closest point on a segment to a point. 
-static b3Vec3 b3ClosestPointOnSegment(const b3Vec3& point, const b3Capsule& segment)
-{
-	b3Vec3 Q = point;
-
-	b3Vec3 A = segment.vertex1;
-	b3Vec3 B = segment.vertex2;
-
-	b3Vec3 AB = B - A;
-	
-	// Barycentric coordinates for Q
-	scalar u = b3Dot(B - Q, AB);
-	scalar v = b3Dot(Q - A, AB);
-	
-	if (v <= scalar(0))
-	{
-		return A;
-	}
-
-	if (u <= scalar(0))
-	{
-		return B;
-	}
-
-	scalar w = b3Dot(AB, AB);
-	if (w <= B3_LINEAR_SLOP * B3_LINEAR_SLOP)
-	{
-		return A;
-	}
-
-	scalar den = scalar(1) / w;
-	b3Vec3 P = den * (u * A + v * B);
-	return P;
-}
-
-// Compute the closest points between two line segments.
-static void b3ClosestPoints(b3Vec3& C1, b3Vec3& C2,
-	const b3Capsule& segment1, const b3Capsule& segment2)
-{
-	b3Vec3 P1 = segment1.vertex1;
-	b3Vec3 Q1 = segment1.vertex2;
-	
-	b3Vec3 P2 = segment2.vertex1;
-	b3Vec3 Q2 = segment2.vertex2;
-
-	b3Vec3 E1 = Q1 - P1;
-	scalar L1 = b3Length(E1);
-
-	b3Vec3 E2 = Q2 - P2;
-	scalar L2 = b3Length(E2);
-
-	if (L1 < B3_LINEAR_SLOP && L2 < B3_LINEAR_SLOP)
-	{
-		C1 = P1;
-		C2 = P2;
-		return;
-	}
-
-	if (L1 < B3_LINEAR_SLOP)
-	{
-		C1 = P1;
-		C2 = b3ClosestPointOnSegment(P1, segment2);
-		return;
-	}
-
-	if (L2 < B3_LINEAR_SLOP)
-	{
-		C1 = b3ClosestPointOnSegment(P2, segment1);
-		C2 = P2;
-		return;
-	}
-	
-	B3_ASSERT(L1 > scalar(0));
-	b3Vec3 N1 = E1 / L1;
-	
-	B3_ASSERT(L2 > scalar(0));
-	b3Vec3 N2 = E2 / L2;
-	
-	// Solve Ax = b
-	// [1 -dot(n1, n2)][x1] = [-dot(n1, p1 - p2)] 
-	// [dot(n2, n1) -1][x2] = [-dot(n2, p1 - p2)]
-	scalar b = b3Dot(N1, N2);
-	scalar den = scalar(1) - b * b;
-	
-	if (den != scalar(0))
-	{
-		scalar inv_den = scalar(1) / den;
-
-		b3Vec3 E3 = P1 - P2;
-
-		scalar d = b3Dot(N1, E3);
-		scalar e = b3Dot(N2, E3);
-
-		scalar s = inv_den * (b * e - d);
-		scalar t = inv_den * (e - b * d);
-
-		C1 = P1 + s * N1;
-		C2 = P2 + t * N2;
-	}
-	else
-	{
-		C1 = P1;
-		C2 = P2;
-	}
-
-	// Clamp C1 to segment 1.
-	C1 = b3ClosestPointOnSegment(C1, segment1);
-
-	// Recompute closest points on segments.
-	C2 = b3ClosestPointOnSegment(C1, segment2);
-	C1 = b3ClosestPointOnSegment(C2, segment1);
-}
-
 // Check if two segments are paralell.
 static bool b3AreParalell(const b3Capsule& segment1, const b3Capsule& segment2)
 {
@@ -170,7 +57,7 @@ void b3CollideCapsules(b3Manifold& manifold,
 	segment2.vertex2 = xf2 * capsule2->m_vertex2;
 	
 	b3Vec3 point1, point2;
-	b3ClosestPoints(point1, point2, segment1, segment2);
+	b3ClosestPointsOnSegments(point1, point2, segment1.vertex1, segment1.vertex2, segment2.vertex1, segment2.vertex2);
 	
 	scalar distance = b3Distance(point1, point2);
 
@@ -193,8 +80,8 @@ void b3CollideCapsules(b3Manifold& manifold,
 
 		if (clipCount == 2)
 		{
-			b3Vec3 cp1 = b3ClosestPointOnSegment(clipSegment1[0].position, segment2);
-			b3Vec3 cp2 = b3ClosestPointOnSegment(clipSegment1[1].position, segment2);
+			b3Vec3 cp1 = b3ClosestPointOnSegment(clipSegment1[0].position, segment2.vertex1, segment2.vertex2);
+			b3Vec3 cp2 = b3ClosestPointOnSegment(clipSegment1[1].position, segment2.vertex1, segment2.vertex2);
 
 			scalar d1 = b3Distance(clipSegment1[0].position, cp1);
 			scalar d2 = b3Distance(clipSegment1[1].position, cp2);
