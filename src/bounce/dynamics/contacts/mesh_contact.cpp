@@ -57,7 +57,6 @@ b3MeshContact::b3MeshContact(b3Fixture* fixtureA, b3Fixture* fixtureB, bool mesh
 		inv_scale.z = scalar(1) / meshShapeA->m_scale.z;
 
 		fatAABB.Scale(inv_scale);
-
 		fatAABB.Extend(B3_AABB_EXTENSION);
 	}
 	else
