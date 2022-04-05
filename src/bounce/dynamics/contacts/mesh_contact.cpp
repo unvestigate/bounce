@@ -36,6 +36,7 @@ b3MeshContact::b3MeshContact(b3Fixture* fixtureA, b3Fixture* fixtureB, bool mesh
 	b3Transform xfB = fixtureB->GetBody()->GetTransform();
 
 	b3AABB fatAABB;
+
 	if (m_meshIsA)
 	{
 		b3Transform xf = b3MulT(xfA, xfB);
@@ -267,17 +268,14 @@ bool b3MeshContact::Report(uint32 nodeId)
 		b3Free(oldTriangles);
 	}
 
-	// Add the triangle to the overlapping buffer.
-	B3_ASSERT(m_triangleCount < m_triangleCapacity);
-
+	uint32 triangleIndex;
 	if (m_meshIsA)
 	{
 		b3MeshShape* meshShape = (b3MeshShape*)m_fixtureA->GetShape();
 		const b3Mesh* mesh = meshShape->m_mesh;
 		const b3StaticTree* tree = &mesh->tree;
-
-		m_triangles[m_triangleCount] = tree->GetIndex(nodeId);
-		++m_triangleCount;
+		
+		triangleIndex = tree->GetIndex(nodeId);
 	}
 	else
 	{
@@ -285,9 +283,13 @@ bool b3MeshContact::Report(uint32 nodeId)
 		const b3Mesh* mesh = meshShape->m_mesh;
 		const b3StaticTree* tree = &mesh->tree;
 
-		m_triangles[m_triangleCount] = tree->GetIndex(nodeId);
-		++m_triangleCount;
+		triangleIndex = tree->GetIndex(nodeId);
 	}
+
+	// Add the triangle to the overlapping buffer.
+	B3_ASSERT(m_triangleCount < m_triangleCapacity);
+	m_triangles[m_triangleCount] = triangleIndex;
+	++m_triangleCount;
 
 	// Keep looking for triangles.
 	return true;
