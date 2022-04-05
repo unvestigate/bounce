@@ -19,7 +19,7 @@
 #ifndef B3_SAT_H
 #define B3_SAT_H
 
-#include <bounce/collision/geometry/plane.h>
+#include <bounce/common/math/transform.h>
 
 struct b3Hull;
 
