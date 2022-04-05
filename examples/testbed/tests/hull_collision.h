@@ -19,8 +19,6 @@
 #ifndef HULL_COLLISION_H
 #define HULL_COLLISION_H
 
-#include <bounce/collision/sat/sat.h>
-
 class HullCollision : public Test
 {
 public:
@@ -172,9 +170,7 @@ public:
 		b3Manifold manifold;
 		manifold.Initialize();
 
-		b3FeatureCache cache;
-
-		b3CollideHulls(manifold, m_xfA, &sA, m_xfB, &sB, cache, m_xfA, m_xfB);
+		b3CollideHulls(manifold, m_xfA, &sA, m_xfB, &sB);
 
 		for (uint32 i = 0; i < manifold.pointCount; ++i)
 		{

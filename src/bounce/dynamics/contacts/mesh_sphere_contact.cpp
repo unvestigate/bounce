@@ -46,6 +46,6 @@ void b3MeshAndSphereContact::Evaluate(b3Manifold& manifold, const b3Transform& x
 	
 	b3MeshShape* mesh = (b3MeshShape*)m_fixtureA->GetShape();
 	b3TriangleShape triangle;
-	mesh->GetChildTriangle(&triangle, m_triangles[cacheIndex].index);
+	mesh->GetChildTriangle(&triangle, m_triangles[cacheIndex]);
 	b3CollideTriangleAndSphere(manifold, xfA, &triangle, xfB, (b3SphereShape*)m_fixtureB->GetShape());
 }

@@ -209,7 +209,7 @@ static void b3BuildFaceContact(b3Manifold& manifold,
 	manifold.pointCount = pointCount;
 }
 
-static void b3CollideHulls(b3Manifold& manifold,
+void b3CollideHulls(b3Manifold& manifold,
 	const b3Transform& xf1, const b3HullShape* hull1,
 	const b3Transform& xf2, const b3HullShape* hull2)
 {

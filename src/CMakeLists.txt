@@ -88,13 +88,13 @@ ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/capsule_sphere_contact.h
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/capsule_contact.h
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/triangle_sphere_contact.h
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/triangle_capsule_contact.h
-${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/triangle_hull_contact.h
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/hull_sphere_contact.h
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/hull_capsule_contact.h
+${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/hull_triangle_contact.h
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/hull_contact.h
+${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/hull_mesh_contact.h
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/mesh_sphere_contact.h
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/mesh_capsule_contact.h
-${BOUNCE_INCLUDE_DIR}/bounce/dynamics/contacts/mesh_hull_contact.h
 
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/joints/cone_joint.h
 ${BOUNCE_INCLUDE_DIR}/bounce/dynamics/joints/friction_joint.h
@@ -157,9 +157,9 @@ set(BOUNCE_SOURCE_FILES
 	bounce/collision/collide/collide_hull_capsule.cpp
 	bounce/collision/collide/collide_hulls.cpp
 	bounce/collision/collide/collide_hull_sphere.cpp
+	bounce/collision/collide/collide_hull_triangle.cpp
 	bounce/collision/collide/collide_spheres.cpp
 	bounce/collision/collide/collide_triangle_capsule.cpp
-	bounce/collision/collide/collide_triangle_hull.cpp
 	bounce/collision/collide/collide_triangle_sphere.cpp
 
 	bounce/dynamics/body.cpp
@@ -179,13 +179,13 @@ set(BOUNCE_SOURCE_FILES
 	bounce/dynamics/contacts/capsule_contact.cpp
 	bounce/dynamics/contacts/triangle_sphere_contact.cpp
 	bounce/dynamics/contacts/triangle_capsule_contact.cpp
-	bounce/dynamics/contacts/triangle_hull_contact.cpp
 	bounce/dynamics/contacts/hull_sphere_contact.cpp
 	bounce/dynamics/contacts/hull_capsule_contact.cpp
+	bounce/dynamics/contacts/hull_triangle_contact.cpp
 	bounce/dynamics/contacts/hull_contact.cpp
+	bounce/dynamics/contacts/hull_mesh_contact.cpp
 	bounce/dynamics/contacts/mesh_sphere_contact.cpp
 	bounce/dynamics/contacts/mesh_capsule_contact.cpp
-	bounce/dynamics/contacts/mesh_hull_contact.cpp
 
 	bounce/dynamics/joints/cone_joint.cpp
 	bounce/dynamics/joints/friction_joint.cpp

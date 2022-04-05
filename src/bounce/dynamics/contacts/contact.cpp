@@ -22,13 +22,13 @@
 #include <bounce/dynamics/contacts/capsule_contact.h>
 #include <bounce/dynamics/contacts/triangle_sphere_contact.h>
 #include <bounce/dynamics/contacts/triangle_capsule_contact.h>
-#include <bounce/dynamics/contacts/triangle_hull_contact.h>
 #include <bounce/dynamics/contacts/hull_sphere_contact.h>
 #include <bounce/dynamics/contacts/hull_capsule_contact.h>
+#include <bounce/dynamics/contacts/hull_triangle_contact.h>
 #include <bounce/dynamics/contacts/hull_contact.h>
+#include <bounce/dynamics/contacts/hull_mesh_contact.h>
 #include <bounce/dynamics/contacts/mesh_sphere_contact.h>
 #include <bounce/dynamics/contacts/mesh_capsule_contact.h>
-#include <bounce/dynamics/contacts/mesh_hull_contact.h>
 #include <bounce/dynamics/fixture.h>
 #include <bounce/dynamics/body.h>
 #include <bounce/dynamics/world.h>
@@ -62,13 +62,13 @@ void b3Contact::InitializeRegisters()
 	AddType(b3CapsuleContact::Create, b3CapsuleContact::Destroy, b3Shape::e_capsule, b3Shape::e_capsule);
 	AddType(b3TriangleAndSphereContact::Create, b3TriangleAndSphereContact::Destroy, b3Shape::e_triangle, b3Shape::e_sphere);
 	AddType(b3TriangleAndCapsuleContact::Create, b3TriangleAndCapsuleContact::Destroy, b3Shape::e_triangle, b3Shape::e_capsule);
-	AddType(b3TriangleAndHullContact::Create, b3TriangleAndHullContact::Destroy, b3Shape::e_triangle, b3Shape::e_hull);
 	AddType(b3HullAndSphereContact::Create, b3HullAndSphereContact::Destroy, b3Shape::e_hull, b3Shape::e_sphere);
 	AddType(b3HullAndCapsuleContact::Create, b3HullAndCapsuleContact::Destroy, b3Shape::e_hull, b3Shape::e_capsule);
+	AddType(b3HullAndTriangleContact::Create, b3HullAndTriangleContact::Destroy, b3Shape::e_hull, b3Shape::e_triangle);
 	AddType(b3HullContact::Create, b3HullContact::Destroy, b3Shape::e_hull, b3Shape::e_hull);
+	AddType(b3HullAndMeshContact::Create, b3HullAndMeshContact::Destroy, b3Shape::e_hull, b3Shape::e_mesh);
 	AddType(b3MeshAndSphereContact::Create, b3MeshAndSphereContact::Destroy, b3Shape::e_mesh, b3Shape::e_sphere);
 	AddType(b3MeshAndCapsuleContact::Create, b3MeshAndCapsuleContact::Destroy, b3Shape::e_mesh, b3Shape::e_capsule);
-	AddType(b3MeshAndHullContact::Create, b3MeshAndHullContact::Destroy, b3Shape::e_mesh, b3Shape::e_hull);
 }
 
 b3Contact* b3Contact::Create(b3Fixture* fixtureA, b3Fixture* fixtureB, b3BlockAllocator* allocator)

@@ -16,21 +16,21 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef B3_MESH_HULL_CONTACT_H
-#define B3_MESH_HULL_CONTACT_H
+#ifndef B3_HULL_TRIANGLE_CONTACT_H
+#define B3_HULL_TRIANGLE_CONTACT_H
 
-#include <bounce/dynamics/contacts/mesh_contact.h>
+#include <bounce/dynamics/contacts/convex_contact.h>
 
-class b3MeshAndHullContact : public b3MeshContact
+class b3HullAndTriangleContact : public b3ConvexContact
 {
 public:
 	static b3Contact* Create(b3Fixture* fixtureA, b3Fixture* fixtureB, b3BlockAllocator* allocator);
 	static void Destroy(b3Contact* contact, b3BlockAllocator* allocator);
 
-	b3MeshAndHullContact(b3Fixture* fixtureA, b3Fixture* fixtureB);
-	~b3MeshAndHullContact() { }
+	b3HullAndTriangleContact(b3Fixture* fixtureA, b3Fixture* fixtureB);
+	~b3HullAndTriangleContact() { }
 
-	void Evaluate(b3Manifold& manifold, const b3Transform& xfA, const b3Transform& xfB, uint32 cacheIndex) override;
+	void Evaluate(b3Manifold& manifold, const b3Transform& xfA, const b3Transform& xfB) override;
 };
 
 #endif

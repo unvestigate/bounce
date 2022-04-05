@@ -20,22 +20,12 @@
 #define B3_MESH_CONTACT_H
 
 #include <bounce/dynamics/contacts/contact.h>
-#include <bounce/collision/sat/sat.h>
 #include <bounce/collision/geometry/aabb.h>
-
-// This structure holds an overlapping triangle. 
-// There is no need to store a manifold here because they're reduced 
-// by the cluster algorithm.
-struct b3TriangleCache
-{
-	uint32 index;
-	b3FeatureCache cache;
-};
 
 class b3MeshContact : public b3Contact
 {
 public:
-	b3MeshContact(b3Fixture* fixtureA, b3Fixture* fixtureB);
+	b3MeshContact(b3Fixture* fixtureA, b3Fixture* fixtureB, bool meshIsA = true);
 	~b3MeshContact();
 
 	bool TestOverlap() override;
@@ -53,15 +43,18 @@ public:
 	// Static tree callback. There is no midphase. 
 	bool Report(uint32 nodeId);
 
-	// Did the AABB move significantly?
-	bool m_aabbBMoved;
+	// Is the mesh shape the shape A?
+	bool m_meshIsA;
 
-	// The AABB B relative to shape A's origin.
-	b3AABB m_aabbB; 
+	// Did the other AABB move significantly?
+	bool m_aabbMoved;
+
+	// The other AABB relative to other shape origin.
+	b3AABB m_aabb; 
 	
-	// Triangles potentially overlapping with the first shape.
+	// Triangles potentially overlapping with the other shape.
 	uint32 m_triangleCapacity;
-	b3TriangleCache* m_triangles;
+	uint32* m_triangles;
 	uint32 m_triangleCount;
 
 	// Contact manifolds.

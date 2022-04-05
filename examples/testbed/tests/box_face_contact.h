@@ -19,8 +19,6 @@
 #ifndef BOX_FACE_CONTACT_H
 #define BOX_FACE_CONTACT_H
 
-#include <bounce/collision/sat/sat.h>
-
 class BoxFaceContact : public Test
 {
 public:
@@ -44,9 +42,7 @@ public:
 		b3Manifold manifold;
 		manifold.Initialize();
 
-		b3FeatureCache cache;
-
-		b3CollideHulls(manifold, m_xfA, &m_sA, m_xfB, &m_sB, cache, m_xfA, m_xfB);
+		b3CollideHulls(manifold, m_xfA, &m_sA, m_xfB, &m_sB);
 
 		for (uint32 i = 0; i < manifold.pointCount; ++i)
 		{

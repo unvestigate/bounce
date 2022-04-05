@@ -174,13 +174,6 @@ void b3CollideTriangleAndCapsule(b3Manifold& manifold,
 	const b3Transform& xf1, const b3TriangleShape* triangle1,
 	const b3Transform& xf2, const b3CapsuleShape* capsule2);
 
-// Compute a manifold for a triangle and a hull.
-void b3CollideTriangleAndHull(b3Manifold& manifold,
-	const b3Transform& xf1, const b3TriangleShape* triangle1,
-	const b3Transform& xf2, const b3HullShape* hull2,
-	b3FeatureCache& cache,
-	const b3Transform& xf01, const b3Transform& xf02);
-
 // Compute a manifold for a hull and a sphere.
 void b3CollideHullAndSphere(b3Manifold& manifold,
 	const b3Transform& xf1, const b3HullShape* hull1,
@@ -190,6 +183,16 @@ void b3CollideHullAndSphere(b3Manifold& manifold,
 void b3CollideHullAndCapsule(b3Manifold& manifold,
 	const b3Transform& xf1, const b3HullShape* hull1,
 	const b3Transform& xf2, const b3CapsuleShape* capsule2);
+
+// Compute a manifold for a triangle and a hull.
+void b3CollideHullAndTriangle(b3Manifold& manifold,
+	const b3Transform& xf1, const b3HullShape* hull1,
+	const b3Transform& xf2, const b3TriangleShape* triangle2);
+
+// Compute a manifold for two hulls. 
+void b3CollideHulls(b3Manifold& manifold,
+	const b3Transform& xf1, const b3HullShape* hull1,
+	const b3Transform& xf2, const b3HullShape* hull2);
 
 // Compute a manifold for two hulls. 
 void b3CollideHulls(b3Manifold& manifold,
