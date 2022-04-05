@@ -73,7 +73,7 @@ struct b3FeatureCache
 	b3CacheType ReadState(const b3Transform& xf1, const b3Hull* hull1,
 		const b3Transform& xf2, const b3Hull* hull2, scalar totalRadius);
 
-	b3CacheType ReadEdge(const b3Transform& xf1, const b3Hull* hull1,
+	b3CacheType ReadEdges(const b3Transform& xf1, const b3Hull* hull1,
 		const b3Transform& xf2, const b3Hull* hull2, scalar totalRadius);
 
 	b3CacheType ReadFace(const b3Transform& xf1, const b3Hull* hull1,

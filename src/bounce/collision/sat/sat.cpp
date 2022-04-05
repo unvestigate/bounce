@@ -191,7 +191,7 @@ b3CacheType b3FeatureCache::ReadState(
 	{
 	case b3FeatureType::e_edges:
 	{
-		return ReadEdge(xf1, hull1, xf2, hull2, totalRadius);
+		return ReadEdges(xf1, hull1, xf2, hull2, totalRadius);
 	}
 	case b3FeatureType::e_face1:
 	{
@@ -223,7 +223,7 @@ b3CacheType b3FeatureCache::ReadFace(
 	return b3CacheType::e_overlap;
 }
 
-b3CacheType b3FeatureCache::ReadEdge(
+b3CacheType b3FeatureCache::ReadEdges(
 	const b3Transform& xf1, const b3Hull* hull1,
 	const b3Transform& xf2, const b3Hull* hull2, scalar totalRadius)
 {
