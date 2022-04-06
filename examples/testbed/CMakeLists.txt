@@ -45,6 +45,7 @@ set(TESTBED_SOURCE_FILES
 	tests/gyro_motion.h
 	tests/hinge_chain.h
 	tests/hull_collision.h
+	tests/triangle_collision.h
 	tests/hull_contact_test.h
 	tests/initial_overlap.h
 	tests/jenga.h

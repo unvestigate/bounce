@@ -29,6 +29,7 @@
 #include "tests/time_of_impact.h"
 #include "tests/aabb_time_of_impact.h"
 #include "tests/capsule_collision.h"
+#include "tests/triangle_collision.h"
 #include "tests/hull_collision.h"
 #include "tests/deep_capsule.h"
 #include "tests/box_face_contact.h"
@@ -108,6 +109,7 @@ ViewModel::ViewModel(Model* model, GLFWwindow* window)
 	m_settings.RegisterTest("Time of Impact", &TimeOfImpact::Create );
 	m_settings.RegisterTest("AABB Time of Impact", &AABBTimeOfImpact::Create );
 	m_settings.RegisterTest("Capsule Collision", &CapsuleCollision::Create );
+	m_settings.RegisterTest("Triangle Collision", &TriangleCollision::Create);
 	m_settings.RegisterTest("Hull Collision", &HullCollision::Create );
 	m_settings.RegisterTest("Deep Capsule", &DeepCapsule::Create );
 	m_settings.RegisterTest("Box Face Contact", &BoxFaceContact::Create );

@@ -104,7 +104,8 @@ static scalar b3Project(const b3Vec3& P1, const b3Vec3& Q1, const b3Vec3& E1, co
 	}
 
 	// d = dot(N, P2) - offset = dot(N, P2) - dot(N, P1) = dot(N, P2 - P1) 
-	return b3Dot(N, P2 - P1);
+	scalar separation = b3Dot(N, P2 - P1);
+	return separation;
 }
 
 b3EdgeQuery b3QueryEdgeSeparation(const b3Transform& xf1, const b3Hull* hull1,
